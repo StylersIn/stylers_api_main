@@ -27,7 +27,7 @@ var transporter = nodemailer.createTransport({
         from: '"StylersInn"',
         to: email,
         subject: 'StylersInn Registration mail ',
-        html: `<center><h4></string>Hello ${fullname}</h4> thanks for signing up with StylersInn, Sorry your account will be on hold until our admin will verify you as a styler . Thanks 
+        html: `<center><h4></string>Hello ${fullname}</h4> thanks for signing up with StylersInn, Sorry your account will be on hold until our admin verififies your account . Thanks 
         </center>`
     };
     transporter.sendMail(mailOptions, callback); 
