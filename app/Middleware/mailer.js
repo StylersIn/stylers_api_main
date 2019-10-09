@@ -21,3 +21,15 @@ var transporter = nodemailer.createTransport({
         transporter.sendMail(mailOptions, callback); 
         console.log('kk')
    }
+
+   exports.StylerReg = function(email,fullname,callback){
+    var mailOptions = {
+        from: '"StylersInn"',
+        to: email,
+        subject: 'StylersInn Registration mail ',
+        html: `<center><h4></string>Hello ${fullname}</h4> thanks for signing up with StylersInn, Sorry your account will be on hold until our admin will verify you as a styler . Thanks 
+        </center>`
+    };
+    transporter.sendMail(mailOptions, callback); 
+    console.log('kk')
+}
