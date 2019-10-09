@@ -6,11 +6,13 @@ var userSchema = new Schema({
     phoneNumber:{type:String , required:true},
     publicId:{type: mongoose.Types.ObjectId},
     statusCode:{type: Number , required:true},
+    gender:{type:String , required:true},
     password:{type:String, required:true},
     status:{type:String, required:true},
-    userType:{type:String, required:true}
-
-
+    imageUrl: {type: String, default:''},
+    imageID: {type: String, default: ''},
+    CreatedAt:{type:Date}
+    
 })
 
 module.exports = mongoose.model('user', userSchema);
