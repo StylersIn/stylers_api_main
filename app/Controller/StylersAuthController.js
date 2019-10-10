@@ -32,6 +32,7 @@ module.exports = function authController(){
     this.updateClientProfile = async (req,res) => {
         console.log("checking file", (req.file != null && req.file !== undefined));
          var requestDetails = {
+             
              image: (req.file != null && req.file !== undefined) ? req.file.path : null
          };
         
