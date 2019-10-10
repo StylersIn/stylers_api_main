@@ -18,7 +18,6 @@ module.exports = function authController(){
             email:req.body.email,
             phoneNumber:req.body.phonenumber,
             password:req.body.password,
-            userType:req.body.usertype,
             status:false
         }
         userService.RegisterUser(Options).then((data)=>{
