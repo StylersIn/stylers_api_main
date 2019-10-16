@@ -8,7 +8,7 @@ var userSchema = new Schema({
     statusCode:{type: Number , required:true},
     gender:{type:String , required:true},
     password:{type:String, required:true},
-    status:{type:String, required:true},
+    status:{type:Boolean, required:true},
     imageUrl: {type: String, default:''},
     imageID: {type: String, default: ''},
     CreatedAt:{type:Date}
