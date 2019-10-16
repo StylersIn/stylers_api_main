@@ -8,7 +8,6 @@ module.exports = function authController(){
             publicId: mongoose.Types.ObjectId(),
             gender:req.body.gender,
             address:req.body.address,
-            services: req.body.services !== undefined ?  req.body.services.split(',') : undefined,
             description:req.body.description,
             email:req.body.email,
             phoneNumber:req.body.phonenumber,
@@ -25,6 +24,27 @@ module.exports = function authController(){
         var username = req.body.username
         var password = req.body.password
         StylersService.authenticateuser(username,password)
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(500).send(err));
+    }
+
+    this.AddServices = function(req, res, next){
+        var data = {adult:req.body.adults , child:req.body.kids, serviceId:req.body.service}
+        StylersService.AddServicePrice(req.params.id,data)
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(500).send(err));
+    }
+
+    this.GetStylers = function(req, res, next){
+    
+        StylersService.getStylers({})
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(500).send(err));
+    }
+
+    this.UpdateServices = function(req, res, next){
+        var data = {amount:req.body.price, serviceId:req.body.service}
+        StylersService.UpdateServicePrice(req.params.id,data)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(500).send(err));
     }
@@ -57,3 +77,4 @@ module.exports = function authController(){
      };
   
 }
+
