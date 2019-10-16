@@ -17,7 +17,6 @@ exports.RegisterUser = (Options)=>{
          publicId:Options.publicId,
          address:Options.address,
          description:Options.description,
-         services:Options.services,
          IsVerified:false,
          CreatedAt:new Date()
       }
@@ -85,20 +84,46 @@ function authenticateuser(username, password){
 }
 exports.authenticateuser = authenticateuser
 
-exports.verifyAccount = (email , Token)=>{
+
+
+exports.AddServicePrice = (id,Option )=>{
     return new Promise((resolve , reject)=>{
-        User.findOne({$and:[{email:email},{statusCode:Token}]}).then(data =>{
-            if(data){
-                var userId = data._id
-                User.findByIdAndUpdate({_id:userId},{status: true}, function(err , updated){
-                    if(err)resolve({status:false , message:'Error Verifying User'})
-                    resolve({status:true , message:'User has been verified '})
+
+        Styler.findOne({publicId:id,"services.serviceId":Option.serviceId } , {'services.$':1}).then(found =>{
+            if(!found){
+                Styler.findOneAndUpdate({publicId:id}, { $push:{services:Option}}).exec((err , data)=>{
+                    if(err){
+                        reject({success:false , message:err}); 
+                    } else if(data){
+                        resolve({success: true , message:'Service price added successfully'})
+                    }else{
+                        resolve({success:false , message:'Could not add service price'})
+                    }
                 })
+            }else{
+                resolve({success:false , message:'Detail inserted already exists !!!' })
             }
         }).catch(err =>{
             reject(err)
         })
+   
     })
+}
+
+exports.getStylers = ( pagenumber = 1, pagesize = 20)=>{
+    return new Promise((resolve, reject)=>{
+        Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+         .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .exec((err, stylers)=>{
+            if(err)reject(err);
+            if(stylers){
+       
+                resolve({success:true , message:'stylers found', data:stylers})
+            }else{
+                resolve({success:false , message:'Unable to find what you searched for !!'})
+            }
+        });
+    });
 }
 
 exports.updateProfile = function(id, data){
@@ -117,7 +142,6 @@ exports.updateProfile = function(id, data){
 
 function getUserDetail(user,Id){
     return new Promise((resolve, reject)=>{
-        //console.log('this is user detail', user.status);
         StylerRepo.getSingleBy({publicId:Id}, {"_id" : 0, "__v" : 0}).then(data =>{
                 var specificUserDetail = {email: user.email,   phone: user.phoneNumber,  publicId : user.publicId};
                 resolve(specificUserDetail);
