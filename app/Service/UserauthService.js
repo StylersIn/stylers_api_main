@@ -16,7 +16,7 @@ exports.RegisterUser = (Options)=>{
          gender:Options.gender,
          publicId:Options.publicId,
          statusCode:Options.statusCode,
-         status:Options.status,
+         status:false,
          CreatedAt:new Date()
       }
      User.findOne({email:u.email}).then(exists =>{
@@ -57,7 +57,7 @@ function authenticateuser(username, password){
                 if(!user){
                     resolve({success:false , message:'could not authenticate user'});
                 }else{
-                if(user.status == 'false'){
+                if(user.status == false){
                     resolve({success:false , message:'Please Verify your account '});
                 }else{
                     var validPassword = bcrypt.compareSync(password, user.password);
