@@ -8,5 +8,6 @@ var servicesSchema = new Schema({
 
 
 })
-
+servicesSchema.index({ '$**': 'text', "name": 'text' });
+servicesSchema.plugin(require('mongoose-autopopulate'))
 module.exports = mongoose.model('services', servicesSchema);
