@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+
 var stylersSchema = new Schema({
     fullName:{type:String , required:true},
     email:{type:String , required:true, unique:true},
@@ -12,10 +13,15 @@ var stylersSchema = new Schema({
     IsVerified:{type:Boolean},
     imageUrl: {type: String, default:''},
     imageID: {type: String, default: ''},
-    services: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'services', autopopulate: true }],
+    services: [{
+    serviceId: { type: mongoose.SchemaTypes.ObjectId, ref: 'services', autopopulate: true },
+    adult:{type:Number} ,   
+    child:{type:Number}     
+    }],
     CreatedAt:{type:Date},
 
 
 })
-
 module.exports = mongoose.model('stylers', stylersSchema);
+
+
