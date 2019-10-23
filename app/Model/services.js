@@ -5,9 +5,8 @@ var servicesSchema = new Schema({
     imageUrl: {type: String, default:''},
     imageID: {type: String, default: ''},
     CreatedAt:{type:Date},
-
-
 })
+
 servicesSchema.index({ '$**': 'text', "name": 'text' });
 servicesSchema.plugin(require('mongoose-autopopulate'))
 module.exports = mongoose.model('services', servicesSchema);
