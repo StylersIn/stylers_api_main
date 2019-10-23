@@ -10,7 +10,7 @@ module.exports = function(){
     router.get('/stylers/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
     router.post('/addService/:id', StylerauthCtrl.AddServices);
     router.post('/update', middleware.StylerAuthenticate , multer.upload.single('image') , StylerauthCtrl.updateClientProfile)
-    router.post('/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
+    router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
 
 
 
