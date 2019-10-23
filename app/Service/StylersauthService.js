@@ -1,44 +1,58 @@
 var BaseRepository =  require('../Repository/BaseRepository');
 var Styler = require('../Model/stylers');
-var mailer = require('../Middleware/mailer')
+var client = require('../Model/user');
+var mailer = require('../Middleware/mailer');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var StylerRepo = new BaseRepository(Styler);
+var ClientRepo = new BaseRepository(client);
 var secret = process.env.Secret;
 exports.RegisterUser = (Options)=>{
-  return new Promise((resolve, reject)=>{
+    
+    return new Promise((resolve, reject)=>{
      let hash = bcrypt.hashSync(Options.password , 10);
-      var u = {
+     var b = {
          fullName:Options.fullName,
          email:Options.email,
-         phoneNumber:Options.phoneNumber,
-         password:hash,
-         gender:Options.gender,
-         publicId:Options.publicId,
-         address:Options.address,
-         description:Options.description,
-         IsVerified:false,
-         CreatedAt:new Date()
-      }
-      Styler.findOne({email:u.email}).then(exists =>{
-         if(exists){
-         reject({success: false , message:'Sorry user already exists'});
-         }else{
-            StylerRepo.add(u).then(created =>{
-                 if(created){
-                    mailer.StylerReg(u.email,u.fullName , function(err , sent){
-                        if(err){
-                            resolve({ success:false , message:'Registration error'});
+        phoneNumber:Options.phoneNumber,
+        password:hash,
+        gender:Options.gender,
+        publicId:Options.publicId,
+        CreatedAt:new Date()
+    }
+        client.findOne({email:b.email}).then(exists =>{
+            if(exists){
+                reject({success: false , message:'Sorry user already exists'});
+            }else{
+            ClientRepo.add(b).then(created =>{
+                if(created){
+                    var u = {
+                        userId:created._id,
+                        publicId:created.publicId,
+                        address:Options.address,
+                        description:Options.description,
+                        IsVerified:false,
+                        CreatedAt:new Date()
+                    }
+                    StylerRepo.add(u).then(added =>{
+                        if(added){
+                       mailer.StylerReg(b.email,b.fullName , function(err , sent){
+                       if(err){
+                           resolve({ success:false , message:'Registration error'});
+                       }else{
+                           resolve({ success:true , message:'Registration Successful'});
+                       }
+                   })
                         }else{
-                            resolve({ success:true , message:'Registration Successful'});
+                            resolve({ success:true , message:'Error signing styler up '}); 
                         }
                     })
-                 }else{
-                    resolve({success: false , message:'User SignUp was not successfull'});
- 
-                 }
-             })
-           
+              
+                }else{
+                   resolve({success: false , message:'User SignUp was not successfull'});
+
+                }
+            })
          }
      }).catch(err =>{
          reject(err);
@@ -49,16 +63,21 @@ exports.RegisterUser = (Options)=>{
 
 function authenticateuser(username, password){
     return new Promise((resolve, reject)=>{
-        console.log('i reach here' , username);
         if(username.length == 0 || password.length == 0){
             resolve({ success:false , message:'authentication credentials incomplete'});
-
         }else{
-            StylerRepo.getSingleBy({email: username},'').then((user)=>{
+            client.findOne({email: username},'').then((user)=>{
+                console.log(user , 'ddddddd')
                 if(!user){
-                    resolve({success:false , message:'could not authenticate user'});
+                    resolve({success:false , message:'user not found'});
                 }else{
-                if(user.IsVerified == false){
+
+                    Styler.findOne({userId:user._id}).then(data =>{
+                        if(!data){
+                          resolve({success:false , message:'styler not found'});   
+                        }else{
+                            var stylerVerified = data.IsVerified
+                     if(stylerVerified == false){
                     resolve({success:false , message:'Please wait while admin verifies your account  '});
                 }else{
                     var validPassword = bcrypt.compareSync(password, user.password);
@@ -75,6 +94,9 @@ function authenticateuser(username, password){
  
                     }
                 }
+                        }
+                    })
+
             }
             }).catch((err)=>{
                 reject(err);
@@ -113,7 +135,8 @@ exports.AddServicePrice = (id,Option )=>{
 exports.getStylers = ( pagenumber = 1, pagesize = 20)=>{
     return new Promise((resolve, reject)=>{
         Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-         .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
         .exec((err, stylers)=>{
             if(err)reject(err);
             if(stylers){
