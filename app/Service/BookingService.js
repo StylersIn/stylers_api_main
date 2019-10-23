@@ -77,20 +77,3 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.GetStylerByService = (serviceId , pagenumber = 1, pagesize = 20 )=>{
-    return new Promise((resolve , reject)=>{
-        console.log(serviceId , '-------------------------------')
-        styler.find({"services.serviceId":{$in:serviceId}})
-        .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-        .exec((err, stylers)=>{
-            if(err)reject(err);
-            if(stylers){
-                resolve({success:true , message:'stylers found', data:stylers})
-            }else{
-                resolve({success:false , message:'Unable to find what you searched for !!'})
-            }
-        });
-    })
-   
-}

@@ -50,30 +50,35 @@ module.exports = function authController() {
 
     this.updateClientProfile = async (req, res) => {
         console.log("checking file", (req.file != null && req.file !== undefined));
-        var requestDetails = {
-
-            image: (req.file != null && req.file !== undefined) ? req.file.path : null
-        };
-
-        console.log("file detail recieved", requestDetails.image);
-        if (req.image !== null && req.file !== undefined) {
-            await cloudinary.uploadToCloud(requestDetails.image).then((img) => {
-                console.log("Cloudinary details recieved", img.url);
-                requestDetails.imageUrl = img.url;
-                requestDetails.imageID = img.ID;
-                return requestDetails;
-            });
-        }
-
-        console.log("calling outside await")
-        StylersService.updateProfile(req.auth.publicId, requestDetails)
-            .then(data => {
-                res.status(200).send(data);
-            })
-            .catch(err => {
-                res.status(500).send(err);
-            });
-    };
-
+         var requestDetails = {
+             
+             image: (req.file != null && req.file !== undefined) ? req.file.path : null
+         };
+        
+         console.log("file detail recieved", requestDetails.image);
+         if(req.image !== null && req.file !== undefined){
+           await cloudinary.uploadToCloud(requestDetails.image).then((img)=>{
+             console.log("Cloudinary details recieved", img.url);
+             requestDetails.imageUrl = img.url;
+             requestDetails.imageID = img.ID;
+             return requestDetails;
+         });
+     }
+ 
+     console.log("calling outside await")
+     StylersService.updateProfile(req.auth.publicId,requestDetails)
+         .then(data => {
+             res.status(200).send(data);
+         })
+         .catch(err => {
+             res.status(500).send(err);
+         });
+     };
+  
+  this.GetStylersByServices = function(req, res, next){
+    StylersService.GetStylerByService( req.body.service , req.params.pagenumber, req.params.pagesize)
+    .then(data => res.status(200).send(data))
+    .catch(err => res.status(500).send(err));
+}
 }
 
