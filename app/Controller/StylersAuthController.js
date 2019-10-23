@@ -36,7 +36,6 @@ module.exports = function authController() {
     }
 
     this.GetStylers = function (req, res, next) {
-
         StylersService.getStylers({})
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
