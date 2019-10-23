@@ -7,7 +7,7 @@ module.exports = function(){
     router.post('/register', authCtrl.register);
     router.post('/authenticate', authCtrl.authenticate);
     router.post('/verify', authCtrl.VerifyUser);
-    router.post('/update', middleware.authenticate , multer.upload.single('image') , authCtrl.updateClientProfile)
+    router.put('/update', middleware.authenticate , multer.upload.single('image') , authCtrl.updateClientProfile)
 
 
     return router;
