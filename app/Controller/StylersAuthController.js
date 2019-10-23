@@ -76,5 +76,10 @@ module.exports = function authController(){
          });
      };
   
+  this.GetStylersByServices = function(req, res, next){
+    StylersService.GetStylerByService( req.body.service , req.params.pagenumber, req.params.pagesize)
+    .then(data => res.status(200).send(data))
+    .catch(err => res.status(500).send(err));
+}
 }
 
