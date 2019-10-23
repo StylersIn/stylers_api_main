@@ -6,6 +6,5 @@ module.exports = function(){
     router.get('/search',bookingCtrl.SearchServices);
     router.post('/', middleware.authenticate , bookingCtrl.CreateBooking);
     router.get('/:pagesize/:pagenumber', middleware.authenticate , bookingCtrl.UserBookings);
-    router.post('/:pagesize/:pagenumber', bookingCtrl.GetStylersByServices);
     return router;
 }
