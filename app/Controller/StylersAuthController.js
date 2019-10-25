@@ -4,9 +4,9 @@ var mongoose = require('mongoose');
 module.exports = function authController() {
     this.register = (req, res, next) => {
         var Options = {
-            fullName: req.body.fullName,
+            name: req.body.name,
             publicId: mongoose.Types.ObjectId(),
-            gender: req.body.gender,
+            // gender: req.body.gender,
             address: req.body.address,
             description: req.body.description,
             email: req.body.email,

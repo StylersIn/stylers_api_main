@@ -2,17 +2,14 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var stylersSchema = new Schema({
-    fullName: { type: String, required: true },
+    name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: true },
+    userId: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
     publicId: { type: mongoose.Types.ObjectId },
     address: { type: String, required: true },
     description: { type: String, required: true },
-    gender: { type: String },
-    password: { type: String, required: true },
     IsVerified: { type: Boolean },
-    imageUrl: { type: String, default: '' },
-    imageID: { type: String, default: '' },
     services: [{
         serviceId: { type: String, ref: 'services', autopopulate: true },
         adult: { type: Number },
@@ -29,5 +26,3 @@ var stylersSchema = new Schema({
 })
 
 module.exports = mongoose.model('stylers', stylersSchema);
-
-

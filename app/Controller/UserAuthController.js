@@ -11,12 +11,12 @@ var gen = rand.generator({
 module.exports = function authController(){
     this.register = (req,res, next)=>{
         var Options ={
-            fullName:req.body.fullname,
+            name:req.body.name,
             publicId: mongoose.Types.ObjectId(),
             statusCode: gen(),
             gender:req.body.gender,
             email:req.body.email,
-            phoneNumber:req.body.phonenumber,
+            phoneNumber:req.body.phoneNumber,
             password:req.body.password,
         }
         userService.RegisterUser(Options).then((data)=>{
@@ -27,9 +27,9 @@ module.exports = function authController(){
     }
 
     this.authenticate = function(req, res, next){
-        var username = req.body.username
+        var email = req.body.email
         var password = req.body.password
-        userService.authenticateuser(username,password)
+        userService.authenticateuser(email, password)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(500).send(err));
     }
@@ -38,6 +38,14 @@ module.exports = function authController(){
         var email = req.body.email
         var Token = req.body.token
         userService.verifyAccount(email , Token)
+        .then(data => res.status(200).send(data))
+        .catch(err => res.status(500).send(err));
+    }
+
+    this.VerifyToken = function(req, res){
+        var email = req.body.email
+        var Token = req.body.token
+        userService.verifyToken(Token)
         .then(data => res.status(200).send(data))
         .catch(err => res.status(500).send(err));
     }
