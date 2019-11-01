@@ -124,38 +124,6 @@ exports.AddServicePrice = (id, Option) => {
 }
 
 
-//     exports.addFavouriteStylerService = (userid , stylerId , serviceid )=>{
-//     return new Promise((resolve , reject)=>{
-//                 Styler.findOne({ publicId: stylerId, services:{"$elemMatch":{'serviceId':serviceid , 'favorites':userid}} }).then(found => {    
-//             if( !found){
-//                 Styler.findOneAndUpdate({publicId:stylerId , "services.serviceId": serviceid}, {$push: { 'services.$.favorites': userid }}).exec((err , data)=>{
-//                     if (err) {
-//                         reject({ success: false, message: err });
-//                     } else if (data) {
-//                         // Styler.findOne({ publicId: stylerId, "services.serviceId": serviceid  }).then(data=>{
-//                             Styler.findOne({ publicId: stylerId, "services.serviceId": serviceid  }).then(data=>{
-
-//                             resolve({success: true , message:'Service added as favourite' , data: data.services[0].favorites.length  })
-//                         })
-
-//                     } else {
-//                         resolve({ success: false, message: 'Service not available on styler list ' });
-//                     }  
-//                 })
-//             }else{
-//                 // Styler.findOne({ publicId: stylerId, "services.serviceId": serviceid  }).then(data=>{
-//                     Styler.find({ publicId: stylerId, services:{ "$elemMatch":{"serviceId":serviceid}}  }).then(data=>{
-
-//                      resolve({success:false , message:'Sorry you cant add service as favourite twice' , data:data  });
-
-//                 })
-//             }
-//         }).catch(err =>{
-//             reject(err);
-//         })
-//     })
-// }
-
 exports.FavouriteStyler = (userid , stylerId  )=>{
     return new Promise((resolve , reject)=>{
                 Styler.findOne({ publicId: stylerId, favorites:userid}).then(found => {    
