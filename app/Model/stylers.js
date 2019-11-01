@@ -11,13 +11,19 @@ var stylersSchema = new Schema({
     description: { type: String, required: true },
     IsVerified: { type: Boolean },
     services: [{
-        serviceId: { type: String, ref: 'services', autopopulate: true },
+        favorites: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true }],
+        serviceId: { type: mongoose.SchemaTypes.ObjectId, ref: 'services', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }
     }],
     ratings: [{
         rating: { type: Number },
         userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+    }],
+    review:[{
+        userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+        message: { type: String},
+        CreatedAt:{ type:Date}
     }],
     favorites: [{
         type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true,
