@@ -16,7 +16,6 @@ exports.RegisterUser = (Options) => {
             email: Options.email,
             phoneNumber: Options.phoneNumber,
             password: hash,
-            // gender: Options.gender,
             publicId: Options.publicId,
             CreatedAt: new Date()
         }
@@ -26,14 +25,6 @@ exports.RegisterUser = (Options) => {
             } else {
                 ClientRepo.add(b).then(created => {
                     if (created) {
-                        // var u = {
-                        //     userId: created._id,
-                        //     publicId: created.publicId,
-                        //     address: Options.address,
-                        //     description: Options.description,
-                        //     IsVerified: false,
-                        //     CreatedAt: new Date()
-                        // }
                         var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
                         StylerRepo.add(u).then(added => {
                             if (added) {
@@ -132,16 +123,79 @@ exports.AddServicePrice = (id, Option) => {
     })
 }
 
+
+exports.FavouriteStyler = (userid , stylerId  )=>{
+    return new Promise((resolve , reject)=>{
+                Styler.findOne({ publicId: stylerId, favorites:userid}).then(found => {    
+            if( !found){
+                Styler.findOneAndUpdate({publicId:stylerId}, {$push: { 'favorites': userid }}).exec((err , data)=>{
+                    if (err) {
+                        reject({ success: false, message: err });
+                    } else if (data) {
+                            Styler.findOne({ publicId: stylerId  }).then(data=>{
+                         resolve({success: true , message:'Service added as favourite' , data:data.favorites.length   })
+                        })
+
+                    } else {
+                        resolve({ success: false, message: 'Service not available on styler list ' });
+                    }  
+                })
+            }else{
+                Styler.findOne({ publicId: stylerId  }).then(data=>{
+                    resolve({success: true , message:'Sorry you already added this styler as your favourite' , data:data.favorites.length   })
+                   })
+            }
+        }).catch(err =>{
+            reject(err);
+        })
+    })
+}
+
+exports.reviewStyler = (stylerId , Option)=>{
+    return new Promise((resolve ,  reject)=>{
+         Styler.findOneAndUpdate({publicId:stylerId} , {$push: {review:Option}}).exec((err , updated)=>{
+            if (err) {
+                reject({ success: false, message: err });
+            } else if (updated) {
+                resolve({ success: true, message: 'Styler review made successfully' })
+            } else {
+                resolve({ success: false, message: 'Could review styler !!' })
+            }  
+         })
+    })
+} 
+
+
 exports.getStylers = (pagenumber = 1, pagesize = 20) => {
     return new Promise((resolve, reject) => {
         Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
             .exec((err, stylers) => {
                 if (err) reject(err);
                 if (stylers) {
 
                     resolve({ success: true, message: 'stylers found', data: stylers })
+                } else {
+                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                }
+            });
+    });
+}
+
+
+exports.getStylerById = (stylerId) => {
+    return new Promise((resolve, reject) => {
+        Styler.findById({_id:stylerId})
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
+            .exec((err, stylers) => {
+                if (err) reject(err);
+                if (stylers) {
+
+                    resolve({ success: true, message: 'styler found', data: stylers })
                 } else {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
@@ -172,6 +226,7 @@ function getUserDetail(user, Id) {
 
     })
 }
+
 
 function generateToken(data = {}) {
     return new Promise((resolve, reject) => {
