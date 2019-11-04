@@ -205,6 +205,40 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
     return new Promise((resolve, reject) => {
         Styler.find({ "services.serviceId": { $in: serviceId } })
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
+            .exec((err, stylers) => {
+                if (err) reject(err);
+                if (stylers) {
+                    resolve({ success: true, message: 'stylers found', data: stylers })
+                } else {
+                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                }
+            });
+    })
+}
+
+exports.GetStylerByRated = (serviceId, pagenumber = 1, pagesize = 20) => {
+    return new Promise((resolve, reject) => {
+        // Styler.aggregate( [ { $unwind: "$services.ratings" },  { $sortByCount: "$ratings" } ] )
+        Styler.find({})
+            // .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .populate({ path: "favorites" })
+            .exec((err, stylers) => {
+                console.log(stylers)
+                // if (err) reject(err);
+                // if (stylers) {
+                //     resolve({ success: true, message: 'stylers found', data: stylers })
+                // } else {
+                //     resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                // }
+            });
+    })
+}
+
+exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20) => {
+    return new Promise((resolve, reject) => {
+        Styler.find({ "services.serviceId": { $in: serviceId } })
+            .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
@@ -215,5 +249,4 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
                 }
             });
     })
-
 }

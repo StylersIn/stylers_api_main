@@ -80,5 +80,17 @@ module.exports = function authController() {
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
+
+    this.GetStylersByRated = function (req, res, next) {
+        StylersService.GetStylerByRated(req.params.service, req.params.pagenumber, req.params.pagesize)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.GetStylersByFavorite = function (req, res, next) {
+        StylersService.GetStylerByService(req.params.service, req.params.pagenumber, req.params.pagesize)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 }
 
