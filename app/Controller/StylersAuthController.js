@@ -6,7 +6,6 @@ module.exports = function authController() {
         var Options = {
             name: req.body.name,
             publicId: mongoose.Types.ObjectId(),
-            // gender: req.body.gender,
             address: req.body.address,
             description: req.body.description,
             email: req.body.email,
@@ -37,6 +36,12 @@ module.exports = function authController() {
 
     this.GetStylers = function (req, res, next) {
         StylersService.getStylers({})
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.GetStyler = function (req, res, next) {
+        StylersService.getStylerById(req.params.id)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
@@ -81,14 +86,16 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
-    this.GetStylersByRated = function (req, res, next) {
-        StylersService.GetStylerByRated(req.params.service, req.params.pagenumber, req.params.pagesize)
+    
+    this.favouriteStylerService = function (req, res, next) {
+        StylersService.FavouriteStyler(req.auth.publicId,req.params.id ,req.body.service)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
-    this.GetStylersByFavorite = function (req, res, next) {
-        StylersService.GetStylerByService(req.params.service, req.params.pagenumber, req.params.pagesize)
+    this.StylerReview = function (req, res, next) {
+        var data = { userId: req.auth.Id, message: req.body.review, CreatedAt:Date.now() }
+        StylersService.reviewStyler(req.params.id, data)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }

@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 module.exports = function ServicesController() {
 
     this.CreateService = async (req, res) => {
-        // console.log("checking file", (req.file != null && req.file !== undefined));
+        console.log("checking file", (req.file != null && req.file !== undefined));
         var requestDetails = {
             name: req.body.name,
             image: (req.file != null && req.file !== undefined) ? req.file.path : null,

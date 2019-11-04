@@ -8,11 +8,14 @@ module.exports = function () {
     router.post('/authenticate', StylerauthCtrl.authenticate);
     router.put('/updateService/:id', StylerauthCtrl.UpdateServices);
     router.get('/stylers/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
+    router.get('/styler/:id', StylerauthCtrl.GetStyler);
     router.post('/addService/:id', StylerauthCtrl.AddServices);
-    router.post('/update', middleware.StylerAuthenticate, multer.upload.single('image'), StylerauthCtrl.updateClientProfile)
+    router.post('/favourite/:id', middleware.authenticate , StylerauthCtrl.favouriteStylerService);
+    router.post('/update', middleware.StylerAuthenticate , multer.upload.single('image') , StylerauthCtrl.updateClientProfile)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
-    router.get('/:service/top-rating/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByRated);
-    router.get('/:service/favorite/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByFavorite);
+    router.post('/review/:id', middleware.authenticate , StylerauthCtrl.StylerReview);
+
+
 
     return router;
 }
