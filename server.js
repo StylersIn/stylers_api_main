@@ -24,7 +24,7 @@ app.get('/', function(req, res){
     res.json({message:"hello world"});
 });
 
-// dbConfiguration();
+dbConfiguration();
 
 module.exports = app;
 
