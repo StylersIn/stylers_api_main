@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 //const uri = process.env.DB_URI;
 const uri = process.env.NODE_ENV == 'prod' ? process.env.DB_PROD : process.env.DB_LOCAL;
-console.log(uri)
+console.log(process.env.NODE_ENV)
 module.exports = function init() {
     if (uri) {
         mongoose.connect(
