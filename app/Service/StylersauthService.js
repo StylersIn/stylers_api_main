@@ -261,6 +261,7 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
         Styler.find({ "services.serviceId": { $in: serviceId } })
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { name: 1 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
                 if (stylers) {

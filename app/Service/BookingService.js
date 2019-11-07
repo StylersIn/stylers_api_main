@@ -34,28 +34,37 @@ exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
 
 exports.BookService = (options) => {
     return new Promise((resolve, reject) => {
-        bookingFunction.calculateAmount(options.stylerId, options.serviceId, options.numberOfAduls, options.numberOfChildren, (result => {
-            var details = {
-                userId: options.userId,
-                stylerId: options.stylerId,
-                serviceId: options.serviceId,
-                scheduledDate: Date.now(),
-                numberOfAdults: options.numberOfAduls,
-                numberOfChildren: options.numberOfChildren,
-                location: options.location,
-                TotalAmount: result,
-                CreatedAt: new Date()
+        BookingRepo.add(options).then(created => {
+            if (created) {
+                resolve({ success: true, message: 'Service booked successfully' })
+            } else {
+                resolve({ success: false, message: 'Could not complete your booking process' })
             }
-            BookingRepo.add(details).then(created => {
-                if (created) {
-                    resolve({ success: true, message: 'Service booked successfully' })
-                } else {
-                    resolve({ success: false, message: 'Could not complete your booking process' })
-                }
-            }).catch(err => {
-                reject(err);
-            })
-        }))
+        }).catch(err => {
+            reject(err);
+        })
+        // bookingFunction.calculateAmount(options.stylerId, options.serviceId, options.numberOfAduls, options.numberOfChildren, (result => {
+        //     var details = {
+        //         userId: options.userId,
+        //         stylerId: options.stylerId,
+        //         serviceId: options.serviceId,
+        //         scheduledDate: Date.now(),
+        //         numberOfAdults: options.numberOfAduls,
+        //         numberOfChildren: options.numberOfChildren,
+        //         location: options.location,
+        //         TotalAmount: result,
+        //         CreatedAt: new Date()
+        //     }
+        //     BookingRepo.add(details).then(created => {
+        //         if (created) {
+        //             resolve({ success: true, message: 'Service booked successfully' })
+        //         } else {
+        //             resolve({ success: false, message: 'Could not complete your booking process' })
+        //         }
+        //     }).catch(err => {
+        //         reject(err);
+        //     })
+        // }))
 
     })
 }
@@ -63,7 +72,7 @@ exports.BookService = (options) => {
 exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
         model.find({ userId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-            .populate({ path: "serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
             .exec((err, data) => {
