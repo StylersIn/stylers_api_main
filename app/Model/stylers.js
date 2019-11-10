@@ -12,7 +12,7 @@ var stylersSchema = new Schema({
     startingPrice: { type: Number, required: true },
     IsVerified: { type: Boolean },
     services: [{
-        favorites: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true }],
+        favorites: [{ type: String, ref: 'user', autopopulate: true }],
         serviceId: { type: String, ref: 'services', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }

@@ -10,7 +10,10 @@ exports.authenticate = function (req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
     if (token) {
         authService.verifyToken(token).then(decoded => {
+            console.log(decoded)
             UserRepo.getSingleBy({ publicId: decoded.publicId }, '').then(data => {
+                console.log(decoded.publicId)
+                console.log(data)
                 if (data == null) {
                     res.status(401).send({ success: false, message: "User does not exist" });
                 } else {
@@ -30,7 +33,6 @@ exports.authenticate = function (req, res, next) {
         })
     } else {
         res.status(401).send({ success: false, message: "No token provided" });
-
     }
 }
 

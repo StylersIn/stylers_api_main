@@ -121,7 +121,7 @@ function getUserDetail(user, Id) {
     return new Promise((resolve, reject) => {
         //console.log('this is user detail', user.status);
         UserRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 }).then(data => {
-            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId };
+            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
             resolve(specificUserDetail);
         }).catch(error => reject(error))
 
@@ -143,7 +143,6 @@ function generateToken(data = {}) {
 exports.generateToken = generateToken;
 
 function verifyToken(token = "") {
-    console.log(token)
     return new Promise((resolve, reject) => {
         jwt.verify(token.replace("Bearer", ""), secret, function (err, decodedToken) {
             if (err) {

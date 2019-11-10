@@ -11,7 +11,8 @@ var userSchema = new Schema({
     status: { type: Boolean },
     imageUrl: { type: String, default: '' },
     imageID: { type: String, default: '' },
-    CreatedAt: { type: Date }
+    CreatedAt: { type: Date },
+    role: { type: String, required: true, default: 'user' }
 
 })
 

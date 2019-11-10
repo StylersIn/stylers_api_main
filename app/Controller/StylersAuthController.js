@@ -3,16 +3,16 @@ var cloudinary = require('../Middleware/cloudinary')
 var mongoose = require('mongoose');
 module.exports = function authController() {
     this.register = (req, res, next) => {
-        var Options = {
-            name: req.body.name,
-            publicId: mongoose.Types.ObjectId(),
-            address: req.body.address,
-            description: req.body.description,
-            email: req.body.email,
-            phoneNumber: req.body.phoneNumber,
-            password: req.body.password,
-        }
-        StylersService.RegisterUser(Options).then((data) => {
+        // var Options = {
+        //     name: req.body.name,
+        //     publicId: mongoose.Types.ObjectId(),
+        //     address: req.body.address,
+        //     description: req.body.description,
+        //     email: req.body.email,
+        //     phoneNumber: req.body.phoneNumber,
+        //     password: req.body.password,
+        // }
+        StylersService.RegisterUser(Object.assign(req.body, { publicId: mongoose.Types.ObjectId() })).then((data) => {
             res.json(data);
         }).catch((err) => {
             res.json(err);
@@ -47,8 +47,8 @@ module.exports = function authController() {
     }
 
     this.UpdateServices = function (req, res, next) {
-        var data = { amount: req.body.price, serviceId: req.body.service }
-        StylersService.UpdateServicePrice(req.params.id, data)
+        // var data = { amount: req.body.price, serviceId: req.body.service }
+        StylersService.UpdateServicePrice(req.auth.Id, req.body.services)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
