@@ -242,7 +242,7 @@ exports.sortStylers = ()=>{
                     return b.favorites.length - a.favorites.length;
                     
                 })
-                resolve({success: true , message:'stylers found', data:maps , counts:found.favorites.length })
+                resolve({success: true , message:'stylers found', data:maps  })
 
             }else{
                 resolve({success: false , message:'Could  not find data'})
@@ -250,6 +250,7 @@ exports.sortStylers = ()=>{
         })
     })
 }
+
 
 exports.updateProfile = function (id, data) {
     return new Promise((resolve, reject) => {
