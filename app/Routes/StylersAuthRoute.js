@@ -6,7 +6,7 @@ module.exports = function () {
     const StylerauthCtrl = new StylersauthController();
     router.post('/register', StylerauthCtrl.register);
     router.post('/authenticate', StylerauthCtrl.authenticate);
-    router.put('/updateService/:id', StylerauthCtrl.UpdateServices);
+    router.put('/updateService', middleware.StylerAuthenticate, StylerauthCtrl.UpdateServices);
     router.get('/stylers/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
     router.get('/styler/:id', StylerauthCtrl.GetStyler);
     router.get('/stylers/sort/', StylerauthCtrl.SortStylers);
