@@ -9,6 +9,7 @@ module.exports = function(){
     router.put('/updateService/:id', StylerauthCtrl.UpdateServices);
     router.get('/stylers/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
     router.get('/styler/:id', StylerauthCtrl.GetStyler);
+    router.get('/stylers/sort/', StylerauthCtrl.SortStylers);
     router.post('/addService/:id', StylerauthCtrl.AddServices);
     router.post('/favourite/:id', middleware.authenticate , StylerauthCtrl.favouriteStylerService);
     router.post('/update', middleware.StylerAuthenticate , multer.upload.single('image') , StylerauthCtrl.updateClientProfile)

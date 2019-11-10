@@ -133,7 +133,7 @@ exports.FavouriteStyler = (userid , stylerId  )=>{
                         reject({ success: false, message: err });
                     } else if (data) {
                             Styler.findOne({ publicId: stylerId  }).then(data=>{
-                         resolve({success: true , message:'Service added as favourite' , data:data.favorites.length   })
+                         resolve({success: true , message:'Styler added as favourite' , data:data.favorites.length   })
                         })
 
                     } else {
@@ -201,6 +201,28 @@ exports.getStylerById = (stylerId) => {
                 }
             });
     });
+}
+
+exports.sortStylers = ()=>{
+    return new Promise((resolve , reject)=>{
+        Styler.find()
+        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
+        .exec((err , found)=>{
+            if (err) reject(err);
+            if(found){
+                var maps = found.sort( function(a , b){
+                    return b.favorites.length - a.favorites.length;
+                    
+                })
+                resolve({success: true , message:'stylers found', data:maps , counts:found.favorites.length })
+
+            }else{
+                resolve({success: false , message:'Could  not find data'})
+            }
+        })
+    })
 }
 
 exports.updateProfile = function (id, data) {

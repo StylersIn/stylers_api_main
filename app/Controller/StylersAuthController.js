@@ -40,6 +40,12 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
+    this.SortStylers = function (req, res, next) {
+        StylersService.sortStylers({})
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
     this.GetStyler = function (req, res, next) {
         StylersService.getStylerById(req.params.id)
             .then(data => res.status(200).send(data))
