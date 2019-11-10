@@ -13,16 +13,16 @@ module.exports = function ServicesController(){
    }
    
    this.CreateBooking = (req, res)=>{
-       var Options = {
-        userId:req.auth.Id,
-        stylerId:req.body.styler,
-        serviceId:req.body.service,
-        scheduledDate:Date.now(),
-        numberOfAduls:req.body.adult,
-        numberOfChildren:req.body.child,
-        location:req.body.locations,
-       }
-       BookingService.BookService(Options).then((data)=>{
+    //    var Options = {
+    //     userId:req.auth.Id,
+    //     stylerId:req.body.styler,
+    //     // serviceId:req.body.service,
+    //     scheduledDate:Date.now(),
+    //     // numberOfAduls:req.body.adult,
+    //     // numberOfChildren:req.body.child,
+    //     location:req.body.locations,
+    //    }
+       BookingService.BookService(Object.assign(req.body, { userId: req.auth.Id })).then((data) => {
         res.json({data});
     }).catch((err)=>{
         res.status(500).send(err);

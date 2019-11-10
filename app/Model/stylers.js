@@ -9,10 +9,11 @@ var stylersSchema = new Schema({
     publicId: { type: mongoose.Types.ObjectId },
     address: { type: String, required: true },
     description: { type: String, required: true },
+    startingPrice: { type: Number, required: true },
     IsVerified: { type: Boolean },
     services: [{
-        favorites: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true }],
-        serviceId: { type: mongoose.SchemaTypes.ObjectId, ref: 'services', autopopulate: true },
+        favorites: [{ type: String, ref: 'user', autopopulate: true }],
+        serviceId: { type: String, ref: 'services', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }
     }],
@@ -21,7 +22,7 @@ var stylersSchema = new Schema({
         userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
     }],
     review:[{
-        userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+        userId: { type: String, ref: 'user', autopopulate: true },
         message: { type: String},
         CreatedAt:{ type:Date}
     }],

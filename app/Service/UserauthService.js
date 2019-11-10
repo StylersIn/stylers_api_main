@@ -29,7 +29,13 @@ exports.RegisterUser = (Options) => {
                             if (err) {
                                 resolve({ success: false, message: 'Registration error' });
                             } else {
-                                resolve({ success: true, message: 'Registration Successful' });
+                                getUserDetail(created, created.publicId).then(userdetail => {
+                                    generateToken(userdetail).then((token) => {
+                                        resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                                    }).catch((err) => {
+                                        reject({ success: false, data: err, message: 'could not authenticate user' })
+                                    })
+                                })
                             }
                         })
                     } else {
@@ -57,7 +63,7 @@ function authenticateuser(email, password) {
                     reject({ success: false, message: 'could not authenticate user' });
                 } else {
                     if (user.status == false) {
-                        reject({ success: false, message: 'Please Verify your account ' });
+                        resolve({ success: false, message: 'Please Verify your account ' });
                     } else {
                         var validPassword = bcrypt.compareSync(password, user.password);
                         if (validPassword) {
@@ -115,7 +121,7 @@ function getUserDetail(user, Id) {
     return new Promise((resolve, reject) => {
         //console.log('this is user detail', user.status);
         UserRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 }).then(data => {
-            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId };
+            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
             resolve(specificUserDetail);
         }).catch(error => reject(error))
 
@@ -137,7 +143,6 @@ function generateToken(data = {}) {
 exports.generateToken = generateToken;
 
 function verifyToken(token = "") {
-    console.log(token)
     return new Promise((resolve, reject) => {
         jwt.verify(token.replace("Bearer", ""), secret, function (err, decodedToken) {
             if (err) {

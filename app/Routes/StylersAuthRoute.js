@@ -2,7 +2,7 @@ var StylersauthController = require('../Controller/StylersAuthController');
 var middleware = require('../Middleware/AuthMiddleware');
 var multer = require('../Middleware/multer')
 var router = require('express').Router();
-module.exports = function(){
+module.exports = function () {
     const StylerauthCtrl = new StylersauthController();
     router.post('/register', StylerauthCtrl.register);
     router.post('/authenticate', StylerauthCtrl.authenticate);
@@ -11,12 +11,11 @@ module.exports = function(){
     router.get('/styler/:id', StylerauthCtrl.GetStyler);
     router.get('/stylers/sort/', StylerauthCtrl.SortStylers);
     router.post('/addService/:id', StylerauthCtrl.AddServices);
-    router.post('/favourite/:id', middleware.authenticate , StylerauthCtrl.favouriteStylerService);
-    router.post('/update', middleware.StylerAuthenticate , multer.upload.single('image') , StylerauthCtrl.updateClientProfile)
+    router.post('/favourite/:id', middleware.authenticate, StylerauthCtrl.favouriteStylerService);
+    router.put('/update', middleware.StylerAuthenticate, multer.upload.single('image'), StylerauthCtrl.updateClientProfile)
+    router.put('/update/services', middleware.StylerAuthenticate, StylerauthCtrl.UpdateServices)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
-    router.post('/review/:id', middleware.authenticate , StylerauthCtrl.StylerReview);
-
-
+    router.post('/review/:id', middleware.authenticate, StylerauthCtrl.StylerReview);
 
     return router;
 }
