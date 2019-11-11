@@ -10,17 +10,14 @@ exports.authenticate = function (req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
     if (token) {
         authService.verifyToken(token).then(decoded => {
-            console.log(decoded)
             UserRepo.getSingleBy({ publicId: decoded.publicId }, '').then(data => {
-                console.log(decoded.publicId)
-                console.log(data)
                 if (data == null) {
                     res.status(401).send({ success: false, message: "User does not exist" });
                 } else {
                     req.auth = {
                         publicId: data.publicId,
                         email: decoded.email,
-                        fullName: data.fullName,
+                        name: data.name,
                         Id: data._id
                     }
                     res.locals.response = { data: decoded, message: "", success: true };
@@ -47,7 +44,7 @@ exports.StylerAuthenticate = function (req, res, next) {
                     req.auth = {
                         publicId: data.publicId,
                         email: decoded.email,
-                        fullName: data.fullName,
+                        name: data.name,
                         Id: data._id
                     }
                     res.locals.response = { data: decoded, message: "", success: true };

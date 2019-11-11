@@ -27,12 +27,18 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
-    this.AddServices = function (req, res, next) {
-        var data = { adult: req.body.adults, child: req.body.kids, serviceId: req.body.service }
-        StylersService.AddServicePrice(req.params.id, data)
+    this.stylerRegStatus = function (req, res, next) {
+        StylersService.StylerRegStatus(req.auth.Id)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
+
+    // this.AddServices = function (req, res, next) {
+    //     var data = { adult: req.body.adults, child: req.body.kids, serviceId: req.body.service }
+    //     StylersService.AddServicePrice(req.params.id, data)
+    //         .then(data => res.status(200).send(data))
+    //         .catch(err => res.status(500).send(err));
+    // }
 
     this.GetStylers = function (req, res, next) {
         StylersService.getStylers({})
