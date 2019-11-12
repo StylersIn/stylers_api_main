@@ -66,7 +66,6 @@ function authenticateuser(username, password) {
             resolve({ success: false, message: 'authentication credentials incomplete' });
         } else {
             client.findOne({ email: username }, '').then((user) => {
-                console.log(user, 'ddddddd')
                 if (!user) {
                     resolve({ success: false, message: 'user not found' });
                 } else {
