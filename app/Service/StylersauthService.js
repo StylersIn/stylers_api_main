@@ -103,7 +103,19 @@ function authenticateuser(username, password) {
 }
 exports.authenticateuser = authenticateuser
 
-
+exports.StylerRegStatus = (Id) => {
+    return new Promise((resolve, reject) => {
+        Styler.findOne({ userId: Id }).then(result => {
+            if (result && result.services.length) {
+                resolve({ success: true, message: 'Styler Service has been updated!' });
+            } else {
+                resolve({ success: false, message: 'Styler Service has not been updated!' });
+            }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
 
 exports.AddServicePrice = (id, Option) => {
     return new Promise((resolve, reject) => {
@@ -172,21 +184,19 @@ exports.reviewStyler = (stylerId, Option) => {
 }
 
 exports.UpdateServicePrice = function (id, data) {
-    console.log(id, data)
     return new Promise((resolve, reject) => {
         StylerRepo.updateByQuery({ userId: id }, {
             $set: {
                 'services': data
             }
         }).then(updated => {
-            console.log(updated)
-            // if (updated) {
-            //     StylerRepo.getById(updated._id)
-            //         .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
-            //         .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
-            // }
+            if (updated) {
+                resolve({ success: true, message: 'stylers service updated successfully', data: updated })
+            } else {
+                resolve({ success: true, message: 'unable to update styler service ', data: updated })
+            }
         }).catch(err => {
-            reject({ success: false, data: err, message: "could not update profile" });
+            reject({ success: false, data: err, message: "could not update styler service" });
         });
     })
 }
