@@ -28,8 +28,8 @@ exports.RegisterUser = (Options) => {
                         var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
                         StylerRepo.add(u).then(added => {
                             if (added) {
-                                mailer.StylerReg(b.email, b.name, function (err, sent) {
-                                    if (err) {
+                                mailer.StylerReg(b.email).then(sent =>{
+                                    if (!sent) {
                                         resolve({ success: false, message: 'Registration error' });
                                     } else {
                                         // resolve({ success: true, message: 'Registration Successful' });
