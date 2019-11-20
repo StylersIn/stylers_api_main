@@ -136,7 +136,7 @@ exports.UserAdded = function(email, statusCode){
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
       to: email,
-      from: "info@hackmamba.io",
+      from: " info@stylersin.com",
       subject: "StylersInn client Registration mail",
       text: "and easy to do anywhere, even with Node.js",
       html: mailTemplatex
@@ -227,7 +227,8 @@ exports.StylerReg = function(email){
                             Margin-top: 18px;">
                               <div>BROUGHT TO YOU BY STYLERSINN
                                 <br /> Talk to us on phone +2347060811570
-                                <br /> Email to mail@stylerInn.com
+                                <br /> Email to mail@stylersin.com
+                                <br /> Email to info@stylersin.com
                                 <br /> Kilometer 7, Enugu-Port Harcourt, Expressway Centenary
                                 <br /> City, Enugu Nigeria
                               </div>
@@ -253,7 +254,7 @@ exports.StylerReg = function(email){
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       const msg = {
         to: email,
-        from: "info@hackmamba.io",
+        from: "info@stylersin.com",
         subject: "StylersInn styler Registration mail",
         text: "and easy to do anywhere, even with Node.js",
         html: mailTemplates
@@ -348,7 +349,7 @@ exports.StylerReg = function(email){
                             Margin-top: 18px;">
                               <div>BROUGHT TO YOU BY STYLERSINN
                                 <br /> Talk to us on phone +2347060811570
-                                <br /> Email to mail@stylerInn.com
+                                <br /> Email to info@stylersin.com
                                 <br /> Kilometer 7, Enugu-Port Harcourt, Expressway Centenary
                                 <br /> City, Enugu Nigeria
                               </div>
@@ -373,11 +374,10 @@ exports.StylerReg = function(email){
       </html>`
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       const msg = {
-        to: "obinna.okoroeugene@gmail.com ",
+        to: "info@stylersin.com",
         from: email,
         subject: "StylersInn Help message ",
         text: "and easy to do anywhere, even with Node.js",
-        // html: `Hello i am ${name}, ${message} `
         html: mailTemplate
 
       };
