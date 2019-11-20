@@ -7,9 +7,9 @@ var stylersSchema = new Schema({
     phoneNumber: { type: String, required: true },
     userId: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
     publicId: { type: mongoose.Types.ObjectId },
-    address: { type: String, required: true },
-    description: { type: String, required: true },
-    startingPrice: { type: Number, required: true },
+    address: { type: String },
+    description: { type: String },
+    startingPrice: { type: Number},
     IsVerified: { type: Boolean },
     services: [{
         favorites: [{ type: String, ref: 'user', autopopulate: true }],
