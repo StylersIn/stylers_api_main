@@ -4,10 +4,7 @@ var servicesSchema = new Schema({
     name: { type: String, required: true },
     imageUrl: { type: String, default: '' },
     imageID: { type: String, default: '' },
-    gender:[{
-        male:{type:String ,  default: ''},
-        female:{type:String ,  default: ''}
-    }],
+    gender:[],
     CreatedAt: { type: Date },
     
 })
