@@ -16,6 +16,7 @@ exports.RegisterUser = (Options) => {
             phoneNumber: Options.phoneNumber,
             password: hash,
             publicId: Options.publicId,
+            startingPrice:Options.startingPrice,
             CreatedAt: new Date(),
             role: 'styler'
         }
@@ -259,6 +260,45 @@ exports.sortStylers = ()=>{
         })
     })
 }
+
+exports.sortStylersByPrice = ()=>{
+    return new Promise((resolve , reject)=>{
+        Styler.find()
+        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
+        .sort({startingPrice:-1})
+        .exec((err , found)=>{
+            if (err) reject(err);
+            if(found){
+               resolve({success: true , message:'stylers found', data:found  })
+
+            }else{
+                resolve({success: false , message:'Could  not find data'})
+            }
+        })
+    })
+}
+
+exports.sortStylersByRating = ()=>{
+    return new Promise((resolve , reject)=>{
+        Styler.find()
+        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
+        .sort({"ratings.rating":-1})
+        .exec((err , found)=>{
+            if (err) reject(err);
+            if(found){
+               resolve({success: true , message:'stylers found', data:found  })
+
+            }else{
+                resolve({success: false , message:'Could  not find data'})
+            }
+        })
+    })
+}
+
 
 
 exports.updateProfile = function (id, data) {
