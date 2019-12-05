@@ -52,6 +52,20 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
+    this.SortStylersByPrice = function (req, res, next) {
+        StylersService.sortStylersByPrice({})
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.SortStylersByRating = function (req, res, next) {
+        StylersService.sortStylersByRating({})
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+
+
     this.GetStyler = function (req, res, next) {
         StylersService.getStylerById(req.params.id)
             .then(data => res.status(200).send(data))
