@@ -26,9 +26,9 @@ exports.RegisterUser = (Options) => {
             } else {
                 UserRepo.add(u).then(created => {
                     if (created) {
-                        mailer.UserAdded(u.email, u.fullName, u.statusCode, function (err, sent) {
-                            if (err) {
-                                resolve({ success: false, message: 'Registration error' });
+                        mailer.UserAdded(u.email, u.statusCode).then(sent => {
+                            if (!sent) {
+                                resolve({ success: false, message: 'User Registration error' });
                             } else {
                                 getUserDetail(created, created.publicId).then(userdetail => {
                                     generateToken(userdetail).then((token) => {
