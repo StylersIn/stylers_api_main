@@ -17,6 +17,7 @@ exports.RegisterUser = (Options) => {
             publicId: Options.publicId,
             statusCode: Options.statusCode,
             status: false,
+            type: Options.type,
             CreatedAt: new Date()
         }
         User.findOne({ email: u.email }).then(exists => {
@@ -60,7 +61,7 @@ function authenticateuser(email, password) {
         } else {
             UserRepo.getSingleBy({ email: email }, '').then((user) => {
                 if (!user) {
-                    reject({ success: false, message: 'could not authenticate user' });
+                    reject({ success: false, message: 'Wrong username or password' });
                 } else {
                     if (user.status == false) {
                         resolve({ success: false, message: 'Please Verify your account ' });
@@ -97,6 +98,23 @@ exports.verifyAccount = (email, Token) => {
                     resolve({ status: true, message: 'User has been verified ' })
                 })
             }
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
+exports.verifySocial = (email) => {
+    return new Promise((resolve, reject) => {
+        User.findOne({ email: email }).then((data, err) => {
+            if (data) {
+                if (data.type === 'social-login') {
+                    resolve({ status: 0, message: 'User account was created with social media' })
+                }
+                resolve({ status: 1, message: 'Sorry, user account was not created with social media' })
+            }
+            if (err) resolve({ status: false, message: 'Error Verifying User' })
+            resolve({ status: true, message: 'Sorry, user account does not exist' })
         }).catch(err => {
             reject(err)
         })

@@ -18,6 +18,7 @@ module.exports = function authController() {
             email: req.body.email,
             phoneNumber: req.body.phoneNumber,
             password: req.body.password,
+            type: req.body.type,
         }
         userService.RegisterUser(Options).then((data) => {
             res.json(data);
@@ -38,6 +39,13 @@ module.exports = function authController() {
         var email = req.body.email
         var Token = req.body.token
         userService.verifyAccount(email, Token)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.VerifySocial = function (req, res) {
+        var email = req.body.email
+        userService.verifySocial(email)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
