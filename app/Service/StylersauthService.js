@@ -16,7 +16,7 @@ exports.RegisterUser = (Options) => {
             phoneNumber: Options.phoneNumber,
             password: hash,
             publicId: Options.publicId,
-            startingPrice:Options.startingPrice,
+            startingPrice: Options.startingPrice,
             CreatedAt: new Date(),
             role: 'styler'
         }
@@ -29,7 +29,7 @@ exports.RegisterUser = (Options) => {
                         var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
                         StylerRepo.add(u).then(added => {
                             if (added) {
-                                mailer.StylerReg(b.email).then(sent =>{
+                                mailer.StylerReg(b.email).then(sent => {
                                     if (!sent) {
                                         resolve({ success: false, message: 'Registration error' });
                                     } else {
@@ -151,8 +151,8 @@ exports.FavouriteStyler = (userid, stylerId) => {
                     if (err) {
                         reject({ success: false, message: err });
                     } else if (data) {
-                            Styler.findOne({ publicId: stylerId  }).then(data=>{
-                         resolve({success: true , message:'Styler added as favourite' , data:data.favorites.length   })
+                        Styler.findOne({ publicId: stylerId }).then(data => {
+                            resolve({ success: true, message: 'Styler added as favourite', data: data.favorites.length })
                         })
 
                     } else {
@@ -239,63 +239,62 @@ exports.getStylerById = (stylerId) => {
     });
 }
 
-exports.sortStylers = ()=>{
-    return new Promise((resolve , reject)=>{
+exports.sortStylers = () => {
+    return new Promise((resolve, reject) => {
         Styler.find()
-        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
-        .exec((err , found)=>{
-            if (err) reject(err);
-            if(found){
-                var maps = found.sort( function(a , b){
-                    return b.favorites.length - a.favorites.length;
-                    
-                })
-                resolve({success: true , message:'stylers found', data:maps  })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
+            .exec((err, found) => {
+                if (err) reject(err);
+                if (found) {
+                    var maps = found.sort(function (a, b) {
+                        return b.favorites.length - a.favorites.length;
 
-            }else{
-                resolve({success: false , message:'Could  not find data'})
-            }
-        })
+                    })
+                    resolve({ success: true, message: 'stylers found', data: maps })
+
+                } else {
+                    resolve({ success: false, message: 'Could  not find data' })
+                }
+            })
     })
 }
 
-exports.sortStylersByPrice = ()=>{
-    return new Promise((resolve , reject)=>{
-        Styler.find()
-        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
-        .sort({startingPrice:-1})
-        .exec((err , found)=>{
-            if (err) reject(err);
-            if(found){
-               resolve({success: true , message:'stylers found', data:found  })
-
-            }else{
-                resolve({success: false , message:'Could  not find data'})
-            }
-        })
+exports.sortStylersByPrice = (serviceId) => {
+    return new Promise((resolve, reject) => {
+        Styler.find({ 'services.serviceId': serviceId })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
+            .sort({ startingPrice: 1 })
+            .exec((err, found) => {
+                if (err) reject(err);
+                if (found) {
+                    resolve({ success: true, message: 'stylers found', data: found })
+                } else {
+                    resolve({ success: false, message: 'Could  not find data' })
+                }
+            })
     })
 }
 
-exports.sortStylersByRating = ()=>{
-    return new Promise((resolve , reject)=>{
-        Styler.find()
-        .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-        .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-        .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0 ,password:0 ,publicId:0 ,statusCode:0 , status:0,CreatedAt:0} })
-        .sort({"ratings.rating":-1})
-        .exec((err , found)=>{
-            if (err) reject(err);
-            if(found){
-               resolve({success: true , message:'stylers found', data:found  })
+exports.sortStylersByRating = (serviceId) => {
+    return new Promise((resolve, reject) => {
+        Styler.find({ 'services.serviceId': serviceId })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
+            .sort({ "ratings.rating": -1 })
+            .exec((err, found) => {
+                if (err) reject(err);
+                if (found) {
+                    resolve({ success: true, message: 'stylers found', data: found })
 
-            }else{
-                resolve({success: false , message:'Could  not find data'})
-            }
-        })
+                } else {
+                    resolve({ success: false, message: 'Could  not find data' })
+                }
+            })
     })
 }
 
@@ -367,24 +366,6 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
                 } else {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
-            });
-    })
-}
-
-exports.GetStylerByRated = (serviceId, pagenumber = 1, pagesize = 20) => {
-    return new Promise((resolve, reject) => {
-        // Styler.aggregate( [ { $unwind: "$services.ratings" },  { $sortByCount: "$ratings" } ] )
-        Styler.find({})
-            // .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-            .populate({ path: "favorites" })
-            .exec((err, stylers) => {
-                console.log(stylers)
-                // if (err) reject(err);
-                // if (stylers) {
-                //     resolve({ success: true, message: 'stylers found', data: stylers })
-                // } else {
-                //     resolve({ success: false, message: 'Unable to find what you searched for !!' })
-                // }
             });
     })
 }

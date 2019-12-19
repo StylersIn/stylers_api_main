@@ -7,5 +7,7 @@ module.exports = function(){
     router.post('/', middleware.authenticate , bookingCtrl.CreateBooking);
     router.get('/user/:pagesize/:pagenumber', middleware.authenticate , bookingCtrl.UserBookings);
     router.get('/styler/:pagesize/:pagenumber', middleware.StylerAuthenticate , bookingCtrl.StylerAppointments);
+    router.get('/styler/requests/:pagesize/:pagenumber', middleware.StylerAuthenticate , bookingCtrl.StylerRequests);
+    router.put('/appointment/accept', bookingCtrl.acceptAppointment);
     return router;
 }

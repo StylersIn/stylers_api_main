@@ -36,8 +36,20 @@ module.exports = function ServicesController() {
             .catch(err => res.status(500).send(err));
     }
 
+    this.StylerRequests = function (req, res, next) {
+        BookingService.getStylerRequests(req.params.pagenumber, req.params.pagesize, req.auth.Id)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
     this.StylerAppointments = function (req, res, next) {
         BookingService.getStylerAppointments(req.params.pagenumber, req.params.pagesize, req.auth.Id)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.acceptAppointment = function (req, res, next) {
+        BookingService.acceptAppointment(req.body.appointmentId)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }

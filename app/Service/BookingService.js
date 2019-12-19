@@ -5,6 +5,7 @@ var service = require('../Model/services');
 var bookingFunction = require('../Middleware/bookingAlgo')
 var stylersRepo = require('../Repository/BaseRepository');
 var BookingRepo = new BaseRepo(model);
+
 exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     return new Promise((resolve, reject) => {
         service.find({ name: { $regex: option, $options: 'i' } })
@@ -43,29 +44,6 @@ exports.BookService = (options) => {
         }).catch(err => {
             reject(err);
         })
-        // bookingFunction.calculateAmount(options.stylerId, options.serviceId, options.numberOfAduls, options.numberOfChildren, (result => {
-        //     var details = {
-        //         userId: options.userId,
-        //         stylerId: options.stylerId,
-        //         serviceId: options.serviceId,
-        //         scheduledDate: Date.now(),
-        //         numberOfAdults: options.numberOfAduls,
-        //         numberOfChildren: options.numberOfChildren,
-        //         location: options.location,
-        //         TotalAmount: result,
-        //         CreatedAt: new Date()
-        //     }
-        //     BookingRepo.add(details).then(created => {
-        //         if (created) {
-        //             resolve({ success: true, message: 'Service booked successfully' })
-        //         } else {
-        //             resolve({ success: false, message: 'Could not complete your booking process' })
-        //         }
-        //     }).catch(err => {
-        //         reject(err);
-        //     })
-        // }))
-
     })
 }
 
@@ -86,10 +64,9 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
-    console.log(userId)
+exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId: userId, accepted: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
@@ -101,6 +78,38 @@ exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
             });
+    })
+}
+
+exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
+    console.log(userId)
+    return new Promise((resolve, reject) => {
+        model.find({ stylerId: userId, accepted: true, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .exec((err, data) => {
+                if (err) reject(err);
+                if (data) {
+                    resolve({ success: true, message: 'Appointments found', data: data })
+                } else {
+                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                }
+            });
+    })
+}
+
+exports.acceptAppointment = (appointmentId) => {
+    console.log(appointmentId)
+    return new Promise((resolve, reject) => {
+        model.findByIdAndUpdate(appointmentId, { accepted: true, dateAccepted: Date.now() }).exec((err, data) => {
+            if (err) reject(err);
+            if (data) {
+                resolve({ success: true, message: 'Appointments accepted' })
+            } else {
+                resolve({ success: false, message: 'Unable to accept appointment!!' })
+            }
+        });
     })
 }
 

@@ -26,19 +26,26 @@ exports.RegisterUser = (Options) => {
             } else {
                 UserRepo.add(u).then(created => {
                     if (created) {
-                        mailer.UserAdded(u.email, u.statusCode).then(sent => {
-                            if (!sent) {
-                                resolve({ success: false, message: 'User Registration error' });
-                            } else {
-                                getUserDetail(created, created.publicId).then(userdetail => {
-                                    generateToken(userdetail).then((token) => {
-                                        resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
-                                    }).catch((err) => {
-                                        reject({ success: false, data: err, message: 'could not authenticate user' })
-                                    })
-                                })
-                            }
+                        getUserDetail(created, created.publicId).then(userdetail => {
+                            generateToken(userdetail).then((token) => {
+                                resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                            }).catch((err) => {
+                                reject({ success: false, data: err, message: 'could not authenticate user' })
+                            })
                         })
+                        // mailer.UserAdded(u.email, u.statusCode).then(sent => {
+                        //     if (!sent) {
+                        //         resolve({ success: false, message: 'User Registration error' });
+                        //     } else {
+                        //         getUserDetail(created, created.publicId).then(userdetail => {
+                        //             generateToken(userdetail).then((token) => {
+                        //                 resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                        //             }).catch((err) => {
+                        //                 reject({ success: false, data: err, message: 'could not authenticate user' })
+                        //             })
+                        //         })
+                        //     }
+                        // })
                     } else {
                         resolve({ success: false, message: 'User SignUp was not successfull' });
 
@@ -63,11 +70,11 @@ function authenticateuser(email, password) {
                 if (!user) {
                     reject({ success: false, message: 'Wrong username or password' });
                 } else {
-                    if (user.status == false) {
-                        resolve({ success: false, message: 'Please Verify your account ' });
-                    } else {
-                        var validPassword = bcrypt.compareSync(password, user.password);
-                        if (validPassword) {
+                    var validPassword = bcrypt.compareSync(password, user.password);
+                    if (validPassword) {
+                        if (user.status == false) {
+                            resolve({ success: false, message: 'Please Verify your account ' });
+                        } else {
                             getUserDetail(user, user.publicId).then(userdetail => {
                                 generateToken(userdetail).then((token) => {
                                     resolve({ success: true, data: { user, token: token }, message: 'authentication successful' })
@@ -75,9 +82,9 @@ function authenticateuser(email, password) {
                                     reject({ success: false, data: err, message: 'could not authenticate user' })
                                 })
                             })
-                        } else {
-                            reject({ success: false, message: 'incorrect email or password' })
                         }
+                    } else {
+                        reject({ success: false, message: 'Incorrect email or password' })
                     }
                 }
             }).catch((err) => {
@@ -93,11 +100,12 @@ exports.verifyAccount = (email, Token) => {
         User.findOne({ $and: [{ email: email }, { statusCode: Token }] }).then(data => {
             if (data) {
                 var userId = data._id
-                User.findByIdAndUpdate({ _id: userId }, { status: true }, function (err, updated) {
+                return User.findByIdAndUpdate({ _id: userId }, { status: true }, function (err, updated) {
                     if (err) resolve({ status: false, message: 'Error Verifying User' })
                     resolve({ status: true, message: 'User has been verified ' })
                 })
             }
+            resolve({ status: false, message: 'Invalid token supplied' })
         }).catch(err => {
             reject(err)
         })
@@ -139,7 +147,7 @@ function getUserDetail(user, Id) {
     return new Promise((resolve, reject) => {
         //console.log('this is user detail', user.status);
         UserRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 }).then(data => {
-            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
+            var specificUserDetail = { email: user.email, name: user.name, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
             resolve(specificUserDetail);
         }).catch(error => reject(error))
 

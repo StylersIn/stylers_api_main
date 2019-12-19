@@ -9,16 +9,25 @@ var BookingSchema = new Schema({
         adult: { type: Number },
         child: { type: Number }
     }],
-    // serviceId: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'services', autopopulate: true }],
-    scheduledDate: { type: Date, default: new Date() },
-    // numberOfAdults: { type: Number },
-    // numberOfChildren: { type: Number },
-    location: { type: String, required: true },
+    pickUp: {
+        latitude: String,
+        longitude: String,
+        // streetName: String,
+    },
+    accepted: Boolean,
+    completed: Boolean,
+    seen: Boolean,
+    dateSeen: { type: Date },
+    streetName: { type: String, },
     totalAmount: { type: String },
+    scheduledDate: { type: Date, default: new Date() },
+    startServiceDate: { type: Date, default: new Date() },
+    endServiceDate: { type: Date, default: new Date() },
+    dateAccepted: { type: Date },
+    dateCompleted: { type: Date },
     CreatedAt: { type: Date, default: Date.now },
-
-
 })
+
 BookingSchema.plugin(mongoosastic)
 
 module.exports = mongoose.model('booking', BookingSchema); 

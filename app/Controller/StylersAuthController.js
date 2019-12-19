@@ -53,13 +53,13 @@ module.exports = function authController() {
     }
 
     this.SortStylersByPrice = function (req, res, next) {
-        StylersService.sortStylersByPrice({})
+        StylersService.sortStylersByPrice(req.params.id)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
     this.SortStylersByRating = function (req, res, next) {
-        StylersService.sortStylersByRating({})
+        StylersService.sortStylersByRating(req.params.id)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
