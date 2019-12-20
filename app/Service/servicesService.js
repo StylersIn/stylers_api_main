@@ -82,7 +82,6 @@ exports.UpdateService = function(id ,data){
 
 
 exports.SearchService = function (option) {
-    console.log(option , '----------hmmm----------')
     return new Promise((resolve, reject) => {
         services.find({ name: { $regex: option, $options: 'i' } } )
             .exec((err, found) => {
