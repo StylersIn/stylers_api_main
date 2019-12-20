@@ -1,7 +1,7 @@
 var AuhtRoutes = require('./UserAuthRoutes');
 var StylerAuhtRoutes = require('./StylersAuthRoute');
 var ServicesRoutes = require('./ServicesRoutes');
-var BookingRoutes = require('./BookingRoutes');
+var BookingRoutes = require('./AppointmentRoutes');
 var ContactRoutes = require("./contactRoutes");
 module.exports = function(router){
     router.use('/auth',AuhtRoutes())
