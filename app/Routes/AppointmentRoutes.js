@@ -1,4 +1,4 @@
-var BookingController = require('../Controller/BookingControllers');
+var BookingController = require('../Controller/AppointmentControllers');
 var middleware = require('../Middleware/AuthMiddleware');
 var router = require('express').Router();
 module.exports = function(){
