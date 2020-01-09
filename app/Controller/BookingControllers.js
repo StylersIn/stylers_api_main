@@ -54,5 +54,9 @@ module.exports = function ServicesController() {
             .catch(err => res.status(500).send(err));
     }
 
-
+    this.completeAppointment = function (req, res, next) {
+        BookingService.completeAppointment(req.body.appointmentId)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 }

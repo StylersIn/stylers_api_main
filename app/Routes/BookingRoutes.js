@@ -9,5 +9,6 @@ module.exports = function(){
     router.get('/styler/:pagesize/:pagenumber', middleware.StylerAuthenticate , bookingCtrl.StylerAppointments);
     router.get('/styler/requests/:pagesize/:pagenumber', middleware.StylerAuthenticate , bookingCtrl.StylerRequests);
     router.put('/appointment/accept', bookingCtrl.acceptAppointment);
+    router.put('/appointment/complete', bookingCtrl.completeAppointment);
     return router;
 }

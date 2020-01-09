@@ -66,7 +66,7 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
 
 exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, accepted: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId: userId, accepted: false || null, completed: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
@@ -82,16 +82,15 @@ exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
 }
 
 exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
-    console.log(userId)
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, accepted: true, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId: userId, accepted: true, completed: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
-                    resolve({ success: true, message: 'Appointments found', data: data })
+                    resolve({ success: true, message: 'Appointments found', data: data, })
                 } else {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
@@ -100,7 +99,6 @@ exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
 }
 
 exports.acceptAppointment = (appointmentId) => {
-    console.log(appointmentId)
     return new Promise((resolve, reject) => {
         model.findByIdAndUpdate(appointmentId, { accepted: true, dateAccepted: Date.now() }).exec((err, data) => {
             if (err) reject(err);
@@ -113,3 +111,16 @@ exports.acceptAppointment = (appointmentId) => {
     })
 }
 
+exports.completeAppointment = (appointmentId) => {
+    console.log(appointmentId)
+    return new Promise((resolve, reject) => {
+        model.findByIdAndUpdate(appointmentId, { completed: true, dateCompleted: Date.now() }).exec((err, data) => {
+            if (err) reject(err);
+            if (data) {
+                resolve({ success: true, message: 'Appointments completed' })
+            } else {
+                resolve({ success: false, message: 'Unable to complete appointment!!' })
+            }
+        });
+    })
+}
