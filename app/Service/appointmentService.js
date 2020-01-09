@@ -110,7 +110,6 @@ exports.acceptAppointment = (appointmentId) => {
 }
 
 exports.completeAppointment = (appointmentId) => {
-    console.log(appointmentId)
     return new Promise((resolve, reject) => {
         model.findByIdAndUpdate(appointmentId, { completed: true, dateCompleted: Date.now() }).exec((err, data) => {
             if (err) reject(err);

@@ -125,5 +125,13 @@ module.exports = function authController() {
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
+
+    this.getStylerTotalAmount = (req, res) => {
+        StylersService.getStylerTotalAmount(req.auth.Id).then(data => {
+            res.json({ data });
+        }).catch(err => {
+            res.status(500).send(err);
+        })
+    }
 }
 

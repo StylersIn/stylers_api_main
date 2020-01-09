@@ -19,6 +19,7 @@ module.exports = function () {
     router.put('/update/services', middleware.authenticate, StylerauthCtrl.UpdateServices)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
     router.post('/review/:id', middleware.authenticate, StylerauthCtrl.StylerReview);
+    router.get('/stats', middleware.StylerAuthenticate , StylerauthCtrl.getStylerTotalAmount);
 
     return router;
 }

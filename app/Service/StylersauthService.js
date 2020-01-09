@@ -4,6 +4,7 @@ var client = require('../Model/user');
 var mailer = require('../Middleware/mailer');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
+var booking = require('../Model/booking');
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
 var secret = process.env.Secret;
@@ -383,5 +384,25 @@ exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20) => {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
             });
+    })
+}
+
+exports.getStylerTotalAmount = (data) => {
+    return new Promise((resolve, reject) => {
+        booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).then(found => {
+            if (found) {
+                booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).count((err, total) => {
+                    if (err) reject(err)
+                    var a = found.map(b => b.totalAmount)
+                    let sumTotal = a.reduce((c, d) => c + d, 0)
+                    resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total })
+                })
+            } else {
+                resolve({ success: false, message: ' Styler sum total not found !!!' })
+            }
+
+        }).catch(err => {
+            reject(err);
+        })
     })
 }
