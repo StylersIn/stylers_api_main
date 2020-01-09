@@ -31,8 +31,6 @@ exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     })
 }
 
-
-
 exports.BookService = (options) => {
     return new Promise((resolve, reject) => {
         BookingRepo.add(options).then(created => {

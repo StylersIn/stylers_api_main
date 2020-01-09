@@ -1,10 +1,8 @@
-var BookingService = require('../Service/BookingService');
+var BookingService = require('../Service/appointmentService');
 module.exports = function ServicesController() {
 
     this.SearchServices = (req, res) => {
-        console.log('kkkk')
         var option = req.query.service;
-        console.log(option)
         BookingService.FindStyler(option).then((data) => {
             res.json({ data });
         }).catch((err) => {
