@@ -19,7 +19,7 @@ var BookingSchema = new Schema({
     seen: Boolean,
     dateSeen: { type: Date },
     streetName: { type: String },
-    totalAmount: { type: String },
+    totalAmount: { type: Number },
     scheduledDate: { type: Date, default: new Date() },
     startServiceDate: { type: Date, default: new Date() },
     endServiceDate: { type: Date, default: new Date() },

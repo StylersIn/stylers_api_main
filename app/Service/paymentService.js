@@ -1,5 +1,5 @@
 var model = require('../Model/payment');
-
+var booking = require('../Model/booking');
 exports.CreatePayment = (options)=>{
     return new Promise((resolve , reject)=>{
         model.create(options).then(created =>{
@@ -14,13 +14,33 @@ exports.CreatePayment = (options)=>{
     })
 }
 
+// exports.getStylerTotalAmount = (data)=>{
+//     return new Promise((resolve , reject)=>{
+//         model.find({stylerId: data}).then(found =>{
+//             if (found){
+//                 var a =  found.map(b => b.amount)
+//                 let sumTotal = a.reduce((c, d)=> c+ d ,0) 
+//                 resolve({success:true , message:'total amount' , data:sumTotal})
+//             }else{
+//                 resolve({success: false  , message:' Styler sum total not found !!!'})
+//             }
+
+//         }).catch(err =>{
+//             reject(err);
+//         })
+//     })
+// }
+
 exports.getStylerTotalAmount = (data)=>{
     return new Promise((resolve , reject)=>{
-        model.find({stylerId: data}).then(found =>{
+        booking.find({$and:[{stylerId: data} ,{completed:true},{accepted:true}]}).then(found =>{
             if (found){
-                var a =  found.map(b => b.amount)
-                let sumTotal = a.reduce((c, d)=> c+ d ,0) 
-                resolve({success:true , message:'total amount' , data:sumTotal})
+        booking.find({$and:[{stylerId: data} ,{completed:true},{accepted:true}]  }).count((err , total)=>{
+            if(err)reject(err)
+             var a =  found.map(b => b.totalAmount)
+              let sumTotal = a.reduce((c, d)=> c+ d ,0) 
+              resolve({success:true , message:'total amount' , totalAmount:sumTotal , clients:total})  
+        })
             }else{
                 resolve({success: false  , message:' Styler sum total not found !!!'})
             }
