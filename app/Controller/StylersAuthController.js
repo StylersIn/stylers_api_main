@@ -112,15 +112,15 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
-    
+
     this.favouriteStylerService = function (req, res, next) {
-        StylersService.FavouriteStyler(req.auth.publicId,req.params.id ,req.body.service)
+        StylersService.FavouriteStyler(req.auth.publicId, req.params.id, req.body.service)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
     this.StylerReview = function (req, res, next) {
-        var data = { userId: req.auth.Id, message: req.body.review, CreatedAt:Date.now() }
+        var data = { userId: req.auth.Id, message: req.body.review, CreatedAt: Date.now() }
         StylersService.reviewStyler(req.params.id, data)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
@@ -128,6 +128,14 @@ module.exports = function authController() {
 
     this.getStylerTotalAmount = (req, res) => {
         StylersService.getStylerTotalAmount(req.auth.Id).then(data => {
+            res.json({ data });
+        }).catch(err => {
+            res.status(500).send(err);
+        })
+    }
+
+    this.updateStylerLocation = (req, res) => {
+        StylersService.updateStylerLocation(req.body.location, req.auth.Id).then(data => {
             res.json({ data });
         }).catch(err => {
             res.status(500).send(err);

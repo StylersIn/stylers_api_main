@@ -102,7 +102,14 @@ exports.verifyAccount = (email, Token) => {
                 var userId = data._id
                 return User.findByIdAndUpdate({ _id: userId }, { status: true }, function (err, updated) {
                     if (err) resolve({ status: false, message: 'Error Verifying User' })
-                    resolve({ status: true, message: 'User has been verified ' })
+                    getUserDetail(updated, updated.publicId).then(userdetail => {
+                        generateToken(userdetail).then((token) => {
+                            resolve({ status: true, message: 'User has been verified', data: { user: updated, token: token } })
+                            // resolve({ success: true, data: { user, token: token }, message: 'authentication successful' })
+                        }).catch((err) => {
+                            reject({ success: false, data: err, message: 'could not authenticate user' })
+                        })
+                    })
                 })
             }
             resolve({ status: false, message: 'Invalid token supplied' })

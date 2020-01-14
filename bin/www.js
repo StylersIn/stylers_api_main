@@ -5,6 +5,7 @@
  */
 
 var app = require('../server');
+var socket = require('../app/Service/SocketService');
 
 var http = require('http');
 var normalizePort = require('normalize-port');
@@ -12,7 +13,7 @@ var normalizePort = require('normalize-port');
  * Get port from environment and store in Express.
  */
 
- 
+
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
@@ -22,7 +23,7 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-var server =  http.createServer(app);
+var server = http.createServer(app);
 
 /*r
 * Initialize socket connection
@@ -32,15 +33,16 @@ var server =  http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
- /**
-  * Database configuration
-  */
+/**
+ * Database configuration
+ */
 
- //dbConfiguration(io);
- server.listen(port);
- server.on('error', onError);
+//dbConfiguration(io);
+server.listen(port);
+server.on('error', onError);
 server.on('listening', onListening);
 
+socket.init(server);
 // NotificationConfig(socket);
 /**
  * Normalize a port into a number, string, or false.
@@ -58,7 +60,7 @@ function normalizePort(val) {
         // port number
         return port;
     }
-    
+
     return false;
 }
 
@@ -70,24 +72,24 @@ function onError(error) {
     if (error.syscall !== 'listen') {
         throw error;
     }
-    
+
     var bind = typeof port === 'string' ?
-    'Pipe ' + port :
-    'Port ' + port;
-    
+        'Pipe ' + port :
+        'Port ' + port;
+
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
-        console.error(bind + ' requires elevated privileges');
-        process.exit(1);
-        break;
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
         case 'EADDRINUSE':
-        console.error(bind + ' is already in use');
-        process.exit(1);
-        break;
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
         default:
             throw error;
-        }
+    }
 }
 
 /**

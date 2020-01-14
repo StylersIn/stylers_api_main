@@ -14,6 +14,10 @@ var BookingSchema = new Schema({
         longitude: String,
         // streetName: String,
     },
+    stylerLocation: {
+        latitude: String,
+        longitude: String,
+    },
     accepted: Boolean,
     completed: Boolean,
     seen: Boolean,

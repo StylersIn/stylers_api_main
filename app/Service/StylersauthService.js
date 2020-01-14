@@ -30,19 +30,20 @@ exports.RegisterUser = (Options) => {
                         var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
                         StylerRepo.add(u).then(added => {
                             if (added) {
-                                mailer.StylerReg(b.email).then(sent => {
-                                    if (!sent) {
-                                        resolve({ success: false, message: 'Registration error' });
-                                    } else {
-                                        // resolve({ success: true, message: 'Registration Successful' });
-                                        getUserDetail(created, created.publicId).then(userdetail => {
-                                            generateToken(userdetail).then((token) => {
-                                                resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
-                                            }).catch((err) => {
-                                                reject({ success: false, data: err, message: 'could not authenticate user' })
-                                            })
-                                        })
-                                    }
+                                // mailer.StylerReg(b.email).then(sent => {
+                                //     if (!sent) {
+                                //         resolve({ success: false, message: 'Registration error' });
+                                //     } else {
+                                //         // resolve({ success: true, message: 'Registration Successful' });
+                                        
+                                //     }
+                                // })
+                                getUserDetail(created, created.publicId).then(userdetail => {
+                                    generateToken(userdetail).then((token) => {
+                                        resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                                    }).catch((err) => {
+                                        reject({ success: false, data: err, message: 'could not authenticate user' })
+                                    })
                                 })
                             } else {
                                 resolve({ success: true, message: 'Error signing styler up ' });
@@ -318,7 +319,7 @@ exports.updateProfile = function (id, data) {
 function getUserDetail(user, Id) {
     return new Promise((resolve, reject) => {
         StylerRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 }).then(data => {
-            var specificUserDetail = { email: user.email, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
+            var specificUserDetail = { email: user.email, name: user.name, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
             resolve(specificUserDetail);
         }).catch(error => reject(error))
 
@@ -397,6 +398,21 @@ exports.getStylerTotalAmount = (data) => {
                     let sumTotal = a.reduce((c, d) => c + d, 0)
                     resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total })
                 })
+            } else {
+                resolve({ success: false, message: ' Styler sum total not found !!!' })
+            }
+
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+exports.updateStylerLocation = (location, Id) => {
+    return new Promise((resolve, reject) => {
+        booking.updateByQuery({ userId: Id }, { stylerLocation: location }).then(result => {
+            if (result) {
+                resolve({ success: true, message: 'styler current location', })
             } else {
                 resolve({ success: false, message: ' Styler sum total not found !!!' })
             }

@@ -15,7 +15,7 @@ module.exports = function () {
     // router.post('/addService/:id', StylerauthCtrl.AddServices);
     router.get('/stylers/sort/', StylerauthCtrl.SortStylers);
     router.post('/favourite/:id', middleware.authenticate, StylerauthCtrl.favouriteStylerService);
-    router.put('/update', middleware.authenticate, multer.upload.single('image'), StylerauthCtrl.updateClientProfile)
+    router.put('/update/avatar', middleware.authenticate, multer.upload.single('image'), StylerauthCtrl.updateClientProfile)
     router.put('/update/services', middleware.authenticate, StylerauthCtrl.UpdateServices)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
     router.post('/review/:id', middleware.authenticate, StylerauthCtrl.StylerReview);
