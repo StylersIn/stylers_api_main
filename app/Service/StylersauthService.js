@@ -35,7 +35,7 @@ exports.RegisterUser = (Options) => {
                                 //         resolve({ success: false, message: 'Registration error' });
                                 //     } else {
                                 //         // resolve({ success: true, message: 'Registration Successful' });
-                                        
+
                                 //     }
                                 // })
                                 getUserDetail(created, created.publicId).then(userdetail => {
@@ -415,6 +415,21 @@ exports.updateStylerLocation = (location, Id) => {
                 resolve({ success: true, message: 'styler current location', })
             } else {
                 resolve({ success: false, message: ' Styler sum total not found !!!' })
+            }
+
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+exports.GetStylersServices = (Id) => {
+    return new Promise((resolve, reject) => {
+        Styler.findById({ userId: Id }).then(result => {
+            if (result) {
+                resolve({ success: true, message: 'styler services', data: result.services, })
+            } else {
+                resolve({ success: false, message: 'Error while fetching styler service' })
             }
 
         }).catch(err => {
