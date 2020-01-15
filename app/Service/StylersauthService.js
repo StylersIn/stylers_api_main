@@ -425,15 +425,17 @@ exports.updateStylerLocation = (location, Id) => {
 
 exports.GetStylersServices = (Id) => {
     return new Promise((resolve, reject) => {
-        Styler.findOne({ userId: Id }).then(result => {
-            if (result) {
-                resolve({ success: true, message: 'styler services', data: result.services, })
-            } else {
-                resolve({ success: false, message: 'Error while fetching styler service' })
-            }
+        Styler.findOne({ userId: Id })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .then(result => {
+                if (result) {
+                    resolve({ success: true, message: 'styler services', data: result.services, })
+                } else {
+                    resolve({ success: false, message: 'Error while fetching styler service' })
+                }
 
-        }).catch(err => {
-            reject(err);
-        })
+            }).catch(err => {
+                reject(err);
+            })
     })
 }
