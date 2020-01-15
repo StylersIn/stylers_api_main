@@ -425,7 +425,7 @@ exports.updateStylerLocation = (location, Id) => {
 
 exports.GetStylersServices = (Id) => {
     return new Promise((resolve, reject) => {
-        Styler.findById({ userId: Id }).then(result => {
+        Styler.findOne({ userId: Id }).then(result => {
             if (result) {
                 resolve({ success: true, message: 'styler services', data: result.services, })
             } else {

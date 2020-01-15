@@ -18,7 +18,7 @@ module.exports = function () {
     router.put('/update/avatar', middleware.authenticate, multer.upload.single('image'), StylerauthCtrl.updateClientProfile)
     router.put('/update/services', middleware.authenticate, StylerauthCtrl.UpdateServices)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
-    router.get('/services', StylerauthCtrl.GetStylersServices);
+    router.get('/services', middleware.authenticate, StylerauthCtrl.GetStylersServices);
     router.post('/review/:id', middleware.authenticate, StylerauthCtrl.StylerReview);
     router.get('/stats', middleware.StylerAuthenticate , StylerauthCtrl.getStylerTotalAmount);
 
