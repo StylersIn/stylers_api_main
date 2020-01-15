@@ -135,11 +135,9 @@ module.exports = function authController() {
     }
 
     this.updateStylerLocation = (req, res) => {
-        StylersService.updateStylerLocation(req.body.location, req.auth.Id).then(data => {
-            res.json({ data });
-        }).catch(err => {
-            res.status(500).send(err);
-        })
+        StylersService.updateStylerLocation(req.body.location, req.auth.Id)
+            .then(data => res.json(data))
+            .catch(err => res.status(500).send(err));
     }
 
     this.GetStylersServices = (req, res) => {
