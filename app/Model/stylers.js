@@ -13,8 +13,8 @@ var stylersSchema = new Schema({
     IsVerified: { type: Boolean },
     role:{type: String},
     services: [{
-        favorites: [{ type: String, ref: 'user', autopopulate: true }],
-        serviceId: { type: String, ref: 'services', autopopulate: true },
+        // favorites: [{ type: String, ref: 'user', autopopulate: true }],
+        serviceId: { type: String, ref: 'services.subServices', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }
     }],

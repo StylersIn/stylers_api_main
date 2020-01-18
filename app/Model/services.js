@@ -4,9 +4,11 @@ var servicesSchema = new Schema({
     name: { type: String, required: true },
     imageUrl: { type: String, default: '' },
     imageID: { type: String, default: '' },
-    gender:[],
+    gender: [],
     CreatedAt: { type: Date },
-    
+    subServices: [{
+        name: String,
+    }]
 })
 
 servicesSchema.index({ '$**': 'text', "name": 'text' });

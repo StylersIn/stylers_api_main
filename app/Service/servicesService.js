@@ -1,81 +1,117 @@
-var services  = require('../Model/services');
+var services = require('../Model/services');
 var BaseRepository = require('../Repository/BaseRepository');
 var ServiceRepo = new BaseRepository(services)
 
-exports.CreateService = (Options)=>{
-return new Promise((resolve, reject)=>{
-    services.findOne({name:Options.name}).then(found =>{
-        if(found){
-           resolve({success:false , message:'Sorry service already exists !!!'})
-        }else{
-            ServiceRepo.add(Options).then(created =>{
-                if(created){
-                    resolve({success:true , message:'Service has been created successfully !!!'})
-                }else{
-                    resolve({success:false , message:'Error Enocuntered while creating service..'})
-                }
-            })
-        }
-    }).catch(err =>{
-        reject(err);
-    })
-})
-}
-
-exports.GetAllServices = ( pagenumber = 1, pagesize = 20)=>{
-    return new Promise((resolve, reject)=>{
-        services.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-        .then(data =>{
-            if(data){
-                resolve({success:true , message:data})
-            }else{
-                resolve({success:false , message:'could not your search !!!'})
+exports.CreateService = (Options) => {
+    return new Promise((resolve, reject) => {
+        services.findOne({ name: Options.name }).then(found => {
+            if (found) {
+                resolve({ success: false, message: 'Sorry service already exists !!!' })
+            } else {
+                ServiceRepo.add(Options).then(created => {
+                    if (created) {
+                        resolve({ success: true, message: 'Service has been created successfully !!!' })
+                    } else {
+                        resolve({ success: false, message: 'Error Enocuntered while creating service..' })
+                    }
+                })
             }
-        }).catch(err =>{
+        }).catch(err => {
             reject(err);
         })
-      
+    })
+}
+
+exports.CreateSubService = (Options, serviceId) => {
+    return new Promise((resolve, reject) => {
+        services.findOne({ 'subServices.name': Options.name }).then(found => {
+            if (found) {
+                resolve({ success: false, message: 'Sorry sub service already exists !!!' })
+            } else {
+                services.findOneAndUpdate({ _id: serviceId }, { $push: { subServices: Options } }).then(created => {
+                    if (created) {
+                        resolve({ success: true, message: 'Sub Service has been created successfully !!!' })
+                    } else {
+                        resolve({ success: false, message: 'Error Enocuntered while creating sub service..' })
+                    }
+                })
+            }
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+exports.GetAllServices = (pagenumber = 1, pagesize = 20) => {
+    return new Promise((resolve, reject) => {
+        services.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .then(data => {
+                if (data) {
+                    resolve({ success: true, message: data })
+                } else {
+                    resolve({ success: false, message: 'could not your search !!!' })
+                }
+            }).catch(err => {
+                reject(err);
+            })
+
     });
 }
 
-exports.GetServiceById = (Id)=>{
-return new Promise((resolve , reject)=>{
-    services.findById({_id:Id}).then(data =>{
-        if(data){
-            resolve({success:true , message:data})
-        }else{
-            resolve({success: false , message:'Could not get Service'})
-        }
-    }).catch(err =>{
-        reject(err);
-    })
-})
+exports.GetAllSubServices = (pagenumber = 1, pagesize = 20) => {
+    return new Promise((resolve, reject) => {
+        services.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .then(data => {
+                if (data) {
+                    resolve({ success: true, message: data })
+                } else {
+                    resolve({ success: false, message: 'could not your search !!!' })
+                }
+            }).catch(err => {
+                reject(err);
+            })
+
+    });
 }
 
-exports.DeleteService = (Id)=>{
-    return new Promise((resolve , reject)=>{
-        services.findByIdAndRemove({_id:Id}).then(data =>{
-            if(data){
-                resolve({success:true , message:'Service deleted successfully '})
-            }else{
-                resolve({success: false , message:'Could not delete Service'})
+exports.GetServiceById = (Id) => {
+    return new Promise((resolve, reject) => {
+        services.findById({ _id: Id }).then(data => {
+            if (data) {
+                resolve({ success: true, message: data })
+            } else {
+                resolve({ success: false, message: 'Could not get Service' })
             }
-        }).catch(err =>{
+        }).catch(err => {
             reject(err);
         })
     })
-    }
+}
 
-exports.UpdateService = function(id ,data){
-    return new Promise((resolve, reject)=>{
-        ServiceRepo.updateByQuery({_id: id}, data).then(updated =>{
-            if(updated){
-                ServiceRepo.getById(updated._id)
-                .then(data => resolve({success:true , data:data , message:"your Service was updated successfully"}))
-                .catch(err => resolve({success:false , data:err , message:"unable to update Service"}))
+exports.DeleteService = (Id) => {
+    return new Promise((resolve, reject) => {
+        services.findByIdAndRemove({ _id: Id }).then(data => {
+            if (data) {
+                resolve({ success: true, message: 'Service deleted successfully ' })
+            } else {
+                resolve({ success: false, message: 'Could not delete Service' })
             }
         }).catch(err => {
-            reject({success: false, data: err, message: "Error Updating service "});
+            reject(err);
+        })
+    })
+}
+
+exports.UpdateService = function (id, data) {
+    return new Promise((resolve, reject) => {
+        ServiceRepo.updateByQuery({ _id: id }, data).then(updated => {
+            if (updated) {
+                ServiceRepo.getById(updated._id)
+                    .then(data => resolve({ success: true, data: data, message: "your Service was updated successfully" }))
+                    .catch(err => resolve({ success: false, data: err, message: "unable to update Service" }))
+            }
+        }).catch(err => {
+            reject({ success: false, data: err, message: "Error Updating service " });
         });
     })
 }
@@ -83,7 +119,7 @@ exports.UpdateService = function(id ,data){
 
 exports.SearchService = function (option) {
     return new Promise((resolve, reject) => {
-        services.find({ name: { $regex: option, $options: 'i' } } )
+        services.find({ name: { $regex: option, $options: 'i' } })
             .exec((err, found) => {
                 if (err) { reject(err); }
                 if (found == null || Object.keys(found).length === 0) {

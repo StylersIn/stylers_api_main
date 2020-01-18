@@ -31,8 +31,27 @@ module.exports = function ServicesController() {
             });
     };
 
+    this.CreateSubService = async (req, res) => {
+        var requestDetails = {
+            name: req.body.name,
+        };
+        ServicesService.CreateSubService(requestDetails, req.params.serviceId)
+            .then(data => {
+                res.status(200).send(data);
+            })
+            .catch(err => {
+                res.status(500).send(err);
+            });
+    };
+
     this.GetAllServices = function (req, res) {
         ServicesService.GetAllServices(req.params.pagenumber, req.params.pagesize)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.GetAllSubServices = function (req, res) {
+        ServicesService.GetAllSubServices(req.params.serviceId, req.params.pagenumber, req.params.pagesize)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
