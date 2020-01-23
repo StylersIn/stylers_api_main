@@ -9,8 +9,8 @@ module.exports = function(){
     router.post('/verify', authCtrl.VerifyUser);
     router.post('/verify/social', authCtrl.VerifySocial);
     router.post('/verify/token', authCtrl.VerifyToken);
-    router.put('/update', middleware.authenticate , multer.upload.single('image') , authCtrl.updateClientProfile)
-
+    router.put('/update', middleware.authenticate , multer.upload.single('image') , authCtrl.updateClientProfile);
+    router.get('/user/:id', middleware.authenticate, authCtrl.getUserData);
 
     return router;
 }

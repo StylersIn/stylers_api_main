@@ -427,6 +427,8 @@ exports.GetStylersServices = (Id) => {
     return new Promise((resolve, reject) => {
         Styler.findOne({ userId: Id })
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            // .populate({ path: "services.subServiceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "services.subServiceId", model: "services" })
             .then(result => {
                 if (result) {
                     resolve({ success: true, message: 'styler services', data: result.services, })

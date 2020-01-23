@@ -72,6 +72,7 @@ function authenticateuser(email, password) {
                 } else {
                     var validPassword = bcrypt.compareSync(password, user.password);
                     if (validPassword) {
+                        console.log(user)
                         if (user.status == false) {
                             resolve({ success: false, message: 'Please Verify your account ' });
                         } else {
@@ -102,10 +103,10 @@ exports.verifyAccount = (email, Token) => {
                 var userId = data._id
                 return User.findByIdAndUpdate({ _id: userId }, { status: true }, function (err, updated) {
                     if (err) resolve({ status: false, message: 'Error Verifying User' })
-                    getUserDetail(updated, updated.publicId).then(userdetail => {
-                        generateToken(userdetail).then((token) => {
-                            resolve({ status: true, message: 'User has been verified', data: { user: updated, token: token } })
-                            // resolve({ success: true, data: { user, token: token }, message: 'authentication successful' })
+                    getUserDetail(updated, updated.publicId).then(userDetail => {
+                        generateToken(userDetail).then((token) => {
+                            // resolve({ status: true, message: 'User has been verified', data: { user: updated, token: token } })
+                            resolve({ success: true, data: { user: userDetail, token: token }, message: 'authentication successful' })
                         }).catch((err) => {
                             reject({ success: false, data: err, message: 'could not authenticate user' })
                         })
@@ -186,4 +187,13 @@ function verifyToken(token = "") {
         });
     });
 };
+
+exports.getUserData = function (Id) {
+    return new Promise((resolve, reject) => {
+        UserRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 })
+            .then(user => resolve({ success: true, data: user, message: "user details" }))
+            .catch(err => reject({ success: false, data: err, message: "unable to fetch user details" }))
+    })
+}
+
 exports.verifyToken = verifyToken;
