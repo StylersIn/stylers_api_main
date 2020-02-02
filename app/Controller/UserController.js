@@ -1,4 +1,4 @@
-var userService = require('../Service/UserauthService');
+var userService = require('../Service/UserService');
 var cloudinary = require('../Middleware/cloudinary')
 var mongoose = require('mongoose');
 var rand = require('random-number');
