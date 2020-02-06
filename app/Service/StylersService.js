@@ -5,6 +5,7 @@ var mailer = require('../Middleware/mailer');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var booking = require('../Model/booking');
+var user = require('../Model/user');
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
 var secret = process.env.Secret;
@@ -304,7 +305,7 @@ exports.sortStylersByRating = (serviceId) => {
 
 exports.updateProfile = function (id, data) {
     return new Promise((resolve, reject) => {
-        StylerRepo.updateByQuery({ publicId: id }, data).then(updated => {
+        user.update({ publicId: id }, data).then(updated => {
             if (updated) {
                 StylerRepo.getById(updated._id)
                     .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
@@ -322,7 +323,6 @@ function getUserDetail(user, Id) {
             var specificUserDetail = { email: user.email, name: user.name, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
             resolve(specificUserDetail);
         }).catch(error => reject(error))
-
     })
 }
 
@@ -359,6 +359,7 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
     return new Promise((resolve, reject) => {
         Styler.find({ "services.serviceId": { $in: serviceId } })
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .populate({ path: "userId", model: "user", select: { __v: 0 } })
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { name: 1 } })
             .exec((err, stylers) => {
@@ -428,7 +429,7 @@ exports.GetStylersServices = (Id) => {
         Styler.findOne({ userId: Id })
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             // .populate({ path: "services.subServiceId", model: "services", select: { _id: 0, __v: 0 } })
-            .populate({ path: "services.subServiceId", model: "services" })
+            // .populate({ path: "services.subServiceId", model: "services" })
             .then(result => {
                 if (result) {
                     resolve({ success: true, message: 'styler services', data: result.services, })

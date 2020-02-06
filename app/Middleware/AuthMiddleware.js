@@ -1,5 +1,5 @@
-var authService = require('../Service/UserauthService');
-var StylerService = require('../Service/StylersauthService');
+var authService = require('../Service/UserService');
+var StylerService = require('../Service/StylersService');
 var BaseRepository = require('../Repository/BaseRepository');
 var User = require('../Model/user');
 var styler = require('../Model/stylers');

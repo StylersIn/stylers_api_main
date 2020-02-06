@@ -1,8 +1,10 @@
-var StylersauthController = require('../Controller/StylersAuthController');
+var StylersauthController = require('../Controller/StylersController');
 var middleware = require('../Middleware/AuthMiddleware');
 var multer = require('../Middleware/multer')
 var router = require('express').Router();
 var _base64ToFile = require('../Service/UtilityService').base64ToFile;
+var _cloudinaryHelper = require('../Service/UtilityService').cloudinaryHelper;
+var _config = require('../config');
 
 module.exports = function () {
     const StylerauthCtrl = new StylersauthController();
@@ -17,7 +19,7 @@ module.exports = function () {
     // router.post('/addService/:id', StylerauthCtrl.AddServices);
     router.get('/stylers/sort/', StylerauthCtrl.SortStylers);
     router.post('/favourite/:id', middleware.authenticate, StylerauthCtrl.favouriteStylerService);
-    router.put('/update/avatar', middleware.authenticate, _base64ToFile("image"), StylerauthCtrl.updateClientProfile)
+    router.put('/update/avatar', middleware.authenticate, _base64ToFile("image", _cloudinaryHelper({}, _config.cloudinary)), StylerauthCtrl.updateClientProfile)
     router.put('/update/services', middleware.authenticate, StylerauthCtrl.UpdateServices)
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
     router.get('/services', middleware.authenticate, StylerauthCtrl.GetStylersServices);

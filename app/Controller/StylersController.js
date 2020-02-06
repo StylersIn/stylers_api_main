@@ -1,6 +1,7 @@
-var StylersService = require('../Service/StylersauthService');
+var StylersService = require('../Service/StylersService');
 var cloudinary = require('../Middleware/cloudinary')
 var mongoose = require('mongoose');
+
 module.exports = function authController() {
     this.register = (req, res, next) => {
         // var Options = {
@@ -80,23 +81,14 @@ module.exports = function authController() {
     }
 
     this.updateClientProfile = async (req, res) => {
-        console.log("checking file", (req.file != null && req.file !== undefined));
-        var requestDetails = {
+        var requestDetails = {};
 
-            image: (req.file != null && req.file !== undefined) ? req.file.path : null
-        };
-
-        console.log("file detail recieved", requestDetails.image);
-        if (req.image !== null && req.file !== undefined) {
-            await cloudinary.uploadToCloud(requestDetails.image).then((img) => {
-                console.log("Cloudinary details recieved", img.url);
-                requestDetails.imageUrl = img.url;
-                requestDetails.imageID = img.ID;
-                return requestDetails;
-            });
+        if (req.body.image) {
+            requestDetails.imageUrl = req.body.image.secure_url;
+            requestDetails.imageID = req.body.image.public_id;
         }
 
-        console.log("calling outside await")
+        console.log("calling outside await", requestDetails)
         StylersService.updateProfile(req.auth.publicId, requestDetails)
             .then(data => {
                 res.status(200).send(data);

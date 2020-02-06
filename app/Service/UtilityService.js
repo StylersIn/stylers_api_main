@@ -19,7 +19,7 @@ function cloudinaryHelper(options, config) {
             if (error) {
                 callback(error);
             } else {
-                callback(null, image.secure_url);
+                callback(null, image);
             }
         });
     }
