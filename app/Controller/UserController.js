@@ -2,18 +2,14 @@ var userService = require('../Service/UserService');
 var cloudinary = require('../Middleware/cloudinary')
 var mongoose = require('mongoose');
 var rand = require('random-number');
-var gen = rand.generator({
-    min: 1000
-    , max: 100000
-    , integer: true
-})
 
 module.exports = function authController() {
     this.register = (req, res, next) => {
+        var gen =  Math.floor(1000 + Math.random() * 9000);
         var Options = {
             name: req.body.name,
             publicId: mongoose.Types.ObjectId(),
-            statusCode: gen(),
+            statusCode: gen,
             gender: req.body.gender,
             email: req.body.email,
             phoneNumber: req.body.phoneNumber,
