@@ -45,6 +45,10 @@ sockets.init = function (server) {
             })
         })
 
+        socket.on('appointmentBooked', function (userKey) {
+            io.sockets.in(userKey).emit('appointmentBooked.send');
+        })
+
         socket.on('accept.appointment', function (userKey) {
             io.sockets.in(userKey).emit('appointment.accepted');
         })
