@@ -1,6 +1,8 @@
 var services = require('../Model/services');
 var BaseRepository = require('../Repository/BaseRepository');
-var ServiceRepo = new BaseRepository(services)
+var subService = require('../Model/subService');
+var ServiceRepo = new BaseRepository(services);
+var SubServiceRepo = new BaseRepository(subService);
 
 exports.CreateService = (Options) => {
     return new Promise((resolve, reject) => {
@@ -22,13 +24,14 @@ exports.CreateService = (Options) => {
     })
 }
 
-exports.CreateSubService = (Options, serviceId) => {
+exports.CreateSubService = (Options, Id) => {
     return new Promise((resolve, reject) => {
-        services.findOne({ 'subServices.name': Options.name }).then(found => {
+        subService.findOne({ name: Options.name }).then(found => {
             if (found) {
                 resolve({ success: false, message: 'Sorry sub service already exists !!!' })
             } else {
-                services.findOneAndUpdate({ _id: serviceId }, { $push: { subServices: Options } }).then(created => {
+                SubServiceRepo.add(Options).then(created => {
+                    console.log(created)
                     if (created) {
                         resolve({ success: true, message: 'Sub Service has been created successfully !!!' })
                     } else {
@@ -60,7 +63,7 @@ exports.GetAllServices = (pagenumber = 1, pagesize = 20) => {
 
 exports.GetAllSubServices = (pagenumber = 1, pagesize = 20) => {
     return new Promise((resolve, reject) => {
-        services.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        subService.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .then(data => {
                 if (data) {
                     resolve({ success: true, message: data })
@@ -81,6 +84,35 @@ exports.GetServiceById = (Id) => {
                 resolve({ success: true, message: data })
             } else {
                 resolve({ success: false, message: 'Could not get Service' })
+            }
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+exports.GetSubServiceById = (Id) => {
+    return new Promise((resolve, reject) => {
+        subService.findById({ _id: Id }).then(data => {
+            if (data) {
+                resolve({ success: true, message: data })
+            } else {
+                resolve({ success: false, message: 'Could not get Sub Service' })
+            }
+        }).catch(err => {
+            reject(err);
+        })
+    })
+}
+
+exports.GetSubServiceByServiceId = (serviceId) => {
+    console.log(serviceId)
+    return new Promise((resolve, reject) => {
+        subService.find({ serviceId: serviceId }).then(data => {
+            if (data.length) {
+                resolve({ success: true, data: data })
+            } else {
+                resolve({ success: false, message: 'Could not get Sub Service' })
             }
         }).catch(err => {
             reject(err);

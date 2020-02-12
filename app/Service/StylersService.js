@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var booking = require('../Model/booking');
 var user = require('../Model/user');
+var subService = require('../Model/services').subServicesModel;
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
 var secret = process.env.Secret;
@@ -209,12 +210,12 @@ exports.getStylers = (pagenumber = 1, pagesize = 20) => {
     return new Promise((resolve, reject) => {
         Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "services.subServiceId", })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
                 if (stylers) {
-
                     resolve({ success: true, message: 'stylers found', data: stylers })
                 } else {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
@@ -361,6 +362,7 @@ exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "userId", model: "user", select: { __v: 0 } })
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
+            .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { name: 1 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
@@ -427,7 +429,7 @@ exports.updateStylerLocation = (location, Id) => {
 exports.GetStylersServices = (Id) => {
     return new Promise((resolve, reject) => {
         Styler.findOne({ userId: Id })
-            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            // .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             // .populate({ path: "services.subServiceId", model: "services", select: { _id: 0, __v: 0 } })
             // .populate({ path: "services.subServiceId", model: "services" })
             .then(result => {

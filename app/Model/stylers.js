@@ -15,7 +15,7 @@ var stylersSchema = new Schema({
     services: [{
         // favorites: [{ type: String, ref: 'user', autopopulate: true }],
         serviceId: { type: String, ref: 'services', autopopulate: true },
-        subServiceId: { type: String, ref: 'services', autopopulate: true },
+        subServiceId: { type: String, ref: 'subServices', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }
     }],

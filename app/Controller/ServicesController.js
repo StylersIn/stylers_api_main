@@ -1,5 +1,5 @@
 var ServicesService = require('../Service/servicesService');
-var cloudinary = require('../Middleware/cloudinary')
+var cloudinary = require('../Middleware/cloudinary');
 var mongoose = require('mongoose');
 module.exports = function ServicesController() {
 
@@ -34,8 +34,9 @@ module.exports = function ServicesController() {
     this.CreateSubService = async (req, res) => {
         var requestDetails = {
             name: req.body.name,
+            serviceId: req.params.serviceId,
         };
-        ServicesService.CreateSubService(requestDetails, req.params.serviceId)
+        ServicesService.CreateSubService(requestDetails)
             .then(data => {
                 res.status(200).send(data);
             })
@@ -51,7 +52,7 @@ module.exports = function ServicesController() {
     }
 
     this.GetAllSubServices = function (req, res) {
-        ServicesService.GetAllSubServices(req.params.serviceId, req.params.pagenumber, req.params.pagesize)
+        ServicesService.GetAllSubServices(req.params.Id, req.params.pagenumber, req.params.pagesize)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
@@ -62,6 +63,17 @@ module.exports = function ServicesController() {
             .catch(err => res.status(500).send(err));
     }
 
+    this.GetSubServiceById = function (req, res) {
+        ServicesService.GetSubServiceById(req.params.id)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.GetSubServiceByServiceId = function (req, res) {
+        ServicesService.GetSubServiceByServiceId(req.params.serviceId)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 
     this.DeleteService = function (req, res) {
         ServicesService.DeleteService(req.params.id)

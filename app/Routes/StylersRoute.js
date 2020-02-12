@@ -14,7 +14,7 @@ module.exports = function () {
     // router.put('/updateService/:id', StylerauthCtrl.UpdateServices);
     router.get('/stylers/sort/price/:id', StylerauthCtrl.SortStylersByPrice);
     router.get('/stylers/sort/rating/:id', StylerauthCtrl.SortStylersByRating);
-    router.get('/stylers/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
+    router.get('/:pagesize/:pagenumber', StylerauthCtrl.GetStylers);
     router.get('/styler/:id', StylerauthCtrl.GetStyler);
     // router.post('/addService/:id', StylerauthCtrl.AddServices);
     router.get('/stylers/sort/', StylerauthCtrl.SortStylers);

@@ -5,7 +5,7 @@ var BookingSchema = new Schema({
     userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
     stylerId: { type: mongoose.SchemaTypes.ObjectId, ref: 'stylers', autopopulate: true },
     services: [{
-        serviceId: { type: String, ref: 'services', autopopulate: true },
+        subServiceId: { type: String, ref: 'subServices', autopopulate: true },
         adult: { type: Number },
         child: { type: Number }
     }],
