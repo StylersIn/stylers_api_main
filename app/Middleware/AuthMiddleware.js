@@ -26,7 +26,6 @@ exports.authenticate = function (req, res, next) {
             })
         }).catch(err => {
             res.status(401).send({ success: false, message: "Invalid token", data: err });
-
         })
     } else {
         res.status(401).send({ success: false, message: "No token provided" });

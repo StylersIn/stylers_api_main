@@ -13,7 +13,9 @@ var userSchema = new Schema({
     imageID: { type: String, default: '' },
     CreatedAt: { type: Date },
     role: { type: String, required: true, default: 'user' },
-    type: { type: String, default: 'default' }
+    type: { type: String, default: 'default' },
+    pushToken: { type: String, },
+    userId: { type: String, },
 })
 
 module.exports = mongoose.model('user', userSchema);

@@ -1,5 +1,8 @@
 var model = require('../Model/payment');
 var booking = require('../Model/booking');
+const axios = require('axios');
+const request = require('request');
+
 exports.CreatePayment = (options) => {
     return new Promise((resolve, reject) => {
         model.create(options).then(created => {
@@ -11,6 +14,25 @@ exports.CreatePayment = (options) => {
         }).catch(err => {
             reject(err);
         })
+    })
+}
+
+exports.InitializeTransaction = (options) => {
+    return new Promise((resolve, reject) => {
+        options.reference = new Date().getTime();
+        request('https://api.paystack.co/transaction/initialize',
+            {
+                method: 'POST',
+                formData: options,
+                json: true,
+                headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
+            }, (err, res, response) => {
+                if (response) {
+                    resolve({ success: true, message: 'Success', data: response.data, })
+                } else {
+                    reject({ success: false, message: 'Sorry an error occured' })
+                }
+            });
     })
 }
 

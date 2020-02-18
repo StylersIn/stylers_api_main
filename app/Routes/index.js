@@ -9,7 +9,7 @@ module.exports = function (router) {
     router.use('/styler', StylerRoutes())
     router.use('/services', ServicesRoutes())
     router.use('/appointment', AppointmentRoutes())
-    router.use('/pay', PaymentRoutes())
+    router.use('/payment', PaymentRoutes())
     router.use('/help', ContactRoutes())
     return router;
 }

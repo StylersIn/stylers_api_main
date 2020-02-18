@@ -8,4 +8,10 @@ module.exports = function paymentController() {
             res.status(500).send(err);
         })
     }
+
+    this.initTransaction = (req, res) => {
+        service.InitializeTransaction(req.body)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 }

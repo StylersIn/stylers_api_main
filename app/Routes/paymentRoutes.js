@@ -4,6 +4,7 @@ var router = require('express').Router();
 module.exports = function(){
     const payCtrl = new paymentController();
     router.post('/', middleware.authenticate , payCtrl.create);
-    
+    router.post('/init', middleware.authenticate , payCtrl.initTransaction);
+
     return router;
 }
