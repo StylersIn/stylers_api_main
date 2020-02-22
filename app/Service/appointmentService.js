@@ -5,6 +5,8 @@ var service = require('../Model/services');
 var bookingFunction = require('../Middleware/bookingAlgo')
 var stylersRepo = require('../Repository/BaseRepository');
 var BookingRepo = new BaseRepo(model);
+const request = require('request');
+const user = require('../Model/user');
 
 exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     return new Promise((resolve, reject) => {
@@ -32,10 +34,47 @@ exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
 }
 
 exports.BookService = (options) => {
+    console.log(options)
     return new Promise((resolve, reject) => {
+        var saveCard = options['saveCard'];
+        if (saveCard) delete options['saveCard'];
         BookingRepo.add(options).then(created => {
             if (created) {
-                resolve({ success: true, message: 'Service booked successfully' })
+                request(`https://api.paystack.co/transaction/verify/${options.transactionReference}`,
+                    {
+                        method: 'GET',
+                        json: true,
+                        headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
+                    }, (err, res, result) => {
+                        if (result && result.data) {
+                            if (saveCard) {
+                                user.update(
+                                    { _id: options.userId },
+                                    {
+                                        $push: {
+                                            cards: {
+                                                cardNumber: result.data.authorization.last4,
+                                                expMonth: result.data.authorization.exp_month,
+                                                expYear: result.data.authorization.exp_year,
+                                                authorizationCode: result.data.authorization.authorization_code,
+                                                bank: result.data.authorization.bank,
+                                                cardType: result.data.card_type,
+                                            }
+                                        }
+                                    }
+                                    , (err, updated) => {
+                                        if (updated) {
+                                            // resolve({ success: true, message: 'success', data: updated, })
+                                            resolve({ success: true, message: 'Service booked successfully' })
+                                        }
+                                    })
+                            } else {
+                                resolve({ success: true, message: 'success', data: result.data, })
+                            }
+                        } else {
+                            reject({ success: false, message: 'failed', data: result.message, })
+                        }
+                    });
             } else {
                 resolve({ success: false, message: 'Could not complete your booking process' })
             }
@@ -117,6 +156,51 @@ exports.completeAppointment = (appointmentId) => {
                 resolve({ success: true, message: 'Appointments completed' })
             } else {
                 resolve({ success: false, message: 'Unable to complete appointment!!' })
+            }
+        });
+    })
+}
+
+// ratings: [{
+//     rating: { type: Number },
+//     userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+//     appointmentId: { type: String, ref: 'booking', autopopulate: true, },
+//     CreatedAt: { type: Date, default: Date.now }
+// }],
+// review: [{
+//     userId: { type: String, ref: 'user', autopopulate: true },
+//     appointmentId: { type: String, ref: 'booking', autopopulate: true, },
+//     message: { type: String },
+//     CreatedAt: { type: Date, default: Date.now }
+// }],
+
+exports.addRating = (options, auth) => {
+    return new Promise((resolve, reject) => {
+    console.log(options)
+
+        styler.update(
+            { userId: options.stylerId },
+            {
+                $push: {
+                    ratings: {
+                        rating: options.rating,
+                        userId: auth.Id,
+                        appointmentId: options.appointmentId,
+                    },
+                    review: {
+                        message: options.message,
+                        userId: auth.Id,
+                        appointmentId: options.appointmentId,
+                    }
+                }
+            }
+        ).exec((err, data) => {
+            console.log(data)
+            if (err) reject(err);
+            if (data) {
+                resolve({ success: true, message: 'Ratings added' })
+            } else {
+                resolve({ success: false, message: 'Unable to add ratings!!' })
             }
         });
     })

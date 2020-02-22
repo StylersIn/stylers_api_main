@@ -57,4 +57,10 @@ module.exports = function ServicesController() {
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
+
+    this.addRating = function (req, res, next) {
+        BookingService.addRating(req.body, req.auth)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 }

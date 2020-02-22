@@ -10,5 +10,6 @@ module.exports = function () {
     router.get('/styler/requests/:pagesize/:pagenumber', middleware.StylerAuthenticate, bookingCtrl.StylerRequests);
     router.put('/appointment/accept', bookingCtrl.acceptAppointment);
     router.put('/appointment/complete', bookingCtrl.completeAppointment);
+    router.put('/rating', middleware.authenticate, bookingCtrl.addRating);
     return router;
 }

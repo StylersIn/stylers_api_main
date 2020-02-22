@@ -30,6 +30,16 @@ var BookingSchema = new Schema({
     dateAccepted: { type: Date },
     dateCompleted: { type: Date },
     CreatedAt: { type: Date, default: Date.now },
+    transactionReference: { type: String, },
+    // review: [{
+    //     userId: { type: String, ref: 'user', autopopulate: true },
+    //     message: { type: String },
+    //     CreatedAt: { type: Date }
+    // }],
+    // ratings: [{
+    //     rating: { type: Number },
+    //     userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+    // }],
 })
 
 BookingSchema.plugin(mongoosastic)

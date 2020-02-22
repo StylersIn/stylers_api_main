@@ -196,4 +196,12 @@ exports.getUserData = function (Id) {
     })
 }
 
+exports.fetchCards = function (Id) {
+    return new Promise((resolve, reject) => {
+        UserRepo.getById(Id)
+            .then(user => resolve({ success: true, data: user.cards, message: "user saved cards" }))
+            .catch(err => reject({ success: false, data: err, message: "unable to fetch user cards" }))
+    })
+}
+
 exports.verifyToken = verifyToken;

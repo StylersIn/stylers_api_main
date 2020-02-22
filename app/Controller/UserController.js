@@ -89,4 +89,15 @@ module.exports = function authController() {
                 res.status(500).send(err);
             });
     };
+
+
+    this.fetchCards = async (req, res) => {
+        userService.fetchCards(req.auth.Id)
+            .then(data => {
+                res.status(200).send(data);
+            })
+            .catch(err => {
+                res.status(500).send(err);
+            });
+    };
 }

@@ -22,11 +22,14 @@ var stylersSchema = new Schema({
     ratings: [{
         rating: { type: Number },
         userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+        appointmentId: { type: String, ref: 'booking', autopopulate: true, },
+        CreatedAt: { type: Date, default: Date.now }
     }],
     review: [{
         userId: { type: String, ref: 'user', autopopulate: true },
+        appointmentId: { type: String, ref: 'booking', autopopulate: true, },
         message: { type: String },
-        CreatedAt: { type: Date }
+        CreatedAt: { type: Date, default: Date.now }
     }],
     favorites: [{
         type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true,
