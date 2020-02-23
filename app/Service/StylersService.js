@@ -402,7 +402,7 @@ exports.getStylerTotalAmount = (data) => {
                         var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
                         var a = found.map(b => b.totalAmount)
                         let sumTotal = a.reduce((c, d) => c + d, 0)
-                        resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total, rating, })
+                        resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total, rating: rating || 0, })
                     })
                 })
             } else {
