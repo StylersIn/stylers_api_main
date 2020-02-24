@@ -72,9 +72,8 @@ function authenticateuser(email, password) {
                 } else {
                     var validPassword = bcrypt.compareSync(password, user.password);
                     if (validPassword) {
-                        console.log(user)
                         if (user.status == false) {
-                            resolve({ success: false, message: 'Please Verify your account ' });
+                            resolve({ status: false, message: 'Please Verify your account ' });
                         } else {
                             getUserDetail(user, user.publicId).then(userdetail => {
                                 generateToken(userdetail).then((token) => {
@@ -122,15 +121,27 @@ exports.verifyAccount = (email, Token) => {
 
 exports.verifySocial = (email) => {
     return new Promise((resolve, reject) => {
-        User.findOne({ email: email }).then((data, err) => {
-            if (data) {
-                if (data.type === 'social-login') {
-                    resolve({ status: 0, message: 'User account was created with social media' })
+        User.findOne({ email: email }).then((user, err) => {
+            if (user) {
+                if (user.type === 'social-login') {
+                    if (user.status == false) {
+                        resolve({ status: false, message: 'Please Verify your account ' });
+                    } else {
+                        getUserDetail(user, user.publicId).then(userdetail => {
+                            generateToken(userdetail).then((token) => {
+                                resolve({ success: true, data: { user, token: token }, message: 'authentication successful' })
+                            }).catch((err) => {
+                                reject({ success: false, data: err, message: 'could not authenticate user' })
+                            })
+                        })
+                    }
+                } else {
+                    resolve({ success: false, message: 'Sorry, user account was not created with social media' })
                 }
-                resolve({ status: 1, message: 'Sorry, user account was not created with social media' })
+            } else {
+                if (err) resolve({ success: false, message: 'Error Verifying User' })
+                reject({ socialAccount: false, message: 'Sorry, user account does not exist' })
             }
-            if (err) resolve({ status: false, message: 'Error Verifying User' })
-            resolve({ status: true, message: 'Sorry, user account does not exist' })
         }).catch(err => {
             reject(err)
         })

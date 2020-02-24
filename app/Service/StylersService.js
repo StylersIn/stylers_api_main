@@ -395,7 +395,6 @@ exports.getStylerTotalAmount = (data) => {
     return new Promise((resolve, reject) => {
         booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).then(found => {
             if (found) {
-                console.log(found)
                 booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).count((err, total) => {
                     if (err) reject(err)
                     Styler.findById(data, (err, styler) => {
