@@ -3,6 +3,7 @@ var User = require('../Model/user');
 var mailer = require('../Middleware/mailer')
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
+var Sms = require('../Middleware/sms');
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
 exports.RegisterUser = (Options) => {
@@ -20,6 +21,7 @@ exports.RegisterUser = (Options) => {
             type: Options.type,
             CreatedAt: new Date()
         }
+ 
         User.findOne({ email: u.email }).then(exists => {
             if (exists) {
                 reject({ success: false, message: 'Sorry user already exists' });
@@ -28,7 +30,16 @@ exports.RegisterUser = (Options) => {
                     if (created) {
                         getUserDetail(created, created.publicId).then(userdetail => {
                             generateToken(userdetail).then((token) => {
-                                resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                                Sms.sendToken(u.phoneNumber,u.statusCode).then(sent =>{
+                                    if(sent){
+                                        resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                                    }else{
+                                        resolve({success:false , message:"Error occured while sending sms !!"})
+                                    }
+                                }).catch(err =>{
+                                    reject(err)
+                                })
+
                             }).catch((err) => {
                                 reject({ success: false, data: err, message: 'could not authenticate user' })
                             })
