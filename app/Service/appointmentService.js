@@ -7,6 +7,7 @@ var stylersRepo = require('../Repository/BaseRepository');
 var BookingRepo = new BaseRepo(model);
 const request = require('request');
 const user = require('../Model/user');
+const notify = require('../Service/OneSignalService');
 
 exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     return new Promise((resolve, reject) => {
@@ -34,47 +35,59 @@ exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
 }
 
 exports.BookService = (options) => {
-    console.log(options)
     return new Promise((resolve, reject) => {
         var saveCard = options['saveCard'];
         if (saveCard) delete options['saveCard'];
         BookingRepo.add(options).then(created => {
             if (created) {
-                request(`https://api.paystack.co/transaction/verify/${options.transactionReference}`,
-                    {
-                        method: 'GET',
-                        json: true,
-                        headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
-                    }, (err, res, result) => {
-                        if (result && result.data) {
-                            if (saveCard) {
-                                user.update(
-                                    { _id: options.userId },
-                                    {
-                                        $push: {
-                                            cards: {
-                                                cardNumber: result.data.authorization.last4,
-                                                expMonth: result.data.authorization.exp_month,
-                                                expYear: result.data.authorization.exp_year,
-                                                authorizationCode: result.data.authorization.authorization_code,
-                                                bank: result.data.authorization.bank,
-                                                cardType: result.data.card_type,
+                if (options.initial) {
+                    request(`https://api.paystack.co/transaction/verify/${options.transactionReference}`,
+                        {
+                            method: 'GET',
+                            json: true,
+                            headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
+                        }, (err, res, result) => {
+                            if (result && result.data) {
+                                if (saveCard) {
+                                    user.update(
+                                        { _id: options.userId },
+                                        {
+                                            $push: {
+                                                cards: {
+                                                    cardNumber: result.data.authorization.last4,
+                                                    expMonth: result.data.authorization.exp_month,
+                                                    expYear: result.data.authorization.exp_year,
+                                                    authorizationCode: result.data.authorization.authorization_code,
+                                                    bank: result.data.authorization.bank,
+                                                    cardType: result.data.card_type,
+                                                }
                                             }
                                         }
-                                    }
-                                    , (err, updated) => {
-                                        if (updated) {
-                                            // resolve({ success: true, message: 'success', data: updated, })
-                                            resolve({ success: true, message: 'Service booked successfully' })
-                                        }
-                                    })
+                                        , (err, updated) => {
+                                            if (updated) {
+                                                notify.sendNotice(
+                                                    [options.stylerId],
+                                                    "New Appointment",
+                                                    `You have a new appointment`,
+                                                    (err, result) => console.log("sending push notification..." + result || err));
+                                                resolve({ success: true, message: 'Service booked successfully' })
+                                            }
+                                        })
+                                } else {
+                                    resolve({ success: true, message: 'success', data: result.data, })
+                                }
                             } else {
-                                resolve({ success: true, message: 'success', data: result.data, })
+                                reject({ success: false, message: 'failed', data: result.message, })
                             }
-                        } else {
-                            reject({ success: false, message: 'failed', data: result.message, })
-                        }
-                    });
+                        });
+                } else {
+                    notify.sendNotice(
+                        [options.stylerId],
+                        "New Appointment",
+                        `You have a new appointment`,
+                        (err, result) => console.log("sending push notification..." + result || err));
+                    resolve({ success: true, message: 'Service booked successfully', data: created, })
+                }
             } else {
                 resolve({ success: false, message: 'Could not complete your booking process' })
             }
@@ -140,6 +153,11 @@ exports.acceptAppointment = (appointmentId) => {
         model.findByIdAndUpdate(appointmentId, { accepted: true, dateAccepted: Date.now() }).exec((err, data) => {
             if (err) reject(err);
             if (data) {
+                notify.sendNotice(
+                    [data.userId],
+                    "Appointment Accepted",
+                    `Your appointment has been accepted by styler`,
+                    (err, result) => console.log("sending push notification..." + result || err));
                 resolve({ success: true, message: 'Appointments accepted' })
             } else {
                 resolve({ success: false, message: 'Unable to accept appointment!!' })
@@ -153,6 +171,11 @@ exports.completeAppointment = (appointmentId) => {
         model.findByIdAndUpdate(appointmentId, { completed: true, dateCompleted: Date.now() }).exec((err, data) => {
             if (err) reject(err);
             if (data) {
+                notify.sendNotice(
+                    [data.userId],
+                    "Appointment Completed",
+                    `Your appointment has been completed by styler`,
+                    (err, result) => console.log("sending push notification..." + result || err));
                 resolve({ success: true, message: 'Appointments completed' })
             } else {
                 resolve({ success: false, message: 'Unable to complete appointment!!' })
@@ -176,7 +199,7 @@ exports.completeAppointment = (appointmentId) => {
 
 exports.addRating = (options, auth) => {
     return new Promise((resolve, reject) => {
-    console.log(options)
+        console.log(options)
 
         styler.update(
             { userId: options.stylerId },

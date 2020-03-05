@@ -1,18 +1,42 @@
-const OneSignal = require('onesignal-node');
+var OneSignal = require("onesignal-node");
+const _user = require('../Model/user');
+var ObjectId = require('mongoose').Types.ObjectId;
+var APP_ID = process.env.ONE_SIGNAL_APP_ID;
+var API_KEY = process.env.ONE_SIGNAL_API_KEY;
+var USER_KEY = process.env.ONE_SIGNAL_USER_KEY;
 
-const client = new OneSignal.Client('a3fc8c03-722d-4260-a759-a31c24f44010', 'M2MzZjk0ODMtMzY4Yy00OGE1LWE1MTktNzc0NmMxZWIxZjcy');
+var myClient = new OneSignal.Client({
+    userAuthKey: USER_KEY,
+    app: { appAuthKey: API_KEY, appId: APP_ID }
+});
 
-const notification = {
-    contents: {
-        'tr': 'Yeni bildirim',
-        'en': 'New notification',
-    },
-    included_segments: ['Subscribed Users'],
-    filters: [
-        { field: 'tag', key: 'level', relation: '>', value: 10 }
-    ]
+module.exports = {
+    sendNotice(users, title, message, callback) {
+        _user.find({
+            '_id': {
+                $in: users.map(e => ObjectId(e))
+            }
+        }, (err, docs) => {
+            if (docs.length) {
+                const notification = {
+                    app_id: APP_ID,
+                    headings: {
+                        en: title,
+                    },
+                    contents: {
+                        en: message
+                    },
+                    include_player_ids: docs.map(e => e.oneSignalUserId)
+                };
+                myClient
+                    .createNotification(notification)
+                    .then(response => {
+                        callback(null, response.body.id);
+                    })
+                    .catch(err => {
+                        callback(err, null);
+                    });
+            }
+        })
+    }
 };
-
-client.createNotification(notification)
-    .then(response => { console.log(response.body) })
-    .catch(e => { });

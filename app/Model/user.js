@@ -22,7 +22,7 @@ var userSchema = new Schema({
     CreatedAt: { type: Date },
     role: { type: String, required: true, default: 'user' },
     type: { type: String, default: 'default' },
-    pushToken: { type: String, },
+    oneSignalUserId: { type: String, },
     userId: { type: String, },
 })
 

@@ -18,7 +18,8 @@ exports.authenticate = function (req, res, next) {
                         publicId: data.publicId,
                         email: decoded.email,
                         name: data.name,
-                        Id: data._id
+                        Id: data._id,
+                        oneSignalUserId: data.oneSignalUserId,
                     }
                     res.locals.response = { data: decoded, message: "", success: true };
                     next();
@@ -40,14 +41,17 @@ exports.StylerAuthenticate = function (req, res, next) {
                 if (data == null) {
                     res.status(401).send({ success: false, message: "User does not exist" });
                 } else {
-                    req.auth = {
-                        publicId: data.publicId,
-                        email: decoded.email,
-                        name: data.name,
-                        Id: data._id
-                    }
-                    res.locals.response = { data: decoded, message: "", success: true };
-                    next();
+                    UserRepo.getSingleBy({ publicId: decoded.publicId }, '').then(user => {
+                        req.auth = {
+                            publicId: data.publicId,
+                            email: decoded.email,
+                            name: data.name,
+                            Id: data._id,
+                            oneSignalUserId: user.oneSignalUserId,
+                        }
+                        res.locals.response = { data: decoded, message: "", success: true };
+                        next();
+                    })
                 }
             })
         }).catch(err => {
