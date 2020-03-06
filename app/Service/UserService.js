@@ -160,6 +160,7 @@ exports.verifySocial = (email) => {
 }
 
 exports.updateProfile = function (id, data) {
+    console.log(data)
     return new Promise((resolve, reject) => {
         UserRepo.updateByQuery({ publicId: id }, data).then(updated => {
             if (updated) {

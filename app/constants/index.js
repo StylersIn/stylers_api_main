@@ -1,0 +1,8 @@
+
+
+module.exports = {
+    BOOKED: 'BOOKED',
+    ACCEPTED: 'ACCEPTED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED',
+}

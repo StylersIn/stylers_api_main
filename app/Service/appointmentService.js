@@ -1,4 +1,4 @@
-var model = require('../Model/booking');
+var model = require('../Model/appointment');
 var BaseRepo = require('../Repository/BaseRepository');
 var styler = require('../Model/stylers');
 var service = require('../Model/services');
@@ -8,6 +8,7 @@ var BookingRepo = new BaseRepo(model);
 const request = require('request');
 const user = require('../Model/user');
 const notify = require('../Service/OneSignalService');
+const constants = require('../constants');
 
 exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     return new Promise((resolve, reject) => {
@@ -38,6 +39,7 @@ exports.BookService = (options) => {
     return new Promise((resolve, reject) => {
         var saveCard = options['saveCard'];
         if (saveCard) delete options['saveCard'];
+        options.status = constants.BOOKED;
         BookingRepo.add(options).then(created => {
             if (created) {
                 if (options.initial) {
@@ -102,7 +104,7 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
         model.find({ userId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { _id: 0, __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "user", select: { _id: 0, __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -116,10 +118,10 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
 
 exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, accepted: false || null, completed: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId: userId, status: constants.BOOKED, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { _id: 0, __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "user", select: { _id: 0, __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -133,10 +135,10 @@ exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
 
 exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, accepted: true, completed: false || null, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId: userId, status: constants.ACCEPTED, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { _id: 0, __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "user", select: { _id: 0, __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -148,33 +150,55 @@ exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.acceptAppointment = (appointmentId) => {
-    return new Promise((resolve, reject) => {
-        model.findByIdAndUpdate(appointmentId, { accepted: true, dateAccepted: Date.now() }).exec((err, data) => {
-            if (err) reject(err);
-            if (data) {
-                notify.sendNotice(
-                    [data.userId],
-                    "Appointment Accepted",
-                    `Your appointment has been accepted by styler`,
-                    (err, result) => console.log("sending push notification..." + result || err));
-                resolve({ success: true, message: 'Appointments accepted' })
-            } else {
-                resolve({ success: false, message: 'Unable to accept appointment!!' })
-            }
-        });
-    })
-}
+// exports.acceptAppointment = (appointmentId) => {
+//     return new Promise((resolve, reject) => {
+//         model.findByIdAndUpdate(appointmentId, { status: constants.ACCEPTED, dateModified: Date.now() }).exec((err, data) => {
+//             if (err) reject(err);
+//             if (data) {
+//                 notify.sendNotice(
+//                     [data.userId],
+//                     "Appointment Accepted",
+//                     `Your appointment has been accepted by styler`,
+//                     (err, result) => console.log("sending push notification..." + result || err));
+//                 resolve({ success: true, message: 'Appointments accepted' })
+//             } else {
+//                 resolve({ success: false, message: 'Unable to accept appointment!!' })
+//             }
+//         });
+//     })
+// }
 
-exports.completeAppointment = (appointmentId) => {
+// exports.completeAppointment = (appointmentId) => {
+//     return new Promise((resolve, reject) => {
+//         model.findByIdAndUpdate(appointmentId, { status: constants.COMPLETED, dateModified: Date.now() }).exec((err, data) => {
+//             if (err) reject(err);
+//             if (data) {
+//                 notify.sendNotice(
+//                     [data.userId],
+//                     "Appointment Completed",
+//                     `Your appointment has been completed by styler`,
+//                     (err, result) => console.log("sending push notification..." + result || err));
+//                 resolve({ success: true, message: 'Appointments completed' })
+//             } else {
+//                 resolve({ success: false, message: 'Unable to complete appointment!!' })
+//             }
+//         });
+//     })
+// }
+
+exports.updateAppointmentStatus = (appointmentId, status) => {
     return new Promise((resolve, reject) => {
-        model.findByIdAndUpdate(appointmentId, { completed: true, dateCompleted: Date.now() }).exec((err, data) => {
+        let title = status == constants.ACCEPTED ? 'Appointment Accepted' :
+            status == constants.COMPLETED ? 'Appointment Completed' : status == constants.CANCELLED ? 'Appointment Cancelled' : '';
+        let body = status == constants.ACCEPTED ? 'Your appointment has been accepted by styler' :
+            status == constants.COMPLETED ? 'Your appointment has been completed by styler' : status == constants.CANCELLED ? 'Your appointment has been cancelled by styler' : '';
+        model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now() }).exec((err, data) => {
             if (err) reject(err);
             if (data) {
                 notify.sendNotice(
                     [data.userId],
-                    "Appointment Completed",
-                    `Your appointment has been completed by styler`,
+                    title,
+                    body,
                     (err, result) => console.log("sending push notification..." + result || err));
                 resolve({ success: true, message: 'Appointments completed' })
             } else {

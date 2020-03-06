@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var mongoosastic = require('mongoosastic')
-var BookingSchema = new Schema({
+const constants = require('../constants');
+var AppointmentSchema = new Schema({
     userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
-    stylerId: { type: mongoose.SchemaTypes.ObjectId, ref: 'stylers', autopopulate: true },
+    stylerId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
     services: [{
         subServiceId: { type: String, ref: 'subServices', autopopulate: true },
         adult: { type: Number },
@@ -18,17 +19,18 @@ var BookingSchema = new Schema({
         latitude: String,
         longitude: String,
     },
-    accepted: Boolean,
-    completed: Boolean,
+    // accepted: Boolean,
+    // completed: Boolean,
     seen: Boolean,
+    status: { type: String, enum: [constants.BOOKED, constants.ACCEPTED, constants.COMPLETED, constants.CANCELLED] },
     dateSeen: { type: Date },
     streetName: { type: String },
     totalAmount: { type: Number },
     scheduledDate: { type: Date, default: new Date() },
     startServiceDate: { type: Date, default: new Date() },
     endServiceDate: { type: Date, default: new Date() },
-    dateAccepted: { type: Date },
-    dateCompleted: { type: Date },
+    dateModified: { type: Date },
+    // dateCompleted: { type: Date },
     CreatedAt: { type: Date, default: Date.now },
     transactionReference: { type: String, },
     // review: [{
@@ -42,6 +44,6 @@ var BookingSchema = new Schema({
     // }],
 })
 
-BookingSchema.plugin(mongoosastic)
+AppointmentSchema.plugin(mongoosastic)
 
-module.exports = mongoose.model('booking', BookingSchema); 
+module.exports = mongoose.model('appointment', AppointmentSchema); 

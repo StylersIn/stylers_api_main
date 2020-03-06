@@ -1,4 +1,4 @@
-var booking = require('../Model/booking');
+var booking = require('../Model/appointment');
 var sockets = {};
 var connectedUsers = {};
 // var online = [];
