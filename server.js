@@ -24,14 +24,7 @@ app.use(cors());
 app.use('/api', rootRouter);
 
 app.get('/', function (req, res) {
-    console.log(req.body.Ids.map(e => ObjectId(e)))
-    _user.find({
-        '_id': {
-            $in: ['5e52dac65bb54de698191bcd']
-        }
-    }, (err, docs) => {
-        res.json({ docs, message: "hello world" });
-    })
+    res.json({ message: "hello world" });
 });
 
 dbConfiguration();
