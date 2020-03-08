@@ -8,8 +8,14 @@ const AfricasTalking = require("africastalking")(options);
 const sms = AfricasTalking.SMS;
 exports.sendToken = (phoneNumber, token) => {
   return new Promise((resolve, reject) => {
-    var fullNumber = phoneNumber.substr(1)
-    const numba = "+234" + fullNumber
+    let numba;
+    if (phoneNumber.startsWith('0', 0)) {
+      var fullNumber = phoneNumber.substr(1);
+      numba = "+234" + fullNumber;
+    } else {
+      numba = phoneNumber;
+    }
+
     // Use the service      
     const option = {
       to: [numba],
