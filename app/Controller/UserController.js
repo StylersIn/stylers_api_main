@@ -16,7 +16,6 @@ module.exports = function authController() {
       password: req.body.password,
       type: req.body.type
     };
-    console.log(Options , 'wellcome---')
     userService
       .RegisterUser(Options)
       .then(data => {
