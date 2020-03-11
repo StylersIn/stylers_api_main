@@ -16,6 +16,7 @@ module.exports = function authController() {
       password: req.body.password,
       type: req.body.type
     };
+    console.log(Options , 'wellcome---')
     userService
       .RegisterUser(Options)
       .then(data => {
@@ -47,18 +48,31 @@ module.exports = function authController() {
       .catch(err => res.status(500).send(err));
   };
 
-  this.changePassword = function (req, res, next) {
+  this.changeforgotPassword = function(req, res, next) {
     var data = {
       passwordToken: req.body.passwordToken,
       password: req.body.password
     };
     userService
-      .changePassword(data)
+      .changeforgotPassword(data)
       .then(data => res.status(200).send(data))
       .catch(err => res.status(500).send(err));
   };
 
-  this.VerifyUser = function (req, res) {
+  this.changePassword = function(req, res, next) {
+    var data = {
+      originalPassword: req.body.originalPassword,
+      password: req.body.password,
+      email:req.auth.email
+    };
+    userService
+      .changepassword(data)
+      .then(data => res.status(200).send(data))
+      .catch(err => res.status(500).send(err));
+  };
+
+
+  this.VerifyUser = function(req, res) {
     var email = req.body.email;
     var Token = req.body.token;
     userService

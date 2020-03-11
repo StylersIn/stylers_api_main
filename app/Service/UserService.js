@@ -7,6 +7,7 @@ var Sms = require("../Middleware/sms");
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
 exports.RegisterUser = Options => {
+  console.log(Options  , 'wwwwwwwwwww--wwwwwwwww')
   return new Promise((resolve, reject) => {
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
@@ -59,7 +60,9 @@ exports.RegisterUser = Options => {
                       message: "could not authenticate user"
                     });
                   });
-              });
+              }).catch(err =>{
+                reject(err);
+              })
               // mailer.UserAdded(u.email, u.statusCode).then(sent => {
               //     if (!sent) {
               //         resolve({ success: false, message: 'User Registration error' });
@@ -79,6 +82,8 @@ exports.RegisterUser = Options => {
                 message: "User SignUp was not successfull"
               });
             }
+          }).catch(err =>{
+            reject(err);
           });
         }
       })
@@ -188,19 +193,18 @@ exports.forgotPasswordToken = data => {
   });
 };
 
-exports.changePassword = Options => {
+exports.changeforgotPassword = Options => {
   return new Promise((resolve, reject) => {
     User.findOne({ passwordToken: Options.passwordToken })
       .then(found => {
         if (found) {
-          console.log(found, "kdkdkkdd");
           let hash = bcrypt.hashSync(Options.password, 10);
           User.updateOne({ email: found.email }, { password: hash })
             .then(updated => {
               if (updated) {
                 resolve({
                   success: true,
-                  message: "User password Upddated Successfully !!!"
+                  message: "User password updated Successfully !!!"
                 });
               } else {
                 resolve({
@@ -221,6 +225,32 @@ exports.changePassword = Options => {
       });
   });
 };
+
+exports.changepassword = (data)=>{
+
+  return new Promise((resolve , reject)=>{
+    User.findOne({email:data.email}).then(found =>{
+      if(found){
+        var IsValid = bcrypt.compareSync(data.originalPassword , found.password)
+        if(IsValid == true){
+          var newpassword = data.password
+          var hashNewPassword = bcrypt.hashSync(newpassword ,10)
+          User.updateOne({email:data.email},{password:hashNewPassword}).then(updated =>{
+            if(updated){
+              resolve({success:true , message:'password has been changed successfully !!'})
+            }else{
+              resolve({success:false , message:'Error encountered while updating password '})
+            }
+          }).catch(err =>{
+            reject(err);
+          })
+        }
+      }
+    }).catch(err =>{
+      reject(err);
+    })
+  })
+}
 
 exports.verifyAccount = (email, Token) => {
   return new Promise((resolve, reject) => {
