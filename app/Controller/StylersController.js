@@ -34,6 +34,42 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
+    this.passwordToken = function(req, res, next) {
+        var gen = Math.floor(1000 + Math.random() * 9000);
+        var data = {
+          phoneNumber: req.body.phoneNumber,
+          passwordToken: gen
+        };
+        StylersService
+          .forgotPasswordToken(data)
+          .then(data => res.status(200).send(data))
+          .catch(err => res.status(500).send(err));
+      };
+
+
+  this.changeforgotPassword = function(req, res, next) {
+    var data = {
+      passwordToken: req.body.passwordToken,
+      password: req.body.password
+    };
+    StylersService
+      .changeforgotPassword(data)
+      .then(data => res.status(200).send(data))
+      .catch(err => res.status(500).send(err));
+  };
+
+  this.changePassword = function(req, res, next) {
+    var data = {
+      originalPassword: req.body.originalPassword,
+      password: req.body.password,
+      email:req.auth.email
+    };
+    StylersService
+      .changepassword(data)
+      .then(data => res.status(200).send(data))
+      .catch(err => res.status(500).send(err));
+  };
+
     // this.AddServices = function (req, res, next) {
     //     var data = { adult: req.body.adults, child: req.body.kids, serviceId: req.body.service }
     //     StylersService.AddServicePrice(req.params.id, data)
