@@ -24,7 +24,7 @@ exports.RegisterUser = Options => {
       passwordToken: 1111
     };
 
-    User.findOne({ email: u.email })
+    User.findOne({ $or:[{email: u.email},{phoneNumber:u.phoneNumber}] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
