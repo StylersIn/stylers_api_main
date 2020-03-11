@@ -6,6 +6,7 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var booking = require('../Model/booking');
 var user = require('../Model/user');
+var Sms = require('../Middleware/sms');
 var subService = require('../Model/services').subServicesModel;
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
@@ -21,9 +22,10 @@ exports.RegisterUser = (Options) => {
             publicId: Options.publicId,
             startingPrice: Options.startingPrice,
             CreatedAt: new Date(),
+            passwordToken:1111,
             role: 'styler'
         }
-        client.findOne({ email: b.email }).then(exists => {
+        client.findOne({ $or:[{email: b.email },{phoneNumber:b.phoneNumber}] }).then(exists => {
             if (exists) {
                 reject({ success: false, message: 'Sorry user already exists' });
             } else {
@@ -121,6 +123,111 @@ exports.StylerRegStatus = (Id) => {
         })
     })
 }
+
+exports.forgotPasswordToken = data => {
+    return new Promise((resolve, reject) => {
+        client.findOne({ phoneNumber: data.phoneNumber })
+        .then(found => {
+          if (found) {
+            Sms.sendToken(data.phoneNumber, data.passwordToken)
+              .then(sent => {
+                if (sent) {
+                    client.updateOne(
+                    { email: found.email },
+                    { passwordToken: data.passwordToken },
+                    function(err, updated) {
+                      if (err) reject(err);
+                      if (updated) {
+                        resolve({
+                          success: true,
+                          message:
+                            "Please check your phone for verification code "
+                        });
+                      } else {
+                        resolve({
+                          success: true,
+                          message: "Error sending verification code !!! "
+                        });
+                      }
+                    }
+                  );
+                } else {
+                  resolve({ success: false, message: "Error sending sms !!!" });
+                }
+              })
+              .catch(err => {
+                reject(err);
+              });
+          } else {
+            resolve({ success: false, message: "Could not find user" });
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  };
+
+  exports.changeforgotPassword = Options => {
+    return new Promise((resolve, reject) => {
+        client.findOne({ passwordToken: Options.passwordToken })
+        .then(found => {
+          if (found) {
+            let hash = bcrypt.hashSync(Options.password, 10);
+            client.updateOne({ email: found.email }, { password: hash })
+              .then(updated => {
+                if (updated) {
+                  resolve({
+                    success: true,
+                    message: "User password updated Successfully !!!"
+                  });
+                } else {
+                  resolve({
+                    success: false,
+                    message: "Unable to update user password !!!"
+                  });
+                }
+              })
+              .catch(err => {
+                reject(err);
+              });
+          } else {
+            resolve({ success: false, message: "invalid token inserted " });
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  };
+
+
+exports.changepassword = (data)=>{
+
+    return new Promise((resolve , reject)=>{
+        client.findOne({email:data.email}).then(found =>{
+        if(found){
+          var IsValid = bcrypt.compareSync(data.originalPassword , found.password)
+          if(IsValid == true){
+            var newpassword = data.password
+            var hashNewPassword = bcrypt.hashSync(newpassword ,10)
+            client.updateOne({email:data.email},{password:hashNewPassword}).then(updated =>{
+              if(updated){
+                resolve({success:true , message:'password has been changed successfully !!'})
+              }else{
+                resolve({success:false , message:'Error encountered while updating password '})
+              }
+            }).catch(err =>{
+              reject(err);
+            })
+          }
+        }
+      }).catch(err =>{
+        reject(err);
+      })
+    })
+  }
+  
 
 exports.AddServicePrice = (id, Option) => {
     return new Promise((resolve, reject) => {
