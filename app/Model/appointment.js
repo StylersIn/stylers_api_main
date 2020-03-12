@@ -4,7 +4,7 @@ var mongoosastic = require('mongoosastic')
 const constants = require('../constants');
 var AppointmentSchema = new Schema({
     userId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
-    stylerId: { type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true },
+    stylerId: { type: mongoose.SchemaTypes.ObjectId, ref: 'stylers', autopopulate: true },
     services: [{
         subServiceId: { type: String, ref: 'subServices', autopopulate: true },
         adult: { type: Number },
@@ -19,6 +19,7 @@ var AppointmentSchema = new Schema({
         latitude: String,
         longitude: String,
     },
+    paymentType: { type: String, enum: ['CARD', 'POINT'], },
     // accepted: Boolean,
     // completed: Boolean,
     seen: Boolean,

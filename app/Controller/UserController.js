@@ -61,8 +61,8 @@ module.exports = function authController() {
 
   this.changePassword = function(req, res, next) {
     var data = {
-      originalPassword: req.body.originalPassword,
-      password: req.body.password,
+      oldPassword: req.body.oldPassword,
+      newPassword: req.body.newPassword,
       email:req.auth.email
     };
     userService
@@ -81,13 +81,13 @@ module.exports = function authController() {
       .catch(err => res.status(500).send(err));
   };
 
-  this.updateClientProfile = async (req, res) => {
-    console.log("checking file", (req.file != null && req.file !== undefined));
-    var requestDetails = {
-      image: (req.file != null && req.file !== undefined) ? req.file.path : null,
-      ...req.body
-    };
-  }
+  // this.updateClientProfile = async (req, res) => {
+  //   console.log("checking file", (req.file != null && req.file !== undefined));
+  //   var requestDetails = {
+  //     image: (req.file != null && req.file !== undefined) ? req.file.path : null,
+  //     ...req.body
+  //   };
+  // }
   this.VerifySocial = function (req, res) {
     var email = req.body.email;
     userService
@@ -106,19 +106,10 @@ module.exports = function authController() {
   };
 
   this.updateClientProfile = async (req, res) => {
-    console.log("checking file", req.file != null && req.file !== undefined);
-    var requestDetails = {
-      image: req.file != null && req.file !== undefined ? req.file.path : null
-    };
-
-    console.log("file detail recieved", requestDetails.image);
-    if (req.image !== null && req.file !== undefined) {
-      await cloudinary.uploadToCloud(requestDetails.image).then(img => {
-        console.log("Cloudinary details recieved", img.url);
-        requestDetails.imageUrl = img.url;
-        requestDetails.imageID = img.ID;
-        return requestDetails;
-      });
+    var requestDetails = {...req.body};
+    if (req.body.image) {
+      requestDetails.imageUrl = req.body.image.secure_url;
+      requestDetails.imageID = req.body.image.public_id;
     }
 
     console.log("calling outside await");

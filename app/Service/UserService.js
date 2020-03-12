@@ -226,27 +226,29 @@ exports.changeforgotPassword = Options => {
   });
 };
 
-exports.changepassword = (data)=>{
-
-  return new Promise((resolve , reject)=>{
-    User.findOne({email:data.email}).then(found =>{
-      if(found){
-        var IsValid = bcrypt.compareSync(data.originalPassword , found.password)
-        if(IsValid == true){
-          var newpassword = data.password
-          var hashNewPassword = bcrypt.hashSync(newpassword ,10)
-          User.updateOne({email:data.email},{password:hashNewPassword}).then(updated =>{
-            if(updated){
-              resolve({success:true , message:'password has been changed successfully !!'})
-            }else{
-              resolve({success:false , message:'Error encountered while updating password '})
+exports.changepassword = (data) => {
+  return new Promise((resolve, reject) => {
+    User.findOne({ email: data.email }).then(found => {
+      if (found) {
+        var IsValid = bcrypt.compareSync(data.oldPassword, found.password)
+        if (IsValid == true) {
+          var newpassword = data.newPassword
+          var hashNewPassword = bcrypt.hashSync(newpassword, 10)
+          User.updateOne({ email: data.email }, { password: hashNewPassword }).then(updated => {
+            if (updated) {
+              resolve({ success: true, message: 'password has been changed successfully !!' })
+            } else {
+              resolve({ success: false, message: 'Error encountered while updating password ' })
             }
-          }).catch(err =>{
+          }).catch(err => {
             reject(err);
           })
         }
+        else{
+          reject({ success: false, message: 'Old password does not match' })
+        }
       }
-    }).catch(err =>{
+    }).catch(err => {
       reject(err);
     })
   })
@@ -347,6 +349,7 @@ exports.updateProfile = function (id, data) {
   // console.log(data)
   return new Promise((resolve, reject) => {
     UserRepo.updateByQuery({ publicId: id }, data).then(updated => {
+      console.log(data)
       if (updated) {
         UserRepo.getById(updated._id)
           .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))

@@ -27,6 +27,10 @@ app.get('/', function (req, res) {
     res.json({ message: "hello world" });
 });
 
+app.get('/policy', function (req, res) {
+    res.sendFile(__dirname + '/public/views/policy.html')
+});
+
 dbConfiguration();
 
 module.exports = app;
