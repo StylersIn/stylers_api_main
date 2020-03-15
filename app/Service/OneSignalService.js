@@ -17,6 +17,8 @@ module.exports = {
                 $in: users.map(e => ObjectId(e))
             }
         }, (err, docs) => {
+            console.log('user one signal ID')
+            console.log(docs.map(e => e.oneSignalUserId))
             if (docs.length) {
                 const notification = {
                     app_id: APP_ID,
