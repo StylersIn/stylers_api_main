@@ -3,7 +3,7 @@ var User = require("../Model/user");
 var mailer = require("../Middleware/mailer");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
-var Sms = require("../Middleware/sms");
+var mailer = require("../Middleware/mailer");
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
 exports.RegisterUser = Options => {
@@ -24,7 +24,7 @@ exports.RegisterUser = Options => {
       passwordToken: 1111
     };
 
-    User.findOne({ email: u.email })
+    User.findOne({ $or:[{email: u.email},{phoneNumber:u.phoneNumber}] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
@@ -34,24 +34,22 @@ exports.RegisterUser = Options => {
               getUserDetail(created, created.publicId).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    Sms.sendToken(u.phoneNumber, u.statusCode)
-                      .then(sent => {
-                        if (sent) {
-                          resolve({
-                            success: true,
-                            data: { user: created, token: token },
-                            message: "Registration Successful"
-                          });
-                        } else {
-                          resolve({
-                            success: false,
-                            message: "Error occured while sending sms !!"
-                          });
-                        }
-                      })
-                      .catch(err => {
-                        reject(err);
-                      });
+                    mailer.MailSender(u.email,u.statusCode).then(sent =>{
+                      if(sent){
+                        resolve({
+                                  success: true,
+                                  data: { user: created, token: token },
+                                  message: "Registration Successful"
+                                });
+                      }else{
+                        resolve({
+                                  success: false,
+                                  message: "Error occured while sending sms !!"
+                                });
+                      }
+                    }).catch(err =>{
+                      reject(err);
+                    })
                   })
                   .catch(err => {
                     reject({
@@ -151,10 +149,10 @@ exports.authenticateuser = authenticateuser;
 
 exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
-    User.findOne({ phoneNumber: data.phoneNumber })
+    User.findOne({ email: data.email })
       .then(found => {
         if (found) {
-          Sms.sendToken(data.phoneNumber, data.passwordToken)
+          mailer.forgortPasswordMailer(data.email, data.passwordToken)
             .then(sent => {
               if (sent) {
                 User.updateOne(
@@ -166,7 +164,7 @@ exports.forgotPasswordToken = data => {
                       resolve({
                         success: true,
                         message:
-                          "Please check your phone for verification code "
+                          "Please check your email for verification code "
                       });
                     } else {
                       resolve({
