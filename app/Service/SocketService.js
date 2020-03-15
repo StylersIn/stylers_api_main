@@ -10,12 +10,10 @@ sockets.init = function (server) {
     io.sockets.on('connection', function (socket) {
         //add user to socket
         socket.on('auth', function (user) {
-            console.log('ddddd', user)
+            console.log('authenticating...', user)
             // io.emit('noOfConnections', Object.keys(io.sockets.connected).length);
             connectedUsers[socket.id] = user;
             socket.join(user);
-            // online.push(user);
-            // io.sockets.emit('online', Object.values(connectedUsers));
         })
 
         // socket.on('online', function () {
