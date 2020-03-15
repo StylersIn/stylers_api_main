@@ -6,7 +6,7 @@ var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var booking = require('../Model/booking');
 var user = require('../Model/user');
-var Sms = require('../Middleware/sms');
+var Sms = require('../Middleware/mailer');
 var subService = require('../Model/services').subServicesModel;
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
@@ -126,10 +126,10 @@ exports.StylerRegStatus = (Id) => {
 
 exports.forgotPasswordToken = data => {
     return new Promise((resolve, reject) => {
-        client.findOne({ phoneNumber: data.phoneNumber })
+        client.findOne({ email: data.email })
         .then(found => {
           if (found) {
-            Sms.sendToken(data.phoneNumber, data.passwordToken)
+            Sms.forgortPasswordMailer(data.email, data.passwordToken)
               .then(sent => {
                 if (sent) {
                     client.updateOne(
@@ -141,7 +141,7 @@ exports.forgotPasswordToken = data => {
                         resolve({
                           success: true,
                           message:
-                            "Please check your phone for verification code "
+                            "Please check your email for verification code "
                         });
                       } else {
                         resolve({
