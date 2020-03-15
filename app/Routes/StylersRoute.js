@@ -11,7 +11,7 @@ module.exports = function () {
     router.post('/register', StylerauthCtrl.register);
     router.get('/register/status', middleware.authenticate, StylerauthCtrl.stylerRegStatus);
     router.post('/authenticate', StylerauthCtrl.authenticate);
-    router.post('/passwordToken', StylerauthCtrl.passwordToken);
+    router.put('/passwordToken', StylerauthCtrl.passwordToken);
     router.post('/changeForgotPassword', StylerauthCtrl.changeforgotPassword);
     router.post('/changepassword', middleware.StylerAuthenticate, StylerauthCtrl.changePassword);
     // router.put('/updateService/:id', StylerauthCtrl.UpdateServices);
