@@ -10,6 +10,9 @@ module.exports = function(){
     const authCtrl = new authController();
     router.post('/register', authCtrl.register);
     router.post('/authenticate', authCtrl.authenticate);
+    router.put('/forgotPasswordToken', authCtrl.passwordToken);
+    router.post('/forgotPassword', authCtrl.changeforgotPassword);
+    router.post('/changePassword',middleware.authenticate, authCtrl.changePassword);
     router.post('/verify', authCtrl.VerifyUser);
     router.post('/verify/social', authCtrl.VerifySocial);
     router.post('/verify/token', authCtrl.VerifyToken);

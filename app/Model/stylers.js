@@ -11,6 +11,7 @@ var stylersSchema = new Schema({
     description: { type: String },
     startingPrice: { type: Number },
     IsVerified: { type: Boolean },
+    passwordToken:{type:Number },
     role: { type: String },
     services: [{
         // favorites: [{ type: String, ref: 'user', autopopulate: true }],

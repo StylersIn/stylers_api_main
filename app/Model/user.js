@@ -15,6 +15,7 @@ var userSchema = new Schema({
         bank: String,
         cardType: String,
     }],
+    passwordToken:{type:Number },
     password: { type: String, required: true },
     status: { type: Boolean },
     imageUrl: { type: String, default: '' },
