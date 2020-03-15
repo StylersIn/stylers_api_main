@@ -16,6 +16,7 @@ module.exports = function authController() {
       password: req.body.password,
       type: req.body.type
     };
+    console.log(Options , 'wellcome---')
     userService
       .RegisterUser(Options)
       .then(data => {
@@ -38,7 +39,7 @@ module.exports = function authController() {
   this.passwordToken = function(req, res, next) {
     var gen = Math.floor(1000 + Math.random() * 9000);
     var data = {
-      phoneNumber: req.body.phoneNumber,
+      email: req.body.email,
       passwordToken: gen
     };
     userService
