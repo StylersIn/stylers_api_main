@@ -10,10 +10,13 @@ var cors = require('cors');
 var dbConfiguration = require('./app/config/DB');
 const _user = require('./app/Model/user');
 const ObjectId = require('mongoose').Types.ObjectId;
+const bodyParser = require('body-parser');
 
 //cronjb
 
 //middleware
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(compression());
 app.use(morgan('dev'));
 app.use(express.static("public"));
@@ -34,6 +37,3 @@ app.get('/policy', function (req, res) {
 dbConfiguration();
 
 module.exports = app;
-
-
-
