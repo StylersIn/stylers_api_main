@@ -18,7 +18,7 @@ module.exports = {
             }
         }, (err, docs) => {
             console.log('user one signal ID')
-            console.log(docs.map(e => e.oneSignalUserId))
+            console.log(docs.map(e => e.oneSignalUserId)[0])
             if (docs.length) {
                 const notification = {
                     app_id: APP_ID,
@@ -28,7 +28,7 @@ module.exports = {
                     contents: {
                         en: message
                     },
-                    include_player_ids: docs.map(e => e.oneSignalUserId)
+                    include_player_ids: docs.map(e => e.oneSignalUserId)[0]
                 };
                 myClient
                     .createNotification(notification)

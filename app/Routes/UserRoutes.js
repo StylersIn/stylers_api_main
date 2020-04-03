@@ -18,6 +18,7 @@ module.exports = function(){
     router.post('/verify/token', authCtrl.VerifyToken);
     // router.put('/update', middleware.authenticate , multer.upload.single('image') , authCtrl.updateClientProfile);
     router.put('/update', middleware.authenticate, _base64ToFile("image", _cloudinaryHelper({}, _config.cloudinary)), authCtrl.updateClientProfile)
+    router.put('/update/onesignal', middleware.authenticate, authCtrl.updateOneSignalId)
     router.get('/cards', middleware.authenticate, authCtrl.fetchCards);
     router.get('/:id', middleware.authenticate, authCtrl.getUserData);
 

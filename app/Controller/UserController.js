@@ -123,6 +123,17 @@ module.exports = function authController() {
       });
   };
 
+  this.updateOneSignalId = async (req, res) => {
+    userService
+      .updateOneSignalId(req.auth.publicId, req.body)
+      .then(data => {
+        res.status(200).send(data);
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });
+  };
+
   this.getUserData = async (req, res) => {
     userService
       .getUserData(req.params.id)

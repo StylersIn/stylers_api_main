@@ -23,7 +23,7 @@ var userSchema = new Schema({
     CreatedAt: { type: Date },
     role: { type: String, required: true, default: 'user' },
     type: { type: String, default: 'default' },
-    oneSignalUserId: { type: String, },
+    oneSignalUserId: [],
     userId: { type: String, },
 })
 

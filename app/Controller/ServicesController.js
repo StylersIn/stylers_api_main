@@ -109,9 +109,7 @@ module.exports = function ServicesController() {
     };
 
     this.SearchServices = (req, res) => {
-        console.log('kkkk')
         var option = req.query.service;
-        console.log(option)
         ServicesService.SearchService(option).then((data) => {
             res.json({ data });
         }).catch((err) => {

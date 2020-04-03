@@ -6,8 +6,9 @@ var bcrypt = require("bcryptjs");
 var mailer = require("../Middleware/mailer");
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
+const notify = require('../Service/OneSignalService');
+
 exports.RegisterUser = Options => {
-  console.log(Options  , 'wwwwwwwwwww--wwwwwwwww')
   return new Promise((resolve, reject) => {
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
@@ -182,7 +183,7 @@ exports.forgotPasswordToken = data => {
               reject(err);
             });
         } else {
-          resolve({ success: false, message: "Could not find user" });
+          reject({ success: false, message: "Could not find user" });
         }
       })
       .catch(err => {
@@ -356,6 +357,21 @@ exports.updateProfile = function (id, data) {
     }).catch(err => {
       reject({ success: false, data: err, message: "could not update profile" });
     });
+  });
+};
+
+exports.updateOneSignalId = function (id, data) {
+  return new Promise((resolve, reject) => {
+    notify.sendNotice(["5e407ee96f0f9ab19ee60bac"], "Hello", "Hi", (err, result) => console.log(err || result))
+    // UserRepo.updateByQuery({ publicId: id }, { $addToSet: data }).then(updated => {
+    //   if (updated) {
+    //     UserRepo.getById(updated._id)
+    //       .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
+    //       .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
+    //   }
+    // }).catch(err => {
+    //   reject({ success: false, data: err, message: "could not update profile" });
+    // });
   });
 };
 
