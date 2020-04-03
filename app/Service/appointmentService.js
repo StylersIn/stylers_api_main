@@ -66,22 +66,19 @@ exports.BookService = (options) => {
                                             }
                                         }
                                         , (err, updated) => {
-                                            // if (updated) {
-
-                                            // }
-                                            console.log(updated)
-                                            console.log('sending notification..........!!!!!!!!!!!!!!!!!!!==================')
-                                            console.log(options)
-                                            notify.sendNotice(
-                                                [options.stylerUserId],
-                                                "New Appointment",
-                                                `You have a new appointment`,
-                                                (err, result) => console.log("sending push notification..." + result || err));
                                             resolve({ success: true, message: 'Service booked successfully' })
                                         })
                                 } else {
                                     resolve({ success: true, message: 'success', data: result.data, })
                                 }
+                                console.log(updated)
+                                console.log('sending notification..........!!!!!!!!!!!!!!!!!!!==================')
+                                console.log(options)
+                                notify.sendNotice(
+                                    [options.stylerUserId],
+                                    "New Appointment",
+                                    `You have a new appointment`,
+                                    (err, result) => console.log("sending push notification..." + result || err));
                             } else {
                                 reject({ success: false, message: 'failed', data: result.message, })
                             }
