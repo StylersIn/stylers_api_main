@@ -39,7 +39,7 @@ sockets.init = function (server) {
 
         socket.on('stylerLocation', function (location, credentials) {
             booking.findByIdAndUpdate(credentials.Id, { stylerLocation: location }).then(result => {
-                io.sockets.in(credentials.userKey).emit('driverLocation', location);
+                io.sockets.in(credentials.userKey).emit('stylerLocation.send', location);
             })
         })
 
