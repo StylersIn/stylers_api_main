@@ -14,7 +14,8 @@ module.exports = function authController() {
       email: req.body.email,
       phoneNumber: req.body.phoneNumber,
       password: req.body.password,
-      type: req.body.type
+      type: req.body.type,
+      socialId: req.body.socialId,
     };
     console.log(Options , 'wellcome---')
     userService
