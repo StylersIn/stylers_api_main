@@ -21,6 +21,7 @@ exports.RegisterUser = Options => {
       statusCode: Options.statusCode,
       status: false,
       type: Options.type,
+      socialId: Options.socialId,
       CreatedAt: new Date(),
       passwordToken: 1111
     };
