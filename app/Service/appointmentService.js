@@ -71,9 +71,6 @@ exports.BookService = (options) => {
                                 } else {
                                     resolve({ success: true, message: 'success', data: result.data, })
                                 }
-                                console.log(updated)
-                                console.log('sending notification..........!!!!!!!!!!!!!!!!!!!==================')
-                                console.log(options)
                                 notify.sendNotice(
                                     [options.stylerUserId],
                                     "New Appointment",
@@ -84,6 +81,8 @@ exports.BookService = (options) => {
                             }
                         });
                 } else {
+                    console.log('sending notification..........!!!!!!!!!!!!!!!!!!!==================')
+                    console.log(options)
                     notify.sendNotice(
                         [options.stylerUserId],
                         "New Appointment",

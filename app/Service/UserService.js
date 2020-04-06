@@ -294,9 +294,9 @@ exports.verifyAccount = (email, Token) => {
   });
 };
 
-exports.verifySocial = email => {
+exports.verifySocial = id => {
   return new Promise((resolve, reject) => {
-    User.findOne({ email: email })
+    User.findOne({ socialId: id })
       .then((user, err) => {
         if (user) {
           if (user.type === "social-login") {

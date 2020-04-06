@@ -22,6 +22,7 @@ var userSchema = new Schema({
     imageID: { type: String, default: '' },
     CreatedAt: { type: Date },
     role: { type: String, required: true, default: 'user' },
+    socialId: { type: String, },
     type: { type: String, default: 'default' },
     oneSignalUserId: [],
     userId: { type: String, },

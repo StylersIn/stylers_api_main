@@ -89,9 +89,9 @@ module.exports = function authController() {
   //   };
   // }
   this.VerifySocial = function (req, res) {
-    var email = req.body.email;
+    var socialId = req.body.socialId;
     userService
-      .verifySocial(email)
+      .verifySocial(socialId)
       .then(data => res.status(200).send(data))
       .catch(err => res.status(500).send(err));
   };
