@@ -76,8 +76,9 @@ module.exports = function authController() {
   this.VerifyUser = function(req, res) {
     var email = req.body.email;
     var Token = req.body.token;
+    var key = req.body.key;
     userService
-      .verifyAccount(email, Token)
+      .verifyAccount(email, Token, key)
       .then(data => res.status(200).send(data))
       .catch(err => res.status(500).send(err));
   };
