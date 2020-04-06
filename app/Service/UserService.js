@@ -256,7 +256,7 @@ exports.changepassword = (data) => {
 
 exports.verifyAccount = (email, Token) => {
   return new Promise((resolve, reject) => {
-    User.findOne({ $and: [{ email: email }, { statusCode: Token }] })
+    User.findOne({ $and: [{ email: email } || { socialId: email }, { statusCode: Token }] })
       .then(data => {
         if (data) {
           var userId = data._id;
