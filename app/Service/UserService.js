@@ -2,12 +2,12 @@ var BaseRepository = require("../Repository/BaseRepository");
 var User = require("../Model/user");
 var mailer = require("../Middleware/mailer");
 var jwt = require("jsonwebtoken");
+var sms = require("../Middleware/sms");
 var bcrypt = require("bcryptjs");
 var mailer = require("../Middleware/mailer");
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
 exports.RegisterUser = Options => {
-  console.log(Options  , 'wwwwwwwwwww--wwwwwwwww')
   return new Promise((resolve, reject) => {
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
@@ -34,22 +34,37 @@ exports.RegisterUser = Options => {
               getUserDetail(created, created.publicId).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    mailer.MailSender(u.email,u.statusCode).then(sent =>{
-                      if(sent){
+                    sms.sendToken(u.phoneNumber,u.statusCode).then(done =>{
+                      if(done){
                         resolve({
-                                  success: true,
-                                  data: { user: created, token: token },
-                                  message: "Registration Successful"
-                                });
+                          success: true,
+                          data: { user: created, token: token },
+                          message: "Registration Successful"
+                        });
+                      }else if(!done){
+                        mailer.MailSender(u.email,u.statusCode).then(sent =>{
+                          if(sent){
+                            resolve({
+                                      success: true,
+                                      data: { user: created, token: token },
+                                      message: "Registration Successful"
+                                    });
+                          }else{
+                            resolve({
+                                      success: false,
+                                      message: "Error occured while registering user !!"
+                                    });
+                          }
+                        }).catch(err =>{
+                          reject(err);
+                        })
                       }else{
                         resolve({
-                                  success: false,
-                                  message: "Error occured while sending sms !!"
-                                });
+                          success: false,
+                          message: "Error occured while registering user !!"
+                        });
                       }
-                    }).catch(err =>{
-                      reject(err);
-                    })
+                    }).catch(err => reject(err))
                   })
                   .catch(err => {
                     reject({
@@ -61,19 +76,6 @@ exports.RegisterUser = Options => {
               }).catch(err =>{
                 reject(err);
               })
-              // mailer.UserAdded(u.email, u.statusCode).then(sent => {
-              //     if (!sent) {
-              //         resolve({ success: false, message: 'User Registration error' });
-              //     } else {
-              //         getUserDetail(created, created.publicId).then(userdetail => {
-              //             generateToken(userdetail).then((token) => {
-              //                 resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
-              //             }).catch((err) => {
-              //                 reject({ success: false, data: err, message: 'could not authenticate user' })
-              //             })
-              //         })
-              //     }
-              // })
             } else {
               resolve({
                 success: false,

@@ -80,10 +80,10 @@ function authenticateuser(username, password) {
                         if (!data) {
                             resolve({ success: false, message: 'styler not found' });
                         } else {
-                            var stylerVerified = data.IsVerified
-                            if (stylerVerified == false) {
-                                resolve({ success: false, message: 'Please wait while admin verifies your account  ' });
-                            } else {
+                            // var stylerVerified = data.IsVerified
+                            // if (stylerVerified == false) {
+                            //     resolve({ success: false, message: 'Please wait while admin verifies your account  ' });
+                            // } else {
                                 var validPassword = bcrypt.compareSync(password, user.password);
                                 if (validPassword) {
                                     getUserDetail(user, user.publicId).then(userdetail => {
@@ -97,7 +97,7 @@ function authenticateuser(username, password) {
                                     resolve({ success: false, message: 'incorrect email or password' })
 
                                 }
-                            }
+                          //  }
                         }
                     })
 
