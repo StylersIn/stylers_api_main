@@ -363,16 +363,15 @@ exports.updateProfile = function (id, data) {
 
 exports.updateOneSignalId = function (id, data) {
   return new Promise((resolve, reject) => {
-    notify.sendNotice(["5e407ee96f0f9ab19ee60bac"], "Hello", "Hi", (err, result) => console.log(err || result))
-    // UserRepo.updateByQuery({ publicId: id }, { $addToSet: data }).then(updated => {
-    //   if (updated) {
-    //     UserRepo.getById(updated._id)
-    //       .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
-    //       .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
-    //   }
-    // }).catch(err => {
-    //   reject({ success: false, data: err, message: "could not update profile" });
-    // });
+    UserRepo.updateByQuery({ publicId: id }, { $addToSet: data }).then(updated => {
+      if (updated) {
+        UserRepo.getById(updated._id)
+          .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
+          .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
+      }
+    }).catch(err => {
+      reject({ success: false, data: err, message: "could not update profile" });
+    });
   });
 };
 
