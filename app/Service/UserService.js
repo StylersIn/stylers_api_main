@@ -2,6 +2,7 @@ var BaseRepository = require("../Repository/BaseRepository");
 var User = require("../Model/user");
 var mailer = require("../Middleware/mailer");
 var jwt = require("jsonwebtoken");
+var sms = require("../Middleware/sms");
 var bcrypt = require("bcryptjs");
 var mailer = require("../Middleware/mailer");
 var UserRepo = new BaseRepository(User);
@@ -36,22 +37,37 @@ exports.RegisterUser = Options => {
               getUserDetail(created, created.publicId).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    mailer.MailSender(u.email, u.statusCode).then(sent => {
-                      if (sent) {
+                    sms.sendToken(u.phoneNumber,u.statusCode).then(done =>{
+                      if(done){
                         resolve({
                           success: true,
                           data: { user: created, token: token },
                           message: "Registration Successful"
                         });
-                      } else {
+                      }else if(!done){
+                        mailer.MailSender(u.email,u.statusCode).then(sent =>{
+                          if(sent){
+                            resolve({
+                                      success: true,
+                                      data: { user: created, token: token },
+                                      message: "Registration Successful"
+                                    });
+                          }else{
+                            resolve({
+                                      success: false,
+                                      message: "Error occured while registering user !!"
+                                    });
+                          }
+                        }).catch(err =>{
+                          reject(err);
+                        })
+                      }else{
                         resolve({
                           success: false,
-                          message: "Error occured while sending sms !!"
+                          message: "Error occured while registering user !!"
                         });
                       }
-                    }).catch(err => {
-                      reject(err);
-                    })
+                    }).catch(err => reject(err))
                   })
                   .catch(err => {
                     reject({
