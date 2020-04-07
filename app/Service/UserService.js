@@ -26,7 +26,7 @@ exports.RegisterUser = Options => {
       passwordToken: 1111
     };
 
-    User.findOne({ $or:[{email: u.email},{phoneNumber:u.phoneNumber}] })
+    User.findOne({ $or: [{ email: u.email }, { phoneNumber: u.phoneNumber }] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
@@ -36,20 +36,20 @@ exports.RegisterUser = Options => {
               getUserDetail(created, created.publicId).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    mailer.MailSender(u.email,u.statusCode).then(sent =>{
-                      if(sent){
+                    mailer.MailSender(u.email, u.statusCode).then(sent => {
+                      if (sent) {
                         resolve({
-                                  success: true,
-                                  data: { user: created, token: token },
-                                  message: "Registration Successful"
-                                });
-                      }else{
+                          success: true,
+                          data: { user: created, token: token },
+                          message: "Registration Successful"
+                        });
+                      } else {
                         resolve({
-                                  success: false,
-                                  message: "Error occured while sending sms !!"
-                                });
+                          success: false,
+                          message: "Error occured while sending sms !!"
+                        });
                       }
-                    }).catch(err =>{
+                    }).catch(err => {
                       reject(err);
                     })
                   })
@@ -60,29 +60,16 @@ exports.RegisterUser = Options => {
                       message: "could not authenticate user"
                     });
                   });
-              }).catch(err =>{
+              }).catch(err => {
                 reject(err);
               })
-              // mailer.UserAdded(u.email, u.statusCode).then(sent => {
-              //     if (!sent) {
-              //         resolve({ success: false, message: 'User Registration error' });
-              //     } else {
-              //         getUserDetail(created, created.publicId).then(userdetail => {
-              //             generateToken(userdetail).then((token) => {
-              //                 resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
-              //             }).catch((err) => {
-              //                 reject({ success: false, data: err, message: 'could not authenticate user' })
-              //             })
-              //         })
-              //     }
-              // })
             } else {
               resolve({
                 success: false,
                 message: "User SignUp was not successfull"
               });
             }
-          }).catch(err =>{
+          }).catch(err => {
             reject(err);
           });
         }
@@ -160,7 +147,7 @@ exports.forgotPasswordToken = data => {
                 User.updateOne(
                   { email: found.email },
                   { passwordToken: data.passwordToken },
-                  function(err, updated) {
+                  function (err, updated) {
                     if (err) reject(err);
                     if (updated) {
                       resolve({
@@ -244,7 +231,7 @@ exports.changepassword = (data) => {
             reject(err);
           })
         }
-        else{
+        else {
           reject({ success: false, message: 'Old password does not match' })
         }
       }
@@ -256,6 +243,9 @@ exports.changepassword = (data) => {
 
 exports.verifyAccount = (email, Token, key) => {
   return new Promise((resolve, reject) => {
+    console.log(email);
+    console.log(Token);
+    console.log(key);
     User.findOne({ $and: [{ [key]: email }, { statusCode: Token }] })
       .then(data => {
         if (data) {
@@ -263,7 +253,7 @@ exports.verifyAccount = (email, Token, key) => {
           return User.findByIdAndUpdate(
             { _id: userId },
             { status: true },
-            function(err, updated) {
+            function (err, updated) {
               if (err)
                 resolve({ status: false, message: "Error Verifying User" });
               getUserDetail(updated, updated.publicId).then(userDetail => {
@@ -362,12 +352,13 @@ exports.updateProfile = function (id, data) {
 };
 
 exports.updateOneSignalId = function (id, data) {
+  console.log(data)
   return new Promise((resolve, reject) => {
     UserRepo.updateByQuery({ publicId: id }, { $addToSet: data }).then(updated => {
       if (updated) {
         UserRepo.getById(updated._id)
           .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
-          .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
+          .catch(err => reject({ success: false, data: err, message: "unable to update user Profile" }))
       }
     }).catch(err => {
       reject({ success: false, data: err, message: "could not update profile" });
@@ -395,7 +386,7 @@ function getUserDetail(user, Id) {
 
 function generateToken(data = {}) {
   return new Promise((resolve, reject) => {
-    jwt.sign({ ...data }, secret, { expiresIn: "24hrs" }, function(err, token) {
+    jwt.sign({ ...data }, secret, { expiresIn: "24hrs" }, function (err, token) {
       if (err) {
         reject(err);
       } else {
@@ -409,7 +400,7 @@ exports.generateToken = generateToken;
 
 function verifyToken(token = "") {
   return new Promise((resolve, reject) => {
-    jwt.verify(token.replace("Bearer", ""), secret, function(
+    jwt.verify(token.replace("Bearer", ""), secret, function (
       err,
       decodedToken
     ) {
@@ -422,7 +413,7 @@ function verifyToken(token = "") {
   });
 }
 
-exports.getUserData = function(Id) {
+exports.getUserData = function (Id) {
   return new Promise((resolve, reject) => {
     UserRepo.getSingleBy({ publicId: Id }, { _id: 0, __v: 0 })
       .then(user =>
@@ -438,7 +429,7 @@ exports.getUserData = function(Id) {
   });
 };
 
-exports.fetchCards = function(Id) {
+exports.fetchCards = function (Id) {
   return new Promise((resolve, reject) => {
     UserRepo.getById(Id)
       .then(user =>
