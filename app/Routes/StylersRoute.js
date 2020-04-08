@@ -28,6 +28,7 @@ module.exports = function () {
     router.get('/services', middleware.authenticate, StylerauthCtrl.GetStylersServices);
     router.post('/review/:id', middleware.authenticate, StylerauthCtrl.StylerReview);
     router.get('/stats', middleware.StylerAuthenticate , StylerauthCtrl.getStylerTotalAmount);
+    router.post('/verify', middleware.StylerAuthenticate , StylerauthCtrl.verifyStyler);
 
     return router;
 }

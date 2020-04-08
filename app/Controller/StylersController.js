@@ -139,6 +139,11 @@ module.exports = function authController() {
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
+    this.verifyStyler = (req,res)=>{
+        StylersService.verifyStyler(req.auth.role ,req.query.id).then(data =>{
+            res.status(200).send(data)
+        }).catch(err => res.status(500).send(err));
+    }
 
 
     this.favouriteStylerService = function (req, res, next) {
