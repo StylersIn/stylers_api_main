@@ -35,34 +35,37 @@ exports.RegisterUser = Options => {
                 generateToken(userdetail)
                   .then(token => {
                     sms.sendToken(u.phoneNumber,u.statusCode).then(done =>{
-                      if(done){
+                      if(done.SMSMessageData.Message == "Sent to 0/1 Total Cost: 0 done status"){
                         resolve({
                           success: true,
                           data: { user: created, token: token },
                           message: "Registration Successful"
                         });
-                      }else if(!done){
-                        mailer.MailSender(u.email,u.statusCode).then(sent =>{
-                          if(sent){
-                            resolve({
-                                      success: true,
-                                      data: { user: created, token: token },
-                                      message: "Registration Successful"
-                                    });
-                          }else{
-                            resolve({
-                                      success: false,
-                                      message: "Error occured while registering user !!"
-                                    });
-                          }
-                        }).catch(err =>{
-                          reject(err);
-                        })
                       }else{
-                        resolve({
-                          success: false,
-                          message: "Error occured while registering user !!"
-                        });
+                        mailer.signupMail(u.email , u.statusCode , function(err, alpha){
+                          if(err)reject(err)
+                          if(alpha){
+                            resolve({success:true ,data: { user: created, token: token },message: "Registration Successful" })
+                          }else{
+                            resolve({success:false , message:'Error occured while registering user !!'})
+                          }
+                        })
+                        // mailer.MailSender(u.email,u.statusCode).then(sent =>{
+                        //   if(sent){
+                        //     resolve({
+                        //               success: true,
+                        //               data: { user: created, token: token },
+                        //               message: "Registration Successful"
+                        //             });
+                        //   }else{
+                        //     resolve({
+                        //               success: false,
+                        //               message: "Error occured while registering user !!"
+                        //             });
+                        //   }
+                        // }).catch(err =>{
+                        //   reject(err);
+                        // })
                       }
                     }).catch(err => reject(err))
                   })
@@ -149,40 +152,83 @@ function authenticateuser(email, password) {
 }
 exports.authenticateuser = authenticateuser;
 
+// exports.forgotPasswordToken = data => {
+//   return new Promise((resolve, reject) => {
+//     User.findOne({ email: data.email })
+//       .then(found => {
+//         if (found) {
+//           mailer.forgortPasswordMailer(data.email, data.passwordToken)
+//             .then(sent => {
+//               if (sent) {
+//                 User.updateOne(
+//                   { email: found.email },
+//                   { passwordToken: data.passwordToken },
+//                   function(err, updated) {
+//                     if (err) reject(err);
+//                     if (updated) {
+//                       resolve({
+//                         success: true,
+//                         message:
+//                           "Please check your email for verification code "
+//                       });
+//                     } else {
+//                       resolve({
+//                         success: true,
+//                         message: "Error sending verification code !!! "
+//                       });
+//                     }
+//                   }
+//                 );
+//               } else {
+//                 resolve({ success: false, message: "Error sending sms !!!" });
+//               }
+//             })
+//             .catch(err => {
+//               reject(err);
+//             });
+//         } else {
+//           resolve({ success: false, message: "Could not find user" });
+//         }
+//       })
+//       .catch(err => {
+//         reject(err);
+//       });
+//   });
+// };
+
 exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
         if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken)
-            .then(sent => {
-              if (sent) {
-                User.updateOne(
-                  { email: found.email },
-                  { passwordToken: data.passwordToken },
-                  function(err, updated) {
-                    if (err) reject(err);
-                    if (updated) {
-                      resolve({
-                        success: true,
-                        message:
-                          "Please check your email for verification code "
-                      });
-                    } else {
-                      resolve({
-                        success: true,
-                        message: "Error sending verification code !!! "
-                      });
-                    }
+          mailer.forgortPasswordMailer(data.email, data.passwordToken , function(err , sent){
+            if(err)reject(err)
+            if (sent) {
+              User.updateOne(
+                { email: found.email },
+                { passwordToken: data.passwordToken },
+                function(err, updated) {
+                  if (err) reject(err);
+                  if (updated) {
+                    resolve({
+                      success: true,
+                      message:
+                        "Please check your email for verification code "
+                    });
+                  } else {
+                    resolve({
+                      success: true,
+                      message: "Error sending verification code !!! "
+                    });
                   }
-                );
-              } else {
-                resolve({ success: false, message: "Error sending sms !!!" });
-              }
-            })
-            .catch(err => {
-              reject(err);
-            });
+                }
+              );
+            } else {
+              resolve({ success: false, message: "Error sending sms !!!" });
+            }
+          })
+            
+
         } else {
           resolve({ success: false, message: "Could not find user" });
         }
@@ -192,6 +238,7 @@ exports.forgotPasswordToken = data => {
       });
   });
 };
+
 
 exports.changeforgotPassword = Options => {
   return new Promise((resolve, reject) => {
