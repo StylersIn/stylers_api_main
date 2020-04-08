@@ -2,10 +2,14 @@ var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
         
     service: 'gmail',
+    // auth: {
+    //     user:'workhub18@gmail.com',
+    //     pass: 'Workhub2018'          
+    //    }
     auth: {
-        user:'workhub18@gmail.com',
-        pass: 'Workhub2018'          
-       }
+      user:'StylersinApp@gmail.com',
+      pass: '07030065463'          
+     }
      });
    exports.signupMail = function(email, statusCode,callback){
      
