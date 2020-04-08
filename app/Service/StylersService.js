@@ -27,7 +27,7 @@ exports.RegisterUser = (Options) => {
         }
         client.findOne({ $or:[{email: b.email },{phoneNumber:b.phoneNumber}] }).then(exists => {
             if (exists) {
-                reject({ success: false, message: 'Sorry user already exists' });
+                reject({ success: false, message: 'Sorry, phone number or email already exists' });
             } else {
                 ClientRepo.add(b).then(created => {
                     if (created) {

@@ -368,13 +368,26 @@ exports.updateProfile = function (id, data) {
 };
 
 exports.updateOneSignalId = function (id, data) {
-  console.log(data)
   return new Promise((resolve, reject) => {
     UserRepo.updateByQuery({ publicId: id }, { $addToSet: data }).then(updated => {
       if (updated) {
         UserRepo.getById(updated._id)
-          .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
-          .catch(err => reject({ success: false, data: err, message: "unable to update user Profile" }))
+          .then(user => resolve({ success: true, data: user, message: "one signal ID updated successfully" }))
+          .catch(err => reject({ success: false, data: err, message: "unable to update one signal ID" }))
+      }
+    }).catch(err => {
+      reject({ success: false, data: err, message: "could not update profile" });
+    });
+  });
+};
+
+exports.removeOneSignalId = function (id, data) {
+  return new Promise((resolve, reject) => {
+    UserRepo.updateByQuery({ publicId: id }, { $pull: { oneSignalUserId: { $in: [data] } } }).then(updated => {
+      if (updated) {
+        UserRepo.getById(updated._id)
+          .then(user => resolve({ success: true, data: user, message: "one signal ID removed successfully" }))
+          .catch(err => reject({ success: false, data: err, message: "unable to remove one signal ID" }))
       }
     }).catch(err => {
       reject({ success: false, data: err, message: "could not update profile" });

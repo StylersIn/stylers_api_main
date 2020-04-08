@@ -136,6 +136,17 @@ module.exports = function authController() {
       });
   };
 
+  this.removeOneSignalId = async (req, res) => {
+    userService
+      .removeOneSignalId(req.auth.publicId, req.body.oneSignalUserId)
+      .then(data => {
+        res.status(200).send(data);
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });
+  };
+
   this.getUserData = async (req, res) => {
     userService
       .getUserData(req.params.id)

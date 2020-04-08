@@ -58,6 +58,17 @@ sockets.init = function (server) {
         socket.on('serviceCompleted', function (userKey) {
             io.sockets.in(userKey).emit('reviews.send');
         })
+
+        socket.on('removeOneSignalID', function (credentials) {
+            var _user = require('../Model/user');
+            _user.updateOne({ publicId: credentials.publicId }, { $pull: { oneSignalUserId: { $in: [credentials.oneSignalUserId] } } }).then(updated => {
+                console.log(updated)
+                if (updated) {
+                    console.log("one signal ID removed successfully");
+                }
+                console.log("unable to remove one signal ID");
+            });
+        })
     });
 
 }
