@@ -35,7 +35,7 @@ exports.RegisterUser = Options => {
                 generateToken(userdetail)
                   .then(token => {
                     sms.sendToken(u.phoneNumber,u.statusCode).then(done =>{
-                      if(done.SMSMessageData.Message == "Sent to 0/1 Total Cost: 0 done status"){
+                      if(done.SMSMessageData.Message.includes('Sent to 1/1')){
                         resolve({
                           success: true,
                           data: { user: created, token: token },
