@@ -10,9 +10,9 @@ var stylersSchema = new Schema({
     address: { type: String },
     description: { type: String },
     startingPrice: { type: Number },
-    IsVerified: { type: Boolean },
+    IsVerified: { type: Boolean  , default:false},
     passwordToken:{type:Number },
-    role: { type: String },
+    role: { type: String , default:'' },
     services: [{
         // favorites: [{ type: String, ref: 'user', autopopulate: true }],
         serviceId: { type: String, ref: 'services', autopopulate: true },

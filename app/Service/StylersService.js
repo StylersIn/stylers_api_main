@@ -34,14 +34,6 @@ exports.RegisterUser = (Options) => {
                         var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
                         StylerRepo.add(u).then(added => {
                             if (added) {
-                                // mailer.StylerReg(b.email).then(sent => {
-                                //     if (!sent) {
-                                //         resolve({ success: false, message: 'Registration error' });
-                                //     } else {
-                                //         // resolve({ success: true, message: 'Registration Successful' });
-
-                                //     }
-                                // })
                                 getUserDetail(created, created.publicId).then(userdetail => {
                                     generateToken(userdetail).then((token) => {
                                         resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
@@ -80,10 +72,10 @@ function authenticateuser(username, password) {
                         if (!data) {
                             resolve({ success: false, message: 'styler not found' });
                         } else {
-                            // var stylerVerified = data.IsVerified
-                            // if (stylerVerified == false) {
-                            //     resolve({ success: false, message: 'Please wait while admin verifies your account  ' });
-                            // } else {
+                             var stylerVerified = data.IsVerified
+                             if (stylerVerified == false) {
+                                resolve({ success: false, message: 'Please wait while admin verifies your account  ' });
+                            } else {
                                 var validPassword = bcrypt.compareSync(password, user.password);
                                 if (validPassword) {
                                     getUserDetail(user, user.publicId).then(userdetail => {
@@ -97,7 +89,7 @@ function authenticateuser(username, password) {
                                     resolve({ success: false, message: 'incorrect email or password' })
 
                                 }
-                          //  }
+                           }
                         }
                     })
 
@@ -124,13 +116,57 @@ exports.StylerRegStatus = (Id) => {
     })
 }
 
+// exports.forgotPasswordToken = data => {
+//     return new Promise((resolve, reject) => {
+//         client.findOne({ email: data.email })
+//         .then(found => {
+//           if (found) {
+//             Sms.forgortPasswordMailer(data.email, data.passwordToken)
+//               .then(sent => {
+//                 if (sent) {
+//                     client.updateOne(
+//                     { email: found.email },
+//                     { passwordToken: data.passwordToken },
+//                     function(err, updated) {
+//                       if (err) reject(err);
+//                       if (updated) {
+//                         resolve({
+//                           success: true,
+//                           message:
+//                             "Please check your email for verification code "
+//                         });
+//                       } else {
+//                         resolve({
+//                           success: true,
+//                           message: "Error sending verification code !!! "
+//                         });
+//                       }
+//                     }
+//                   );
+//                 } else {
+//                   resolve({ success: false, message: "Error sending sms !!!" });
+//                 }
+//               })
+//               .catch(err => {
+//                 reject(err);
+//               });
+//           } else {
+//             resolve({ success: false, message: "Could not find user" });
+//           }
+//         })
+//         .catch(err => {
+//           reject(err);
+//         });
+//     });
+//   };
+
 exports.forgotPasswordToken = data => {
     return new Promise((resolve, reject) => {
         client.findOne({ email: data.email })
         .then(found => {
           if (found) {
-            Sms.forgortPasswordMailer(data.email, data.passwordToken)
-              .then(sent => {
+            mailer.forgortPasswordMailer(data.email, data.passwordToken , function(err, sent){
+                if(err)reject(err)
                 if (sent) {
                     client.updateOne(
                     { email: found.email },
@@ -154,10 +190,7 @@ exports.forgotPasswordToken = data => {
                 } else {
                   resolve({ success: false, message: "Error sending sms !!!" });
                 }
-              })
-              .catch(err => {
-                reject(err);
-              });
+            })
           } else {
             resolve({ success: false, message: "Could not find user" });
           }
@@ -406,6 +439,31 @@ exports.sortStylersByRating = (serviceId) => {
                     resolve({ success: false, message: 'Could  not find data' })
                 }
             })
+    })
+}
+
+exports.verifyStyler = (role , id)=>{
+    return new Promise((resolve , reject)=>{
+        console.log(role , 'hmmmmmmm')
+        if(role == 'admin'){
+            Styler.findByIdAndUpdate({_id:id}, {IsVerified:true}).exec((err, updated)=>{
+                if(err)reject(err)
+                if(updated){
+                mailer.verificationMail(updated.email, function(err, sent){
+                    if(err)reject(err);
+                    if(sent){
+                        resolve({success:true , message:'user verified successfully'})
+                    }else{
+                        resolve({success:false  , message:'error encountered while verifying styler'})
+                    }
+                })
+                }else{
+                    resolve({success:false , message:'Error verifying styler '})
+                }
+            })
+        }else{
+            resolve({success:false , message:'forbidden !!!'})
+        }
     })
 }
 

@@ -46,6 +46,7 @@ exports.StylerAuthenticate = function (req, res, next) {
                             publicId: data.publicId,
                             email: decoded.email,
                             name: data.name,
+                            role:user.role,
                             Id: data._id,
                             oneSignalUserId: user.oneSignalUserId,
                         }

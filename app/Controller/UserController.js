@@ -17,7 +17,6 @@ module.exports = function authController() {
       type: req.body.type,
       socialId: req.body.socialId,
     };
-    console.log(Options , 'wellcome---')
     userService
       .RegisterUser(Options)
       .then(data => {
