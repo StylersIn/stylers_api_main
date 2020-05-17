@@ -5,14 +5,23 @@ var stylersSchema = new Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phoneNumber: { type: String, required: true },
-    userId: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
+    user: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
     publicId: { type: mongoose.Types.ObjectId },
-    address: { type: String },
+    location: {
+        type: {
+            type: String,
+            default: "Point"
+        },
+        coordinates: [Number],
+        name: String,
+    },
     description: { type: String },
     startingPrice: { type: Number },
-    IsVerified: { type: Boolean  , default:false},
-    passwordToken:{type:Number },
-    role: { type: String , default:'' },
+    IsVerified: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: false },
+    // password: { type: String, required: true },
+    // passwordToken: { type: Number },
+    // role: { type: String, default: 'styler' },
     services: [{
         // favorites: [{ type: String, ref: 'user', autopopulate: true }],
         serviceId: { type: String, ref: 'services', autopopulate: true },
@@ -35,7 +44,11 @@ var stylersSchema = new Schema({
     favorites: [{
         type: mongoose.SchemaTypes.ObjectId, ref: 'user', autopopulate: true,
     }],
+    imageUrl: { type: String, default: '' },
+    imageID: { type: String, default: '' },
+    // oneSignalUserId: [],
     CreatedAt: { type: Date },
 })
 
+stylersSchema.index({ location: '2dsphere' });
 module.exports = mongoose.model('stylers', stylersSchema);

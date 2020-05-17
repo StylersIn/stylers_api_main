@@ -7,18 +7,11 @@ module.exports = function authController() {
   this.register = (req, res, next) => {
     var gen = Math.floor(1000 + Math.random() * 9000);
     var Options = {
-      name: req.body.name,
       publicId: mongoose.Types.ObjectId(),
       statusCode: gen,
-      gender: req.body.gender,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      password: req.body.password,
-      type: req.body.type,
-      socialId: req.body.socialId,
     };
     userService
-      .RegisterUser(Options)
+      .RegisterUser(Object.assign(req.body, Options))
       .then(data => {
         res.json(data);
       })
@@ -160,6 +153,17 @@ module.exports = function authController() {
   this.fetchCards = async (req, res) => {
     userService
       .fetchCards(req.auth.Id)
+      .then(data => {
+        res.status(200).send(data);
+      })
+      .catch(err => {
+        res.status(500).send(err);
+      });
+  };
+
+  this.getBalance = async (req, res) => {
+    userService
+      .getBalance(req.auth.Id)
       .then(data => {
         res.status(200).send(data);
       })

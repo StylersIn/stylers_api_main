@@ -41,18 +41,16 @@ exports.StylerAuthenticate = function (req, res, next) {
                 if (data == null) {
                     res.status(401).send({ success: false, message: "User does not exist" });
                 } else {
-                    UserRepo.getSingleBy({ publicId: decoded.publicId }, '').then(user => {
-                        req.auth = {
-                            publicId: data.publicId,
-                            email: decoded.email,
-                            name: data.name,
-                            role:user.role,
-                            Id: data._id,
-                            oneSignalUserId: user.oneSignalUserId,
-                        }
-                        res.locals.response = { data: decoded, message: "", success: true };
-                        next();
-                    })
+                    req.auth = {
+                        publicId: data.publicId,
+                        email: decoded.email,
+                        name: data.name,
+                        role: data.role,
+                        Id: data.id,
+                        oneSignalUserId: data.oneSignalUserId,
+                    }
+                    res.locals.response = { data: decoded, message: "", success: true };
+                    next();
                 }
             })
         }).catch(err => {
@@ -61,6 +59,5 @@ exports.StylerAuthenticate = function (req, res, next) {
         })
     } else {
         res.status(401).send({ success: false, message: "No token provided" });
-
     }
 }

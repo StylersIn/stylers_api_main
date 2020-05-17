@@ -4,15 +4,6 @@ var mongoose = require('mongoose');
 
 module.exports = function authController() {
     this.register = (req, res, next) => {
-        // var Options = {
-        //     name: req.body.name,
-        //     publicId: mongoose.Types.ObjectId(),
-        //     address: req.body.address,
-        //     description: req.body.description,
-        //     email: req.body.email,
-        //     phoneNumber: req.body.phoneNumber,
-        //     password: req.body.password,
-        // }
         StylersService.RegisterUser(Object.assign(req.body, { publicId: mongoose.Types.ObjectId() })).then((data) => {
             res.json(data);
         }).catch((err) => {
@@ -34,41 +25,41 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
-    this.passwordToken = function(req, res, next) {
+    this.passwordToken = function (req, res, next) {
         var gen = Math.floor(1000 + Math.random() * 9000);
         var data = {
-          email: req.body.email,
-          passwordToken: gen
+            email: req.body.email,
+            passwordToken: gen
         };
         StylersService
-          .forgotPasswordToken(data)
-          .then(data => res.status(200).send(data))
-          .catch(err => res.status(500).send(err));
-      };
-
-
-  this.changeforgotPassword = function(req, res, next) {
-    var data = {
-      passwordToken: req.body.passwordToken,
-      password: req.body.password
+            .forgotPasswordToken(data)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
     };
-    StylersService
-      .changeforgotPassword(data)
-      .then(data => res.status(200).send(data))
-      .catch(err => res.status(500).send(err));
-  };
 
-  this.changePassword = function(req, res, next) {
-    var data = {
-      originalPassword: req.body.originalPassword,
-      password: req.body.password,
-      email:req.auth.email
+
+    this.changeforgotPassword = function (req, res, next) {
+        var data = {
+            passwordToken: req.body.passwordToken,
+            password: req.body.password
+        };
+        StylersService
+            .changeforgotPassword(data)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
     };
-    StylersService
-      .changepassword(data)
-      .then(data => res.status(200).send(data))
-      .catch(err => res.status(500).send(err));
-  };
+
+    this.changePassword = function (req, res, next) {
+        var data = {
+            originalPassword: req.body.originalPassword,
+            password: req.body.password,
+            email: req.auth.email
+        };
+        StylersService
+            .changepassword(data)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    };
 
     // this.AddServices = function (req, res, next) {
     //     var data = { adult: req.body.adults, child: req.body.kids, serviceId: req.body.service }
@@ -90,18 +81,23 @@ module.exports = function authController() {
     }
 
     this.SortStylersByPrice = function (req, res, next) {
-        StylersService.sortStylersByPrice(req.params.id)
+        StylersService.sortStylersByPrice(req.params.id, JSON.parse(req.query.coordinates))
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
     this.SortStylersByRating = function (req, res, next) {
-        StylersService.sortStylersByRating(req.params.id)
+        StylersService.sortStylersByRating(req.params.id, JSON.parse(req.query.coordinates))
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
-
+    this.GetStylerDetails = function (req, res, next) {
+        console.log(req.auth.Id)
+        StylersService.getStylerDetails(req.auth.Id)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 
     this.GetStyler = function (req, res, next) {
         StylersService.getStylerById(req.params.id)
@@ -116,15 +112,29 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 
-    this.updateClientProfile = async (req, res) => {
+    this.updateClientAvatar = async (req, res) => {
         var requestDetails = {};
-
         if (req.body.image) {
             requestDetails.imageUrl = req.body.image.secure_url;
             requestDetails.imageID = req.body.image.public_id;
         }
 
-        console.log("calling outside await", requestDetails)
+        StylersService.updateAvatar(req.auth.publicId, requestDetails)
+            .then(data => {
+                res.status(200).send(data);
+            })
+            .catch(err => {
+                res.status(500).send(err);
+            });
+    };
+
+    this.updateClientProfile = async (req, res) => {
+        var requestDetails = { ...req.body };
+        if (req.body.image) {
+            requestDetails.imageUrl = req.body.image.secure_url;
+            requestDetails.imageID = req.body.image.public_id;
+        }
+        
         StylersService.updateProfile(req.auth.publicId, requestDetails)
             .then(data => {
                 res.status(200).send(data);
@@ -135,19 +145,25 @@ module.exports = function authController() {
     };
 
     this.GetStylersByServices = function (req, res, next) {
-        StylersService.GetStylerByService(req.params.service, req.params.pagenumber, req.params.pagesize)
+        StylersService.GetStylerByService(req.params.service, req.params.pagenumber, req.params.pagesize, JSON.parse(req.query.coordinates))
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
-    this.verifyStyler = (req,res)=>{
-        StylersService.verifyStyler(req.auth.role ,req.query.id).then(data =>{
+
+    this.GetStylersWithException = function (req, res, next) {
+        StylersService.GetStylersWithException(req.params.service, req.params.styler, req.params.pagenumber, req.params.pagesize, JSON.parse(req.query.coordinates))
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
+    this.verifyStyler = (req, res) => {
+        StylersService.verifyStyler(req.auth.role, req.query.id).then(data => {
             res.status(200).send(data)
         }).catch(err => res.status(500).send(err));
     }
 
-
     this.favouriteStylerService = function (req, res, next) {
-        StylersService.FavouriteStyler(req.auth.publicId, req.params.id, req.body.service)
+        StylersService.FavouriteStyler(req.auth.publicId, req.params.id, req.body.service, JSON.parse(req.query.coordinates))
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
@@ -179,4 +195,3 @@ module.exports = function authController() {
             .catch(err => res.status(500).send(err));
     }
 }
-

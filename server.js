@@ -14,6 +14,13 @@ const bodyParser = require('body-parser');
 
 //cronjb
 
+var cron = require("./app/Service/CronService");
+cron.init();
+
+Date.prototype.addHours = function (h) {
+    this.setHours(this.getHours() + h);
+    return this;
+}
 //middleware
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));

@@ -94,7 +94,7 @@ BaseRepository.prototype.updateById = function (query, data) {
 
 BaseRepository.prototype.updateByQuery = function (query = {}, data = {}) {
     return new Promise((resolve, reject) => {
-        this.SchemaModel.findOneAndUpdate(query, data).exec((err, data) => {
+        this.SchemaModel.update(query, data).exec((err, data) => {
             if(err) {reject(err)}
             else{resolve(data)};
         })

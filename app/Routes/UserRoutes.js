@@ -21,6 +21,7 @@ module.exports = function(){
     router.put('/update/onesignal', middleware.authenticate, authCtrl.updateOneSignalId)
     router.put('/remove/onesignal', middleware.authenticate, authCtrl.removeOneSignalId)
     router.get('/cards', middleware.authenticate, authCtrl.fetchCards);
+    router.get('/balance', middleware.authenticate, authCtrl.getBalance);
     router.get('/:id', middleware.authenticate, authCtrl.getUserData);
 
     return router;

@@ -40,6 +40,7 @@ exports.BookService = (options) => {
         var saveCard = options['saveCard'];
         if (saveCard) delete options['saveCard'];
         options.status = constants.BOOKED;
+        options.expDate = new Date().addHours(1);
         BookingRepo.add(options).then(created => {
             if (created) {
                 if (options.initial) {
@@ -104,7 +105,7 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
         model.find({ userId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -116,12 +117,13 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
+exports.getStylerRequests = (pagenumber = 1, pagesize = 20, stylerId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, status: constants.BOOKED, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId, $or: [{ status: constants.BOOKED }, { status: constants.EXPIRED }, { status: constants.CANCELLED, },] })
+            .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "user", select: { __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -133,12 +135,13 @@ exports.getStylerRequests = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, userId) => {
+exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, stylerId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId: userId, status: constants.ACCEPTED, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ stylerId, status: { $ne: constants.STARTED, } })
+            .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "stylers", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
@@ -192,9 +195,12 @@ exports.updateAppointmentStatus = (appointmentId, status) => {
             status == constants.COMPLETED ? 'Appointment Completed' : status == constants.CANCELLED ? 'Appointment Cancelled' : '';
         let body = status == constants.ACCEPTED ? 'Your appointment has been accepted by styler' :
             status == constants.COMPLETED ? 'Your appointment has been completed by styler' : status == constants.CANCELLED ? 'Your appointment has been cancelled by styler' : '';
-        model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now() }).exec((err, data) => {
+        model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now() }).exec(async (err, data) => {
             if (err) reject(err);
             if (data) {
+                if (status == constants.COMPLETED) {
+                    await user.updateOne({ _id: data.userId }, { $inc: { balance: data.totalAmount, clientServed: 1, } }, (err, updated) => { });
+                }
                 notify.sendNotice(
                     [data.userId],
                     title,

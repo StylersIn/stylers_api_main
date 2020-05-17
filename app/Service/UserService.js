@@ -8,67 +8,46 @@ var mailer = require("../Middleware/mailer");
 var UserRepo = new BaseRepository(User);
 var secret = process.env.Secret;
 const notify = require('../Service/OneSignalService');
+const stylerService = require("../Service/StylersService");
 
 exports.RegisterUser = Options => {
   return new Promise((resolve, reject) => {
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
-      name: Options.name,
-      email: Options.email,
-      phoneNumber: Options.phoneNumber,
       password: hash,
-      gender: Options.gender,
-      publicId: Options.publicId,
-      statusCode: Options.statusCode,
       status: false,
-      type: Options.type,
-      socialId: Options.socialId,
       CreatedAt: new Date(),
-      passwordToken: 1111
+      passwordToken: 1111,
     };
 
+    const { phoneNumber, statusCode, } = Options;
     User.findOne({ $or: [{ email: u.email }, { phoneNumber: u.phoneNumber }] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
         } else {
-          UserRepo.add(u).then(created => {
+          UserRepo.add(Object.assign(Options, u)).then(created => {
             if (created) {
-              getUserDetail(created, created.publicId).then(userdetail => {
+              getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    sms.sendToken(u.phoneNumber,u.statusCode).then(done =>{
-                      if(done.SMSMessageData.Message == "Sent to 0/1 Total Cost: 0 done status"){
+                    sms.sendToken(phoneNumber, statusCode).then(done => {
+                      console.log(done)
+                      if (done.SMSMessageData.Message == "Sent to 0/1 Total Cost: 0 done status") {
                         resolve({
                           success: true,
                           data: { user: created, token: token },
                           message: "Registration Successful"
                         });
-                      }else{
-                        mailer.signupMail(u.email , u.statusCode , function(err, alpha){
-                          if(err)reject(err)
-                          if(alpha){
-                            resolve({success:true ,data: { user: created, token: token },message: "Registration Successful" })
-                          }else{
-                            resolve({success:false , message:'Error occured while registering user !!'})
+                      } else {
+                        mailer.signupMail(u.email, u.statusCode, function (err, alpha) {
+                          if (err) reject(err)
+                          if (alpha) {
+                            resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
+                          } else {
+                            resolve({ success: false, message: 'Error occured while registering user !!' })
                           }
                         })
-                        // mailer.MailSender(u.email,u.statusCode).then(sent =>{
-                        //   if(sent){
-                        //     resolve({
-                        //               success: true,
-                        //               data: { user: created, token: token },
-                        //               message: "Registration Successful"
-                        //             });
-                        //   }else{
-                        //     resolve({
-                        //               success: false,
-                        //               message: "Error occured while registering user !!"
-                        //             });
-                        //   }
-                        // }).catch(err =>{
-                        //   reject(err);
-                        // })
                       }
                     }).catch(err => reject(err))
                   })
@@ -111,39 +90,29 @@ function authenticateuser(email, password) {
       UserRepo.getSingleBy({ email: email }, "")
         .then(user => {
           if (!user) {
-            reject({ success: false, message: "Wrong username or password" });
+            return reject({ success: false, message: "Incorrect email or password" });
           } else {
             var validPassword = bcrypt.compareSync(password, user.password);
             if (validPassword) {
               if (user.status == false) {
                 resolve({
                   status: false,
-                  message: "Please Verify your account "
+                  message: "Please Verify your account",
+                  role: user.role,
                 });
               } else {
-                getUserDetail(user, user.publicId).then(userdetail => {
+                getUserDetail(user).then(userdetail => {
                   generateToken(userdetail)
                     .then(token => {
-                      resolve({
-                        success: true,
-                        data: { user, token: token },
-                        message: "authentication successful"
-                      });
+                      resolve({ success: true, data: { user, token: token }, message: "authentication successful" });
                     })
                     .catch(err => {
-                      reject({
-                        success: false,
-                        data: err,
-                        message: "could not authenticate user"
-                      });
+                      reject({ success: false, data: err, message: "could not authenticate user" });
                     });
                 });
               }
             } else {
-              reject({
-                success: false,
-                message: "Incorrect email or password"
-              });
+              reject({ success: false, message: "Incorrect email or password" });
             }
           }
         })
@@ -155,74 +124,23 @@ function authenticateuser(email, password) {
 }
 exports.authenticateuser = authenticateuser;
 
-// exports.forgotPasswordToken = data => {
-//   return new Promise((resolve, reject) => {
-//     User.findOne({ email: data.email })
-//       .then(found => {
-//         if (found) {
-//           mailer.forgortPasswordMailer(data.email, data.passwordToken)
-//             .then(sent => {
-//               if (sent) {
-//                 User.updateOne(
-//                   { email: found.email },
-//                   { passwordToken: data.passwordToken },
-//                   function(err, updated) {
-//                     if (err) reject(err);
-//                     if (updated) {
-//                       resolve({
-//                         success: true,
-//                         message:
-//                           "Please check your email for verification code "
-//                       });
-//                     } else {
-//                       resolve({
-//                         success: true,
-//                         message: "Error sending verification code !!! "
-//                       });
-//                     }
-//                   }
-//                 );
-//               } else {
-//                 resolve({ success: false, message: "Error sending sms !!!" });
-//               }
-//             })
-//             .catch(err => {
-//               reject(err);
-//             });
-//         } else {
-//           resolve({ success: false, message: "Could not find user" });
-//         }
-//       })
-//       .catch(err => {
-//         reject(err);
-//       });
-//   });
-// };
-
 exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
         if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken , function(err , sent){
-            if(err)reject(err)
+          mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
+            if (err) reject(err)
             if (sent) {
               User.updateOne(
                 { email: found.email },
                 { passwordToken: data.passwordToken },
-                function(err, updated) {
+                function (err, updated) {
                   if (err) reject(err);
                   if (updated) {
-                    resolve({
-                      success: true,
-                      message:
-                        "Please check your email for verification code "
-                    });
+                    resolve({ success: true, message: "Please check your email for verification code" });
                   } else {
-                    resolve({
-                      success: true,
-                      message: "Error sending verification code !!! "
-                    });
+                    resolve({ success: true, message: "Error sending verification code!!! " });
                   }
                 }
               );
@@ -230,8 +148,6 @@ exports.forgotPasswordToken = data => {
               resolve({ success: false, message: "Error sending sms !!!" });
             }
           })
-            
-
         } else {
           reject({ success: false, message: "Could not find user" });
         }
@@ -306,9 +222,6 @@ exports.changepassword = (data) => {
 
 exports.verifyAccount = (email, Token, key) => {
   return new Promise((resolve, reject) => {
-    console.log(email);
-    console.log(Token);
-    console.log(key);
     User.findOne({ $and: [{ [key]: email }, { statusCode: Token }] })
       .then(data => {
         if (data) {
@@ -319,7 +232,7 @@ exports.verifyAccount = (email, Token, key) => {
             function (err, updated) {
               if (err)
                 resolve({ status: false, message: "Error Verifying User" });
-              getUserDetail(updated, updated.publicId).then(userDetail => {
+              getUserDetail(updated).then(userDetail => {
                 generateToken(userDetail)
                   .then(token => {
                     // resolve({ status: true, message: 'User has been verified', data: { user: updated, token: token } })
@@ -360,7 +273,7 @@ exports.verifySocial = id => {
                 message: "Please Verify your account "
               });
             } else {
-              getUserDetail(user, user.publicId).then(userdetail => {
+              getUserDetail(user).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
                     resolve({
@@ -442,21 +355,20 @@ exports.removeOneSignalId = function (id, data) {
   });
 };
 
-function getUserDetail(user, Id) {
+function getUserDetail(user) {
   return new Promise((resolve, reject) => {
-    //console.log('this is user detail', user.status);
-    UserRepo.getSingleBy({ publicId: Id }, { _id: 0, __v: 0 })
-      .then(data => {
-        var specificUserDetail = {
-          email: user.email,
-          name: user.name,
-          phone: user.phoneNumber,
-          publicId: user.publicId,
-          role: user.role
-        };
-        resolve(specificUserDetail);
-      })
-      .catch(error => reject(error));
+    if (user) {
+      var obj = {
+        email: user.email,
+        name: user.name,
+        phone: user.phoneNumber,
+        publicId: user.publicId,
+        role: user.role
+      };
+      resolve(obj);
+    } else {
+      reject("user not found")
+    }
   });
 }
 
@@ -525,4 +437,42 @@ exports.fetchCards = function (Id) {
   });
 };
 
+exports.getBalance = function (Id) {
+  return new Promise((resolve, reject) => {
+    UserRepo.getById(Id)
+      .then(user =>
+        resolve({
+          success: true,
+          data: parseInt(user.balance) || 0,
+          message: "user saved cards"
+        })
+      )
+      .catch(err =>
+        reject({
+          success: false,
+          data: err,
+          message: "unable to fetch user cards"
+        })
+      );
+  });
+};
+
 exports.verifyToken = verifyToken;
+
+
+                        // mailer.MailSender(u.email,u.statusCode).then(sent =>{
+                        //   if(sent){
+                        //     resolve({
+                        //               success: true,
+                        //               data: { user: created, token: token },
+                        //               message: "Registration Successful"
+                        //             });
+                        //   }else{
+                        //     resolve({
+                        //               success: false,
+                        //               message: "Error occured while registering user !!"
+                        //             });
+                        //   }
+                        // }).catch(err =>{
+                        //   reject(err);
+                        // })

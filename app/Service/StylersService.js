@@ -4,39 +4,42 @@ var client = require('../Model/user');
 var mailer = require('../Middleware/mailer');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
-var booking = require('../Model/appointment');
+var appointment = require('../Model/appointment');
 var user = require('../Model/user');
+var service = require('../Model/services');
 var Sms = require('../Middleware/mailer');
 var subService = require('../Model/services').subServicesModel;
+var UserRepo = new BaseRepository(user);
 var StylerRepo = new BaseRepository(Styler);
 var ClientRepo = new BaseRepository(client);
+var ServiceRepo = new BaseRepository(service);
 var secret = process.env.Secret;
+var constants = require('../constants');
+
 exports.RegisterUser = (Options) => {
     return new Promise((resolve, reject) => {
         let hash = bcrypt.hashSync(Options.password, 10);
         var b = {
-            name: Options.name,
-            email: Options.email,
-            phoneNumber: Options.phoneNumber,
             password: hash,
-            publicId: Options.publicId,
-            startingPrice: Options.startingPrice,
             CreatedAt: new Date(),
-            passwordToken:1111,
-            role: 'styler'
+            passwordToken: 1111,
+            role: 'styler',
+            status: false,
         }
-        client.findOne({ $or:[{email: b.email },{phoneNumber:b.phoneNumber}] }).then(exists => {
+
+        var request = Object.assign(Options, b);
+        client.findOne({ $or: [{ email: b.email }, { phoneNumber: b.phoneNumber }] }).then(exists => {
             if (exists) {
                 reject({ success: false, message: 'Sorry, phone number or email already exists' });
             } else {
-                ClientRepo.add(b).then(created => {
+                ClientRepo.add(request).then(created => {
                     if (created) {
-                        var u = Object.assign(Options, { userId: created._id, created: created.publicId, CreatedAt: new Date() })
-                        StylerRepo.add(u).then(added => {
-                            if (added) {
-                                getUserDetail(created, created.publicId).then(userdetail => {
+                        var u = Object.assign(Options, { user: created._id, publicId: created.publicId, CreatedAt: new Date() })
+                        StylerRepo.add(u).then(styler => {
+                            if (styler) {
+                                getUserDetail(styler).then(userdetail => {
                                     generateToken(userdetail).then((token) => {
-                                        resolve({ success: true, data: { user: created, token: token }, message: 'Registration Successful' })
+                                        resolve({ success: true, data: { user: userdetail, token: token }, message: 'Registration Successful' })
                                     }).catch((err) => {
                                         reject({ success: false, data: err, message: 'could not authenticate user' })
                                     })
@@ -48,63 +51,18 @@ exports.RegisterUser = (Options) => {
 
                     } else {
                         resolve({ success: false, message: 'User SignUp was not successfull' });
-
                     }
                 })
             }
         }).catch(err => {
             reject(err);
         })
-
     })
 }
-
-function authenticateuser(username, password) {
-    return new Promise((resolve, reject) => {
-        if (username.length == 0 || password.length == 0) {
-            resolve({ success: false, message: 'authentication credentials incomplete' });
-        } else {
-            client.findOne({ email: username }, '').then((user) => {
-                if (!user) {
-                    resolve({ success: false, message: 'user not found' });
-                } else {
-                    Styler.findOne({ userId: user._id }).then(data => {
-                        if (!data) {
-                            resolve({ success: false, message: 'styler not found' });
-                        } else {
-                             var stylerVerified = data.IsVerified
-                             if (stylerVerified == false) {
-                                resolve({ success: false, message: 'Please wait while admin verifies your account  ' });
-                            } else {
-                                var validPassword = bcrypt.compareSync(password, user.password);
-                                if (validPassword) {
-                                    getUserDetail(user, user.publicId).then(userdetail => {
-                                        generateToken(userdetail).then((token) => {
-                                            resolve({ success: true, data: { user, token: token }, message: 'authentication successful' })
-                                        }).catch((err) => {
-                                            resolve({ success: false, data: err, message: 'could not authenticate user' })
-                                        })
-                                    })
-                                } else {
-                                    resolve({ success: false, message: 'incorrect email or password' })
-
-                                }
-                           }
-                        }
-                    })
-
-                }
-            }).catch((err) => {
-                reject(err);
-            })
-        }
-    })
-}
-exports.authenticateuser = authenticateuser
 
 exports.StylerRegStatus = (Id) => {
     return new Promise((resolve, reject) => {
-        Styler.findOne({ userId: Id }).then(result => {
+        Styler.findOne({ _id: Id }).then(result => {
             if (result && result.services.length) {
                 resolve({ success: true, message: 'Styler Service has been updated!' });
             } else {
@@ -116,155 +74,110 @@ exports.StylerRegStatus = (Id) => {
     })
 }
 
-// exports.forgotPasswordToken = data => {
-//     return new Promise((resolve, reject) => {
-//         client.findOne({ email: data.email })
-//         .then(found => {
-//           if (found) {
-//             Sms.forgortPasswordMailer(data.email, data.passwordToken)
-//               .then(sent => {
-//                 if (sent) {
-//                     client.updateOne(
-//                     { email: found.email },
-//                     { passwordToken: data.passwordToken },
-//                     function(err, updated) {
-//                       if (err) reject(err);
-//                       if (updated) {
-//                         resolve({
-//                           success: true,
-//                           message:
-//                             "Please check your email for verification code "
-//                         });
-//                       } else {
-//                         resolve({
-//                           success: true,
-//                           message: "Error sending verification code !!! "
-//                         });
-//                       }
-//                     }
-//                   );
-//                 } else {
-//                   resolve({ success: false, message: "Error sending sms !!!" });
-//                 }
-//               })
-//               .catch(err => {
-//                 reject(err);
-//               });
-//           } else {
-//             resolve({ success: false, message: "Could not find user" });
-//           }
-//         })
-//         .catch(err => {
-//           reject(err);
-//         });
-//     });
-//   };
-
 exports.forgotPasswordToken = data => {
     return new Promise((resolve, reject) => {
         client.findOne({ email: data.email })
-        .then(found => {
-          if (found) {
-            mailer.forgortPasswordMailer(data.email, data.passwordToken , function(err, sent){
-                if(err)reject(err)
-                if (sent) {
-                    client.updateOne(
-                    { email: found.email },
-                    { passwordToken: data.passwordToken },
-                    function(err, updated) {
-                      if (err) reject(err);
-                      if (updated) {
-                        resolve({
-                          success: true,
-                          message:
-                            "Please check your email for verification code "
-                        });
-                      } else {
-                        resolve({
-                          success: true,
-                          message: "Error sending verification code !!! "
-                        });
-                      }
-                    }
-                  );
+            .then(found => {
+                if (found) {
+                    mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
+                        if (err) reject(err)
+                        if (sent) {
+                            client.updateOne(
+                                { email: found.email },
+                                { passwordToken: data.passwordToken },
+                                function (err, updated) {
+                                    if (err) reject(err);
+                                    if (updated) {
+                                        resolve({
+                                            success: true,
+                                            message:
+                                                "Please check your email for verification code "
+                                        });
+                                    } else {
+                                        resolve({
+                                            success: true,
+                                            message: "Error sending verification code !!! "
+                                        });
+                                    }
+                                }
+                            );
+                        } else {
+                            resolve({ success: false, message: "Error sending sms !!!" });
+                        }
+                    })
                 } else {
-                  resolve({ success: false, message: "Error sending sms !!!" });
+                    resolve({ success: false, message: "Could not find user" });
                 }
             })
-          } else {
-            resolve({ success: false, message: "Could not find user" });
-          }
-        })
-        .catch(err => {
-          reject(err);
-        });
+            .catch(err => {
+                reject(err);
+            });
     });
-  };
+};
 
-  exports.changeforgotPassword = Options => {
+exports.changeforgotPassword = Options => {
     return new Promise((resolve, reject) => {
         client.findOne({ passwordToken: Options.passwordToken })
-        .then(found => {
-          if (found) {
-            let hash = bcrypt.hashSync(Options.password, 10);
-            client.updateOne({ email: found.email }, { password: hash })
-              .then(updated => {
-                if (updated) {
-                  resolve({
-                    success: true,
-                    message: "User password updated Successfully !!!"
-                  });
+            .then(found => {
+                if (found) {
+                    let hash = bcrypt.hashSync(Options.password, 10);
+                    client.updateOne({ email: found.email }, { password: hash })
+                        .then(updated => {
+                            if (updated) {
+                                resolve({
+                                    success: true,
+                                    message: "User password updated Successfully !!!"
+                                });
+                            } else {
+                                resolve({
+                                    success: false,
+                                    message: "Unable to update user password !!!"
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            reject(err);
+                        });
                 } else {
-                  resolve({
-                    success: false,
-                    message: "Unable to update user password !!!"
-                  });
+                    resolve({ success: false, message: "invalid token inserted " });
                 }
-              })
-              .catch(err => {
-                reject(err);
-              });
-          } else {
-            resolve({ success: false, message: "invalid token inserted " });
-          }
-        })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  };
-
-
-exports.changepassword = (data)=>{
-
-    return new Promise((resolve , reject)=>{
-        client.findOne({email:data.email}).then(found =>{
-        if(found){
-          var IsValid = bcrypt.compareSync(data.originalPassword , found.password)
-          if(IsValid == true){
-            var newpassword = data.password
-            var hashNewPassword = bcrypt.hashSync(newpassword ,10)
-            client.updateOne({email:data.email},{password:hashNewPassword}).then(updated =>{
-              if(updated){
-                resolve({success:true , message:'password has been changed successfully !!'})
-              }else{
-                resolve({success:false , message:'Error encountered while updating password '})
-              }
-            }).catch(err =>{
-              reject(err);
             })
-          }
-        }
-      }).catch(err =>{
-        reject(err);
-      })
+            .catch(err => {
+                reject(err);
+            });
+    });
+};
+
+
+exports.changepassword = (data) => {
+
+    return new Promise((resolve, reject) => {
+        client.findOne({ email: data.email }).then(found => {
+            if (found) {
+                var IsValid = bcrypt.compareSync(data.originalPassword, found.password)
+                if (IsValid == true) {
+                    var newpassword = data.password
+                    var hashNewPassword = bcrypt.hashSync(newpassword, 10)
+                    client.updateOne({ email: data.email }, { password: hashNewPassword }).then(updated => {
+                        if (updated) {
+                            resolve({ success: true, message: 'password has been changed successfully !!' })
+                        } else {
+                            resolve({ success: false, message: 'Error encountered while updating password ' })
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    })
+                }
+            }
+        }).catch(err => {
+            reject(err);
+        })
     })
-  }
-  
+}
+
 
 exports.AddServicePrice = (id, Option) => {
     return new Promise((resolve, reject) => {
-
         Styler.findOne({ publicId: id, "services.serviceId": Option.serviceId }, { 'services.$': 1 }).then(found => {
             if (!found) {
                 Styler.findOneAndUpdate({ publicId: id }, { $push: { services: Option } }).exec((err, data) => {
@@ -330,11 +243,12 @@ exports.reviewStyler = (stylerId, Option) => {
 
 exports.UpdateServicePrice = function (id, data) {
     return new Promise((resolve, reject) => {
-        StylerRepo.updateByQuery({ userId: id }, {
+        StylerRepo.updateById(id, {
             $set: {
                 'services': data
             }
         }).then(updated => {
+            console.log(updated)
             if (updated) {
                 resolve({ success: true, message: 'stylers service updated successfully', data: updated })
             } else {
@@ -351,7 +265,7 @@ exports.getStylers = (pagenumber = 1, pagesize = 20) => {
         Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .populate({ path: "services.subServiceId", })
-            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
@@ -365,11 +279,29 @@ exports.getStylers = (pagenumber = 1, pagesize = 20) => {
 }
 
 
+exports.getStylerDetails = (stylerId) => {
+    return new Promise((resolve, reject) => {
+        Styler.findById({ _id: stylerId })
+            .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
+            .exec((err, stylers) => {
+                if (err) reject(err);
+                if (stylers) {
+
+                    resolve({ success: true, message: 'styler found', data: stylers })
+                } else {
+                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                }
+            });
+    });
+}
+
 exports.getStylerById = (stylerId) => {
     return new Promise((resolve, reject) => {
         Styler.findById({ _id: stylerId })
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
@@ -387,7 +319,7 @@ exports.sortStylers = () => {
     return new Promise((resolve, reject) => {
         Styler.find()
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .exec((err, found) => {
                 if (err) reject(err);
@@ -405,17 +337,21 @@ exports.sortStylers = () => {
     })
 }
 
-exports.sortStylersByPrice = (serviceId) => {
+exports.sortStylersByPrice = (serviceId, coordinates) => {
     return new Promise((resolve, reject) => {
-        Styler.find({ 'services.serviceId': serviceId })
+        console.log(coordinates)
+        Styler.find({
+            'services.serviceId': serviceId,
+            location: filterParams(coordinates),
+        })
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .sort({ startingPrice: 1 })
             .exec((err, found) => {
                 if (err) reject(err);
-                if (found) {
-                    resolve({ success: true, message: 'stylers found', data: found })
+                if (found.length) {
+                    resolve({ success: true, count: found.length, message: 'stylers found', data: found })
                 } else {
                     resolve({ success: false, message: 'Could  not find data' })
                 }
@@ -423,18 +359,20 @@ exports.sortStylersByPrice = (serviceId) => {
     })
 }
 
-exports.sortStylersByRating = (serviceId) => {
+exports.sortStylersByRating = (serviceId, coordinates) => {
     return new Promise((resolve, reject) => {
-        Styler.find({ 'services.serviceId': serviceId })
+        Styler.find({
+            'services.serviceId': serviceId,
+            location: filterParams(coordinates),
+        })
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
-            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .sort({ "ratings.rating": -1 })
             .exec((err, found) => {
                 if (err) reject(err);
-                if (found) {
-                    resolve({ success: true, message: 'stylers found', data: found })
-
+                if (found.length) {
+                    resolve({ success: true, count: found.length, message: 'stylers found', data: found })
                 } else {
                     resolve({ success: false, message: 'Could  not find data' })
                 }
@@ -442,56 +380,70 @@ exports.sortStylersByRating = (serviceId) => {
     })
 }
 
-exports.verifyStyler = (role , id)=>{
-    return new Promise((resolve , reject)=>{
-        console.log(role , 'hmmmmmmm')
-        if(role == 'admin'){
-            Styler.findByIdAndUpdate({_id:id}, {IsVerified:true}).exec((err, updated)=>{
-                if(err)reject(err)
-                if(updated){
-                mailer.verificationMail(updated.email, function(err, sent){
-                    if(err)reject(err);
-                    if(sent){
-                        resolve({success:true , message:'user verified successfully'})
-                    }else{
-                        resolve({success:false  , message:'error encountered while verifying styler'})
-                    }
-                })
-                }else{
-                    resolve({success:false , message:'Error verifying styler '})
+exports.verifyStyler = (role, id) => {
+    return new Promise((resolve, reject) => {
+        if (role == 'admin') {
+            Styler.findByIdAndUpdate({ _id: id }, { IsVerified: true }).exec((err, updated) => {
+                if (err) reject(err)
+                if (updated) {
+                    mailer.verificationMail(updated.email, function (err, sent) {
+                        if (err) reject(err);
+                        if (sent) {
+                            resolve({ success: true, message: 'user verified successfully' })
+                        } else {
+                            resolve({ success: false, message: 'error encountered while verifying styler' })
+                        }
+                    })
+                } else {
+                    resolve({ success: false, message: 'Error verifying styler ' })
                 }
             })
-        }else{
-            resolve({success:false , message:'forbidden !!!'})
+        } else {
+            resolve({ success: false, message: 'forbidden !!!' })
         }
     })
 }
 
-
-
-exports.updateProfile = function (id, data) {
+exports.updateAvatar = function (id, data) {
     return new Promise((resolve, reject) => {
         user.update({ publicId: id }, data).then(updated => {
             if (updated) {
                 StylerRepo.getById(updated._id)
-                    .then(user => resolve({ success: true, data: user, message: "your profile was updated successfully" }))
-                    .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
+                    .then(user => resolve({ success: true, data: user, message: "your avatar was updated successfully" }))
+                    .catch(err => resolve({ success: false, data: err, message: "unable to update user avatar" }))
             }
         }).catch(err => {
-            reject({ success: false, data: err, message: "could not update profile" });
+            reject({ success: false, data: err, message: "could not update avatar" });
         });
     })
 }
 
-function getUserDetail(user, Id) {
+exports.updateProfile = function (id, data) {
     return new Promise((resolve, reject) => {
-        StylerRepo.getSingleBy({ publicId: Id }, { "_id": 0, "__v": 0 }).then(data => {
-            var specificUserDetail = { email: user.email, name: user.name, phone: user.phoneNumber, publicId: user.publicId, role: user.role, };
-            resolve(specificUserDetail);
-        }).catch(error => reject(error))
+        UserRepo.updateByQuery({ publicId: id }, data).then(updated => {
+            if (updated) {
+                StylerRepo.updateByQuery({ publicId: id }, data).then(styler => {
+                    if (styler) {
+                        StylerRepo.getById(styler._id)
+                            .then(user => resolve({ success: true, data: styler, message: "your profile was updated successfully" }))
+                            .catch(err => resolve({ success: false, data: err, message: "unable to update user Profile" }))
+                    }
+                }).catch(err => {
+                    reject({ success: false, data: err, message: "could not update profile" });
+                });
+            }
+        });
     })
 }
 
+function getUserDetail(styler) {
+    return new Promise((resolve, reject) => {
+        if (styler) {
+            return resolve({ email: styler.email, name: styler.name, phone: styler.phoneNumber, publicId: styler.publicId, role: 'styler', isActive: false, });
+        }
+        return reject(undefined);
+    });
+}
 
 function generateToken(data = {}) {
     return new Promise((resolve, reject) => {
@@ -521,28 +473,65 @@ function verifyToken(token = "") {
 exports.verifyToken = verifyToken;
 
 
-exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 20) => {
+exports.GetStylerByService = (serviceId, pagenumber = 1, pagesize = 10, coordinates) => {
     return new Promise((resolve, reject) => {
-        Styler.find({ "services.serviceId": { $in: serviceId } })
+        Styler.find(
+            {
+                "services.serviceId": { $in: serviceId },
+                location: filterParams(coordinates),
+            }
+        )
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-            .populate({ path: "userId", model: "user", select: { __v: 0 } })
+            .populate({ path: "user", model: "user", select: { __v: 0 } })
             .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "review.userId", model: "user", select: { name: 1 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
                 if (stylers) {
-                    resolve({ success: true, message: 'stylers found', data: stylers })
+                    if (stylers.length == 0) return resolve({ success: true, message: 'Oops! Sorry, no stylers found within your region', data: stylers })
+                    return resolve({ success: true, message: 'stylers found', data: stylers })
                 } else {
-                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                    return resolve({ success: false, message: 'Unable to find what you searched for !!' })
                 }
             });
     })
 }
 
-exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20) => {
+exports.GetStylersWithException = (serviceId, styler, pagenumber = 1, pagesize = 10, coordinates) => {
     return new Promise((resolve, reject) => {
-        Styler.find({ "services.serviceId": { $in: serviceId } })
+        ServiceRepo.getById(serviceId).then(service => {
+            Styler.find(
+                {
+                    _id: { $ne: styler, },
+                    "services.serviceId": { $in: serviceId },
+                    location: filterParams(coordinates),
+                }
+            )
+                .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+                .populate({ path: "user", model: "user", select: { __v: 0 } })
+                .populate({ path: "services.serviceId", model: "services", select: { __v: 0 } })
+                .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
+                .populate({ path: "review.userId", model: "user", select: { name: 1 } })
+                .exec((err, stylers) => {
+                    if (err) reject(err);
+                    if (stylers) {
+                        if (stylers.length == 0) return resolve({ success: true, message: 'Oops! Sorry, no stylers found within your region', data: { stylers, service, } })
+                        return resolve({ success: true, message: 'stylers found', data: { stylers, service, } })
+                    } else {
+                        return resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                    }
+                });
+        })
+    })
+}
+
+exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20, coordinates) => {
+    return new Promise((resolve, reject) => {
+        Styler.find({
+            "services.serviceId": { $in: serviceId },
+            location: filterParams(coordinates),
+        })
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .exec((err, stylers) => {
@@ -556,11 +545,20 @@ exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20) => {
     })
 }
 
+// exports.getStylerTotalAmount = (id) => {
+//     return new Promise((resolve, reject) => {
+//         Styler.findById(id, (err, styler) => {
+//             var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
+//             return resolve({ success: true, message: 'styler stats', totalAmount: sumTotal, clients: total, rating: rating || 0, })
+//         })
+//     })
+// }
+
 exports.getStylerTotalAmount = (data) => {
     return new Promise((resolve, reject) => {
-        booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).then(found => {
+        appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).then(found => {
             if (found) {
-                booking.find({ $and: [{ stylerId: data }, { completed: true }, { accepted: true }] }).count((err, total) => {
+                appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).count((err, total) => {
                     if (err) reject(err)
                     Styler.findById(data, (err, styler) => {
                         var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
@@ -581,7 +579,7 @@ exports.getStylerTotalAmount = (data) => {
 
 exports.updateStylerLocation = (location, Id) => {
     return new Promise((resolve, reject) => {
-        booking.updateByQuery({ userId: Id }, { stylerLocation: location }).then(result => {
+        appointment.updateByQuery({ _id: Id }, { stylerLocation: location }).then(result => {
             if (result) {
                 resolve({ success: true, message: 'styler current location', })
             } else {
@@ -596,7 +594,7 @@ exports.updateStylerLocation = (location, Id) => {
 
 exports.GetStylersServices = (Id) => {
     return new Promise((resolve, reject) => {
-        Styler.findOne({ userId: Id })
+        Styler.findOne({ _id: Id })
             // .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             // .populate({ path: "services.subServiceId", model: "services", select: { _id: 0, __v: 0 } })
             // .populate({ path: "services.subServiceId", model: "services" })
@@ -611,4 +609,17 @@ exports.GetStylersServices = (Id) => {
                 reject(err);
             })
     })
+}
+
+function filterParams(coordinates) {
+    return {
+        $near: {
+            $geometry: {
+                type: 'Point',
+                coordinates,
+            },
+            $minDistance: 1000,
+            $maxDistance: 500000,
+        }
+    }
 }
