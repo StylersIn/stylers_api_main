@@ -69,11 +69,4 @@ module.exports = function ServicesController() {
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
-
-
-    this.getAllAppointments = function (req, res, next) {
-        BookingService.getAllAppointments(req.params.pagenumber, req.params.pagesize)
-            .then(data => res.status(200).send(data))
-            .catch(err => res.status(500).send(err));
-    }
 }
