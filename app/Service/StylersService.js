@@ -380,11 +380,10 @@ exports.sortStylersByRating = (serviceId, coordinates) => {
     })
 }
 
-exports.verifyStyler = (role, id) => {
+exports.verifyStyler = (id , role) => {
     return new Promise((resolve, reject) => {
-        if (role == 'admin') {
+       if (role == 'admin') {
             Styler.findByIdAndUpdate({ _id: id }, { IsVerified: true }).exec((err, updated) => {
-                if (err) reject(err)
                 if (updated) {
                     mailer.verificationMail(updated.email, function (err, sent) {
                         if (err) reject(err);
@@ -394,8 +393,11 @@ exports.verifyStyler = (role, id) => {
                             resolve({ success: false, message: 'error encountered while verifying styler' })
                         }
                     })
-                } else {
+                } else if(!updated) {
                     resolve({ success: false, message: 'Error verifying styler ' })
+                }else{
+                    reject(err)
+
                 }
             })
         } else {
