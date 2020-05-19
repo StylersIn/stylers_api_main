@@ -100,6 +100,23 @@ exports.BookService = (options) => {
     })
 }
 
+exports.getAllBookings = (pagenumber = 1, pagesize = 20, userId) => {
+    return new Promise((resolve, reject) => {
+        model.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
+            .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
+            .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
+            .exec((err, data) => {
+                if (err) reject(err);
+                if (data) {
+                    resolve({ success: true, message: 'Bookings found', data: data })
+                } else {
+                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                }
+            });
+    })
+}
+
 exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
         model.find({ userId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))

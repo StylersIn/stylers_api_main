@@ -27,6 +27,11 @@ module.exports = function ServicesController() {
         });
     }
 
+    this.AllBookings = function (req, res, next) {
+        BookingService.getAllBookings(req.params.pagenumber, req.params.pagesize)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
 
     this.UserBookings = function (req, res, next) {
         BookingService.getUserBookings(req.params.pagenumber, req.params.pagesize, req.auth.Id)
