@@ -380,9 +380,9 @@ exports.sortStylersByRating = (serviceId, coordinates) => {
     })
 }
 
-exports.verifyStyler = (id , role) => {
+exports.verifyStyler = (id ) => {
     return new Promise((resolve, reject) => {
-       if (role == 'admin') {
+    //    if (role == 'admin') {
             Styler.findByIdAndUpdate({ _id: id }, { IsVerified: true }).exec((err, updated) => {
                 if (updated) {
                     mailer.verificationMail(updated.email, function (err, sent) {
@@ -400,9 +400,9 @@ exports.verifyStyler = (id , role) => {
 
                 }
             })
-        } else {
-            resolve({ success: false, message: 'forbidden !!!' })
-        }
+        // } else {
+        //     resolve({ success: false, message: 'forbidden !!!' })
+        // }
     })
 }
 
