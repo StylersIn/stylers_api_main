@@ -30,6 +30,6 @@ module.exports = function () {
     router.put('/update', middleware.StylerAuthenticate, _base64ToFile("image", _cloudinaryHelper({}, _config.cloudinary)), StylerauthCtrl.updateClientProfile)
     router.put('/update/services', middleware.StylerAuthenticate, StylerauthCtrl.UpdateServices)
     router.post('/verify', middleware.StylerAuthenticate, StylerauthCtrl.verifyStyler);
-
+    
     return router;
 }
