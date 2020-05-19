@@ -7,7 +7,7 @@ var collection = {
     expireAppointments: function () {
         var job = new CronJob('* * * * *', async function () {
             return await appointment.find({ expDate: { "$lt": new Date() }, $or: [{ status: constants.BOOKED }, { status: constants.ACCEPTED }], }, async (err, appointments) => {
-                if (appointments.length > 0) {
+                if (appointment && appointments.length > 0) {
                     await appointments.map(async e => {
                         await user.updateOne({ _id: e.userId }, { balance: e.totalAmount }, async (err, userUpdated) => { })
                     })
