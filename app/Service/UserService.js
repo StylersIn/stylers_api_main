@@ -20,8 +20,8 @@ exports.RegisterUser = Options => {
       passwordToken: 1111,
     };
 
-    const { phoneNumber, statusCode, } = Options;
-    User.findOne({ $or: [{ email: u.email }, { phoneNumber: u.phoneNumber }] })
+    const { phoneNumber, statusCode, email, } = Options;
+    User.findOne({ $or: [{ email, }, { phoneNumber, }] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
