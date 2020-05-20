@@ -12,6 +12,7 @@ module.exports = function(){
     router.post('/authenticate', authCtrl.authenticate);
     router.put('/forgotPasswordToken', authCtrl.passwordToken);
     router.post('/forgotPassword', authCtrl.changeforgotPassword);
+    router.get('/:pagesize/:pagenumber', authCtrl.getUsers);
     router.post('/changePassword',middleware.authenticate, authCtrl.changePassword);
     router.post('/verify', authCtrl.VerifyUser);
     router.post('/verify/social', authCtrl.VerifySocial);

@@ -90,7 +90,7 @@ function authenticateuser(email, password) {
       UserRepo.getSingleBy({ email: email }, "")
         .then(user => {
           if (!user) {
-            return reject({ success: false, message: "Incorrect email or password" });
+            return resolve({ success: false, message: "Incorrect email or password" });
           } else {
             var validPassword = bcrypt.compareSync(password, user.password);
             if (validPassword) {
@@ -107,12 +107,12 @@ function authenticateuser(email, password) {
                       resolve({ success: true, data: { user, token: token }, message: "authentication successful" });
                     })
                     .catch(err => {
-                      reject({ success: false, data: err, message: "could not authenticate user" });
+                      resolve({ success: false, data: err, message: "could not authenticate user" });
                     });
                 });
               }
             } else {
-              reject({ success: false, message: "Incorrect email or password" });
+              resolve({ success: false, message: "Incorrect email or password" });
             }
           }
         })
@@ -436,6 +436,22 @@ exports.fetchCards = function (Id) {
       );
   });
 };
+
+
+exports.getUsers = (pagenumber = 1, pagesize = 20) => {
+
+  return new Promise((resolve, reject) => {
+    User.find({role:'user'}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+          .exec((err, users) => {
+              if (err) reject(err);
+              if (users) {
+                  resolve({ success: true, message: 'users found', data: users })
+              } else {
+                  resolve({ success: false, message: 'Unable to find what you searched for !!' })
+              }
+          });
+  });
+}
 
 exports.getBalance = function (Id) {
   return new Promise((resolve, reject) => {

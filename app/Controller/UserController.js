@@ -171,4 +171,10 @@ module.exports = function authController() {
         res.status(500).send(err);
       });
   };
+
+  this.getUsers = async (req,res)=>{
+    userService.getUsers(req.params.pagenumber, req.params.pagesize)
+    .then(data => res.status(200).send(data))
+    .catch(err => res.status(500).send(err));
+  }
 };

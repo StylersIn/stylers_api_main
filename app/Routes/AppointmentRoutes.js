@@ -12,5 +12,6 @@ module.exports = function () {
     router.put('/appointment/status/:status', bookingCtrl.updateAppointmentStatus);
     // router.put('/appointment/complete', bookingCtrl.completeAppointment);
     router.put('/rating', middleware.authenticate, bookingCtrl.addRating);
+
     return router;
 }
