@@ -33,7 +33,7 @@ exports.RegisterUser = Options => {
                   .then(token => {
                     sms.sendToken(phoneNumber, statusCode).then(done => {
                       console.log(done)
-                      if (done.SMSMessageData.Message == "Sent to 0/1 Total Cost: 0 done status") {
+                      if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
                         resolve({
                           success: true,
                           data: { user: created, token: token },

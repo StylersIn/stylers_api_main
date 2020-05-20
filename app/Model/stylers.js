@@ -16,7 +16,7 @@ var stylersSchema = new Schema({
         name: String,
     },
     description: { type: String },
-    startingPrice: { type: Number },
+    MIA: { type: Number },
     IsVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
     // password: { type: String, required: true },
