@@ -170,41 +170,18 @@ exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, stylerId) => {
     })
 }
 
-// exports.acceptAppointment = (appointmentId) => {
-//     return new Promise((resolve, reject) => {
-//         model.findByIdAndUpdate(appointmentId, { status: constants.ACCEPTED, dateModified: Date.now() }).exec((err, data) => {
-//             if (err) reject(err);
-//             if (data) {
-//                 notify.sendNotice(
-//                     [data.userId],
-//                     "Appointment Accepted",
-//                     `Your appointment has been accepted by styler`,
-//                     (err, result) => console.log("sending push notification..." + result || err));
-//                 resolve({ success: true, message: 'Appointments accepted' })
-//             } else {
-//                 resolve({ success: false, message: 'Unable to accept appointment!!' })
-//             }
-//         });
-//     })
-// }
-
-// exports.completeAppointment = (appointmentId) => {
-//     return new Promise((resolve, reject) => {
-//         model.findByIdAndUpdate(appointmentId, { status: constants.COMPLETED, dateModified: Date.now() }).exec((err, data) => {
-//             if (err) reject(err);
-//             if (data) {
-//                 notify.sendNotice(
-//                     [data.userId],
-//                     "Appointment Completed",
-//                     `Your appointment has been completed by styler`,
-//                     (err, result) => console.log("sending push notification..." + result || err));
-//                 resolve({ success: true, message: 'Appointments completed' })
-//             } else {
-//                 resolve({ success: false, message: 'Unable to complete appointment!!' })
-//             }
-//         });
-//     })
-// }
+exports.updateUserAppointment = (userId) => {
+    return new Promise((resolve, reject) => {
+        model.find({ seen: false, userId, }, { seen: true, }).exec(async (err, data) => {
+            if (err) return reject(err);
+            if (data) {
+                return resolve({ success: true, message: 'Appointments updated' })
+            } else {
+                return resolve({ success: false, message: 'Unable to update appointment!!' })
+            }
+        });
+    });
+}
 
 exports.updateAppointmentStatus = (appointmentId, status) => {
     return new Promise((resolve, reject) => {

@@ -63,6 +63,12 @@ module.exports = function ServicesController() {
     //         .catch(err => res.status(500).send(err));
     // }
 
+    this.updateUserAppointment = function (req, res, next) {
+        BookingService.updateUserAppointment(req.auth.Id)
+            .then(data => res.status(200).send(data))
+            .catch(err => res.status(500).send(err));
+    }
+
     this.updateAppointmentStatus = function (req, res, next) {
         BookingService.updateAppointmentStatus(req.body.appointmentId, req.params.status)
             .then(data => res.status(200).send(data))
