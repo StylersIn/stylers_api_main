@@ -18,18 +18,20 @@ var userSchema = new Schema({
         authorizationCode: String,
         bank: String,
         cardType: String,
+        email: String,
     }],
     passwordToken: { type: Number },
     password: { type: String, required: true },
     status: { type: Boolean },
     imageUrl: { type: String, default: '' },
     imageID: { type: String, default: '' },
-    CreatedAt: { type: Date },
     role: { type: String, required: true, default: 'user' },
     socialId: { type: String, },
     type: { type: String, default: 'default' },
     oneSignalUserId: [],
     userId: { type: String, },
+    CreatedAt: { type: Date },
+    dateModified: { type: Date },
 })
 
 module.exports = mongoose.model('user', userSchema);

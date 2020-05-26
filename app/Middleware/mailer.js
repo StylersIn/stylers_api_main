@@ -7,8 +7,8 @@ var transporter = nodemailer.createTransport({
     //     pass: 'Workhub2018'          
     //    }
     auth: {
-      user:'StylersinApp@gmail.com',
-      pass: '07030065463'          
+      user:'obinna.okoroeugene@gmail.com',
+      pass: 'history2'          
      }
      });
    exports.signupMail = function(email, statusCode,callback){

@@ -24,7 +24,7 @@ module.exports = function () {
     router.get('/:service/:pagesize/:pagenumber', StylerauthCtrl.GetStylersByServices);
     router.get('/:service/exception/:styler/:pagesize/:pagenumber', StylerauthCtrl.GetStylersWithException);
     router.get('/services', middleware.StylerAuthenticate, StylerauthCtrl.GetStylersServices);
-    router.get('/stats', middleware.StylerAuthenticate, StylerauthCtrl.getStylerTotalAmount);
+    router.get('/stats', middleware.StylerAuthenticate, StylerauthCtrl.getStylerSummary);
     router.post('/review/:id', middleware.StylerAuthenticate, StylerauthCtrl.StylerReview);
     router.put('/update/avatar', middleware.StylerAuthenticate, _base64ToFile("image", _cloudinaryHelper({}, _config.cloudinary)), StylerauthCtrl.updateClientAvatar)
     router.put('/update', middleware.StylerAuthenticate, _base64ToFile("image", _cloudinaryHelper({}, _config.cloudinary)), StylerauthCtrl.updateClientProfile)

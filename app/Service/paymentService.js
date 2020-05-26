@@ -61,6 +61,7 @@ exports.VerifyTransaction = (options, Id) => {
                                         authorizationCode: result.data.authorization.authorization_code,
                                         bank: result.data.authorization.bank,
                                         cardType: result.data.card_type,
+                                        email: result.data.customer.email,
                                     }
                                 }
                             }
@@ -82,11 +83,10 @@ exports.VerifyTransaction = (options, Id) => {
 
 exports.ChargeAuthorization = (options, auth) => {
     return new Promise((resolve, reject) => {
-        console.log(options)
         var formData = {
             authorization_code: options.authorizationCode,
             amount: options.amount,
-            email: auth.email
+            email: options.email
         }
         request('https://api.paystack.co/transaction/charge_authorization',
             {
@@ -94,12 +94,20 @@ exports.ChargeAuthorization = (options, auth) => {
                 formData: formData,
                 json: true,
                 headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
-            }, (err, res, response) => {
+            }, async (err, res, response) => {
                 if (response.data) {
+                    await updateNewBalance(options, auth);
                     resolve({ success: true, message: 'success', data: response.data, })
                 } else {
                     reject({ success: false, message: response.message })
                 }
             });
     })
+}
+
+async function updateNewBalance(options, auth) {
+    const _user = await user.findById(auth.Id);
+    const newBal = _user.balance - options.sumTotal;
+    const finalBal = newBal.toString().startsWith("-") ? 0 : parseInt(newBal.toString().replace("-", ""));
+    await user.updateOne({ _id: auth.Id }, { balance: finalBal, });
 }

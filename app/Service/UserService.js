@@ -128,22 +128,23 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        if (found) {
+        if (!found) {
           mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
             if (err) reject(err)
             if (sent) {
-              User.updateOne(
-                { email: found.email },
-                { passwordToken: data.passwordToken },
-                function (err, updated) {
-                  if (err) reject(err);
-                  if (updated) {
-                    resolve({ success: true, message: "Please check your email for verification code" });
-                  } else {
-                    resolve({ success: true, message: "Error sending verification code!!! " });
-                  }
-                }
-              );
+              console.log(sent)
+              // User.updateOne(
+              //   { email: found.email },
+              //   { passwordToken: data.passwordToken },
+              //   function (err, updated) {
+              //     if (err) reject(err);
+              //     if (updated) {
+              //       resolve({ success: true, message: "Please check your email for verification code" });
+              //     } else {
+              //       resolve({ success: true, message: "Error sending verification code!!! " });
+              //     }
+              //   }
+              // );
             } else {
               resolve({ success: false, message: "Error sending sms !!!" });
             }
@@ -355,6 +356,20 @@ exports.removeOneSignalId = function (id, data) {
   });
 };
 
+exports.removeCard = function (id, cardId) {
+  return new Promise((resolve, reject) => {
+    UserRepo.updateByQuery({ publicId: id }, { $pull: { cards: { _id: cardId, } } }).then(updated => {
+      if (updated) {
+        UserRepo.getById(updated._id)
+          .then(user => resolve({ success: true, data: user, message: "card removed successfully" }))
+          .catch(err => reject({ success: false, data: err, message: "unable to remove card" }))
+      }
+    }).catch(err => {
+      reject({ success: false, data: err, message: "could not remove card" });
+    });
+  });
+};
+
 function getUserDetail(user) {
   return new Promise((resolve, reject) => {
     if (user) {
@@ -395,7 +410,10 @@ function verifyToken(token = "") {
       if (err) {
         reject(err);
       } else {
-        resolve(decodedToken);
+        return UserRepo.getSingleBy({ publicId: decodedToken.publicId, })
+          .then(user => {
+            resolve(Object.assign(decodedToken, { name: user.name, email: user.email, }));
+          })
       }
     });
   });

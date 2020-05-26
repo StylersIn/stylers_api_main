@@ -36,12 +36,14 @@ exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
 }
 
 exports.BookService = (options) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         var saveCard = options['saveCard'];
         if (saveCard) delete options['saveCard'];
         options.status = constants.BOOKED;
-        options.expDate = new Date().addHours(1);
-        BookingRepo.add(options).then(created => {
+        options.expDate = new Date(options.scheduledDate).addHours(1);
+        var _styler = await styler.findById(options.stylerId);
+        var _stylerUser = await user.findOne({ publicId: _styler.publicId });
+        BookingRepo.add(options).then(async created => {
             if (created) {
                 if (options.initial) {
                     request(`https://api.paystack.co/transaction/verify/${options.transactionReference}`,
@@ -49,7 +51,7 @@ exports.BookService = (options) => {
                             method: 'GET',
                             json: true,
                             headers: { Authorization: 'Bearer sk_test_affe46073a2b7bbb8619cceba17adc525e7be045' },
-                        }, (err, res, result) => {
+                        }, async (err, res, result) => {
                             if (result && result.data) {
                                 if (saveCard) {
                                     user.update(
@@ -63,6 +65,7 @@ exports.BookService = (options) => {
                                                     authorizationCode: result.data.authorization.authorization_code,
                                                     bank: result.data.authorization.bank,
                                                     cardType: result.data.card_type,
+                                                    email: result.data.customer.email,
                                                 }
                                             }
                                         }
@@ -72,11 +75,14 @@ exports.BookService = (options) => {
                                 } else {
                                     resolve({ success: true, message: 'success', data: result.data, })
                                 }
+                                //update new balance
+                                await updateNewBalance(options);
                                 notify.sendNotice(
-                                    [options.stylerUserId],
+                                    [_stylerUser._id],
                                     "New Appointment",
                                     `You have a new appointment`,
                                     (err, result) => console.log("sending push notification..." + result || err));
+                                return;
                             } else {
                                 reject({ success: false, message: 'failed', data: result.message, })
                             }
@@ -84,8 +90,10 @@ exports.BookService = (options) => {
                 } else {
                     console.log('sending notification..........!!!!!!!!!!!!!!!!!!!==================')
                     console.log(options)
+                     //update new balance
+                    await updateNewBalance(options);
                     notify.sendNotice(
-                        [options.stylerUserId],
+                        [_stylerUser._id],
                         "New Appointment",
                         `You have a new appointment`,
                         (err, result) => console.log("sending push notification..." + result || err));
@@ -100,9 +108,18 @@ exports.BookService = (options) => {
     })
 }
 
+async function updateNewBalance(options) {
+    const _user = await user.findById(options.userId);
+    const newBal = _user.balance - options.sumTotal;
+    const finalBal = newBal.toString().startsWith("-") ? 0 : parseInt(newBal.toString().replace("-", ""));
+    console.log("======final balance", finalBal)
+    await user.updateOne({ _id: options.userId, }, { balance: finalBal, });
+}
+
 exports.getAllBookings = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
         model.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .sort('-CreatedAt')
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
@@ -119,13 +136,19 @@ exports.getAllBookings = (pagenumber = 1, pagesize = 20, userId) => {
 
 exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     return new Promise((resolve, reject) => {
-        model.find({ userId: userId }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+        model.find({ userId, }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+            .sort('-CreatedAt')
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
             .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
+                    if (data.length > 0) {
+                        data.sort(function (a, b) {
+                            return b.CreatedAt - a.CreatedAt;
+                        })
+                    }
                     resolve({ success: true, message: 'Bookings found', data: data })
                 } else {
                     resolve({ success: false, message: 'Unable to find what you searched for !!' })
@@ -134,19 +157,22 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
     })
 }
 
-exports.getStylerRequests = (pagenumber = 1, pagesize = 20, stylerId) => {
-    return new Promise((resolve, reject) => {
+exports.getStylerRequests = (pagenumber = 1, pagesize = 10, stylerId) => {
+    return new Promise(async (resolve, reject) => {
+        var unread = await model.find({ stylerId, $and: [{ status: constants.BOOKED }, { seen: false, }] });
         model.find({ stylerId, $or: [{ status: constants.BOOKED }, { status: constants.EXPIRED }, { status: constants.CANCELLED, },] })
+            .sort('-CreatedAt')
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
-            .populate({ path: "stylerId", model: "user", select: { __v: 0 } })
+            .populate({ path: "stylerId", model: "stylers", select: { __v: 0 } })
+
             .exec((err, data) => {
                 if (err) reject(err);
                 if (data) {
-                    resolve({ success: true, message: 'Appointments found', data: data })
+                    resolve({ success: true, message: 'Requests found', data, notSeen: unread.length, })
                 } else {
-                    resolve({ success: false, message: 'Unable to find what you searched for !!' })
+                    resolve({ success: false, message: 'Unable to find what you searched for!!' })
                 }
             });
     })
@@ -155,6 +181,7 @@ exports.getStylerRequests = (pagenumber = 1, pagesize = 20, stylerId) => {
 exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, stylerId) => {
     return new Promise((resolve, reject) => {
         model.find({ stylerId, status: { $ne: constants.STARTED, } })
+            .sort('-CreatedAt')
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
             .populate({ path: "userId", model: "user", select: { _id: 0, __v: 0 } })
@@ -170,30 +197,27 @@ exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, stylerId) => {
     })
 }
 
-exports.updateUserAppointment = (userId) => {
+exports.updateAppointment = (id, options) => {
     return new Promise((resolve, reject) => {
-        model.find({ seen: false, userId, }, { seen: true, }).exec(async (err, data) => {
+        model.updateMany({ seen: false, $or: [{ userId: id }, { stylerId: id }], }, options).exec(async (err, data) => {
             if (err) return reject(err);
-            if (data) {
-                return resolve({ success: true, message: 'Appointments updated' })
-            } else {
-                return resolve({ success: false, message: 'Unable to update appointment!!' })
-            }
+            return resolve({ success: true, message: 'Appointments updated' })
         });
     });
 }
 
-exports.updateAppointmentStatus = (appointmentId, status) => {
+exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null) => {
     return new Promise((resolve, reject) => {
         let title = status == constants.ACCEPTED ? 'Appointment Accepted' :
             status == constants.COMPLETED ? 'Appointment Completed' : status == constants.CANCELLED ? 'Appointment Cancelled' : '';
         let body = status == constants.ACCEPTED ? 'Your appointment has been accepted by styler' :
             status == constants.COMPLETED ? 'Your appointment has been completed by styler' : status == constants.CANCELLED ? 'Your appointment has been cancelled by styler' : '';
-        model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now() }).exec(async (err, data) => {
+        model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now(), reasonToDecline, }).exec(async (err, data) => {
             if (err) reject(err);
             if (data) {
                 if (status == constants.COMPLETED) {
-                    await user.updateOne({ _id: data.userId }, { $inc: { balance: data.totalAmount, clientServed: 1, } }, (err, updated) => { });
+                    var _styler = await styler.findById(data.stylerId);
+                    await user.updateOne({ publicId: _styler.publicId }, { $inc: { balance: data.totalAmount, clientServed: 1, dateModified: new Date(), } }, (err, updated) => { });
                 }
                 notify.sendNotice(
                     [data.userId],

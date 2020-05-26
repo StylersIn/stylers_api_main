@@ -24,6 +24,7 @@ module.exports = function(){
     router.get('/cards', middleware.authenticate, authCtrl.fetchCards);
     router.get('/balance', middleware.authenticate, authCtrl.getBalance);
     router.get('/:id', middleware.authenticate, authCtrl.getUserData);
+    router.delete('/card/remove', middleware.authenticate, authCtrl.removeCard);
 
     return router;
 }

@@ -11,15 +11,6 @@ module.exports = function ServicesController() {
     }
 
     this.CreateBooking = (req, res) => {
-        //    var Options = {
-        //     userId:req.auth.Id,
-        //     stylerId:req.body.styler,
-        //     // serviceId:req.body.service,
-        //     scheduledDate:Date.now(),
-        //     // numberOfAduls:req.body.adult,
-        //     // numberOfChildren:req.body.child,
-        //     location:req.body.locations,
-        //    }
         BookingService.BookService(Object.assign(req.body, { userId: req.auth.Id })).then((data) => {
             res.json({ data });
         }).catch((err) => {
@@ -63,14 +54,18 @@ module.exports = function ServicesController() {
     //         .catch(err => res.status(500).send(err));
     // }
 
-    this.updateUserAppointment = function (req, res, next) {
-        BookingService.updateUserAppointment(req.auth.Id)
+    this.updateAppointment = function (req, res, next) {
+        BookingService.updateAppointment(req.auth.styler, req.body)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }
 
     this.updateAppointmentStatus = function (req, res, next) {
-        BookingService.updateAppointmentStatus(req.body.appointmentId, req.params.status)
+        const {
+            appointmentId,
+            reason,
+        } = req.body;
+        BookingService.updateAppointmentStatus(appointmentId, req.params.status, reason)
             .then(data => res.status(200).send(data))
             .catch(err => res.status(500).send(err));
     }

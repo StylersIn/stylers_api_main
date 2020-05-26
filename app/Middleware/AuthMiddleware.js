@@ -42,7 +42,7 @@ exports.StylerAuthenticate = function (req, res, next) {
                     res.status(401).send({ success: false, message: "User does not exist" });
                 } else {
                     req.auth = {
-                        publicId: data.publicId,
+                        publicId: decoded.publicId,
                         email: decoded.email,
                         name: data.name,
                         role: data.role,
@@ -56,6 +56,36 @@ exports.StylerAuthenticate = function (req, res, next) {
         }).catch(err => {
             res.status(401).send({ success: false, message: "Invalid token", data: err });
 
+        })
+    } else {
+        res.status(401).send({ success: false, message: "No token provided" });
+    }
+}
+
+exports.authenticateAll = function (req, res, next) {
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    if (token) {
+        return authService.verifyToken(token).then(decoded => {
+            return UserRepo.getSingleBy({ publicId: decoded.publicId }, '').then(async data => {
+                var styler = await StylerRepo.getSingleBy({ publicId: decoded.publicId }, '')
+                if (styler == null) {
+                    return res.status(401).send({ success: false, message: "User does not exist" });
+                } else {
+                    req.auth = {
+                        publicId: decoded.publicId,
+                        email: decoded.email,
+                        name: styler.name,
+                        role: styler.role,
+                        Id: data.id,
+                        styler: styler.id,
+                        oneSignalUserId: data.oneSignalUserId,
+                    }
+                    res.locals.response = { data: decoded, message: "", success: true };
+                    next();
+                }
+            })
+        }).catch(err => {
+            res.status(401).send({ success: false, message: "Invalid token", data: err });
         })
     } else {
         res.status(401).send({ success: false, message: "No token provided" });

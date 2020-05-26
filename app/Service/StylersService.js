@@ -547,34 +547,41 @@ exports.GetStylerByFavorite = (serviceId, pagenumber = 1, pagesize = 20, coordin
     })
 }
 
-// exports.getStylerTotalAmount = (id) => {
+// exports.getStylerTotalAmount = (data) => {
 //     return new Promise((resolve, reject) => {
-//         Styler.findById(id, (err, styler) => {
-//             var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
-//             return resolve({ success: true, message: 'styler stats', totalAmount: sumTotal, clients: total, rating: rating || 0, })
+//         appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).then(found => {
+//             if (found) {
+//                 appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).count((err, total) => {
+//                     if (err) reject(err)
+//                     Styler.findById(data, (err, styler) => {
+//                         var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
+//                         var a = found.map(b => b.totalAmount)
+//                         let sumTotal = a.reduce((c, d) => c + d, 0)
+//                         resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total, rating: rating || 0, })
+//                     })
+//                 })
+//             } else {
+//                 resolve({ success: false, message: ' Styler sum total not found !!!' })
+//             }
+
+//         }).catch(err => {
+//             reject(err);
 //         })
 //     })
 // }
 
-exports.getStylerTotalAmount = (data) => {
+exports.getStylerSummary = (Id) => {
     return new Promise((resolve, reject) => {
-        appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).then(found => {
-            if (found) {
-                appointment.find({ $and: [{ stylerId: data }, { status: constants.COMPLETED },] }).count((err, total) => {
-                    if (err) reject(err)
-                    Styler.findById(data, (err, styler) => {
-                        var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
-                        var a = found.map(b => b.totalAmount)
-                        let sumTotal = a.reduce((c, d) => c + d, 0)
-                        resolve({ success: true, message: 'total amount', totalAmount: sumTotal, clients: total, rating: rating || 0, })
-                    })
-                })
-            } else {
-                resolve({ success: false, message: ' Styler sum total not found !!!' })
-            }
-
-        }).catch(err => {
-            reject(err);
+        Styler.findById(Id, async (err, styler) => {
+            const _user = await user.findOne({ publicId: styler.publicId });
+            var rating = styler.ratings.reduce((p, c) => p + c.rating, 0) / styler.ratings.length;
+            return resolve({
+                success: true,
+                message: 'styler summary',
+                totalAmount: _user.balance || 0,
+                clients: _user.clients || 0,
+                rating: rating || 0,
+            })
         })
     })
 }

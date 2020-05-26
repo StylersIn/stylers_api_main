@@ -9,7 +9,7 @@ module.exports = function () {
     router.get('/user/:pagesize/:pagenumber', middleware.authenticate, bookingCtrl.UserBookings);
     router.get('/styler/:pagesize/:pagenumber', middleware.StylerAuthenticate, bookingCtrl.StylerAppointments);
     router.get('/styler/requests/:pagesize/:pagenumber', middleware.StylerAuthenticate, bookingCtrl.StylerRequests);
-    router.put('/appointment', middleware.authenticate, bookingCtrl.updateUserAppointment);
+    router.put('/appointment', middleware.authenticateAll, bookingCtrl.updateAppointment);
     router.put('/appointment/status/:status', bookingCtrl.updateAppointmentStatus);
     // router.put('/appointment/complete', bookingCtrl.completeAppointment);
     router.put('/rating', middleware.authenticate, bookingCtrl.addRating);
