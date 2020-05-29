@@ -109,5 +109,5 @@ async function updateNewBalance(options, auth) {
     const _user = await user.findById(auth.Id);
     const newBal = _user.balance - options.sumTotal;
     const finalBal = newBal.toString().startsWith("-") ? 0 : parseInt(newBal.toString().replace("-", ""));
-    await user.updateOne({ _id: auth.Id }, { balance: finalBal, });
+    await user.update({ _id: auth.Id }, { balance: finalBal, });
 }

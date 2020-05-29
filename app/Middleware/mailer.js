@@ -1,19 +1,19 @@
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-        
-    service: 'gmail',
-    // auth: {
-    //     user:'workhub18@gmail.com',
-    //     pass: 'Workhub2018'          
-    //    }
+
+  service: 'gmail',
+  // auth: {
+  //   user: 'workhub18@gmail.com',
+  //   pass: 'Workhub2018'
+  // }
     auth: {
-      user:'obinna.okoroeugene@gmail.com',
-      pass: 'history2'          
-     }
-     });
-   exports.signupMail = function(email, statusCode,callback){
-     
-          var mailTemplate  = `<html>
+    user: 'stylersinapp@gmail.com',
+    pass: '07030065463'
+  }
+});
+exports.signupMail = function (email, statusCode, callback) {
+
+  var mailTemplate = `<html>
       <body class="no-padding" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;">
         <table class="wrapper" style="border-collapse: collapse;table-layout: fixed;min-width: 320px;width: 100%;background-color: #fffff;"
           cellpadding="0" cellspacing="0" role="presentation">
@@ -114,17 +114,17 @@ var transporter = nodemailer.createTransport({
       </body>
       
       </html>`
-        var mailOptions = {
-            from: 'stylerInn@gmail.com',
-            to: email,
-            subject: 'StylersInn Registration mail ',
-            html: mailTemplate
-        };
-    transporter.sendMail(mailOptions, callback); 
-   }
+  var mailOptions = {
+    from: 'stylersinapp@gmail.com',
+    to: email,
+    subject: 'StylersInn Registration mail ',
+    html: mailTemplate
+  };
+  transporter.sendMail(mailOptions, callback);
+}
 
-exports.forgortPasswordMailer = function(reciever ,message ,callback){
-          var mailTemplate  = `<html>
+exports.forgortPasswordMailer = function (reciever, message, callback) {
+  var mailTemplate = `<html>
       <body class="no-padding" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;">
         <table class="wrapper" style="border-collapse: collapse;table-layout: fixed;min-width: 320px;width: 100%;background-color: #fffff;"
           cellpadding="0" cellspacing="0" role="presentation">
@@ -225,17 +225,17 @@ exports.forgortPasswordMailer = function(reciever ,message ,callback){
       </body>
       
       </html>`
-      var mailOptions = {
-        from: 'stylerInn@gmail.com',
-        to: reciever,
-        subject: 'StylerInn forgot password Mail',
-        html: mailTemplate
-    };
-transporter.sendMail(mailOptions, callback); 
+  var mailOptions = {
+    from: 'stylersinapp@gmail.com',
+    to: reciever,
+    subject: 'StylerInn forgot password Mail',
+    html: mailTemplate
+  };
+  transporter.sendMail(mailOptions, callback);
 }
 
-exports.verificationMail = function(reciever,callback){
-  var mailTemplate  = `<html>
+exports.verificationMail = function (reciever, callback) {
+  var mailTemplate = `<html>
 <body class="no-padding" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;">
 <table class="wrapper" style="border-collapse: collapse;table-layout: fixed;min-width: 320px;width: 100%;background-color: #fffff;"
   cellpadding="0" cellspacing="0" role="presentation">
@@ -333,13 +333,13 @@ exports.verificationMail = function(reciever,callback){
 </body>
 
 </html>`
-var mailOptions = {
-from: 'stylerInn@gmail.com',
-to: reciever,
-subject: 'styler Aaccount verification',
-html: mailTemplate
-};
-transporter.sendMail(mailOptions, callback); 
+  var mailOptions = {
+    from: 'stylersinapp@gmail.com',
+    to: reciever,
+    subject: 'styler Aaccount verification',
+    html: mailTemplate
+  };
+  transporter.sendMail(mailOptions, callback);
 }
 
 
@@ -375,7 +375,7 @@ transporter.sendMail(mailOptions, callback);
 //                   </div>
 //                 </div>
 //                 <div role="section">
-                
+
 //                   <div class="layout one-col fixed-width" style="Margin: 0 auto;max-width: 600px;min-width: 320px; width: 320px;width: calc(28000% - 167400px);overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;">
 //                     <div class="layout__inner" style="border-collapse: collapse;display: table;width: 100%;background-color: #ffffff;">
 //                       <div class="column" style="text-align: left;color: #8e959c;font-size: 14px;line-height: 21px;font-family: sans-serif;max-width: 600px;min-width: 320px; width: 320px;width: calc(28000% - 167400px);padding-top: 10px;padding-bottom: 10px;border:1px solid #8e959c4a;">
@@ -448,9 +448,9 @@ transporter.sendMail(mailOptions, callback);
 //             </tr>
 //           </tbody>
 //         </table>
-      
+
 //       </body>
-      
+
 //       </html>`
 //     var data = {
 //       from: '<buka4chocksy@gmail.com>',
@@ -497,7 +497,7 @@ transporter.sendMail(mailOptions, callback);
 //                   </div>
 //                 </div>
 //                 <div role="section">
-                
+
 //                   <div class="layout one-col fixed-width" style="Margin: 0 auto;max-width: 600px;min-width: 320px; width: 320px;width: calc(28000% - 167400px);overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;">
 //                     <div class="layout__inner" style="border-collapse: collapse;display: table;width: 100%;background-color: #ffffff;">
 //                       <div class="column" style="text-align: left;color: #8e959c;font-size: 14px;line-height: 21px;font-family: sans-serif;max-width: 600px;min-width: 320px; width: 320px;width: calc(28000% - 167400px);padding-top: 10px;padding-bottom: 10px;border:1px solid #8e959c4a;">
@@ -570,9 +570,9 @@ transporter.sendMail(mailOptions, callback);
 //             </tr>
 //           </tbody>
 //         </table>
-      
+
 //       </body>
-      
+
 //       </html>`
 //     var data = {
 //       from: '<buka4chocksy@gmail.com>',
@@ -593,4 +593,4 @@ transporter.sendMail(mailOptions, callback);
 //   })
 // }
 
-  
+

@@ -56,6 +56,7 @@ sockets.init = function (server) {
         })
 
         socket.on('serviceCompleted', function (userKey) {
+            console.log("revvvvviiiiiiiieeeewwww", userKey)
             io.sockets.in(userKey).emit('reviews.send');
         })
 

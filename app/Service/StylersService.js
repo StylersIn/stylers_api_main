@@ -579,7 +579,7 @@ exports.getStylerSummary = (Id) => {
                 success: true,
                 message: 'styler summary',
                 totalAmount: _user.balance || 0,
-                clients: _user.clients || 0,
+                clients: _user.clientServed || 0,
                 rating: rating || 0,
             })
         })

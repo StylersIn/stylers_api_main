@@ -113,7 +113,7 @@ async function updateNewBalance(options) {
     const newBal = _user.balance - options.sumTotal;
     const finalBal = newBal.toString().startsWith("-") ? 0 : parseInt(newBal.toString().replace("-", ""));
     console.log("======final balance", finalBal)
-    await user.updateOne({ _id: options.userId, }, { balance: finalBal, });
+    await user.update({ _id: options.userId, }, { balance: finalBal, });
 }
 
 exports.getAllBookings = (pagenumber = 1, pagesize = 20, userId) => {
@@ -160,7 +160,7 @@ exports.getUserBookings = (pagenumber = 1, pagesize = 20, userId) => {
 exports.getStylerRequests = (pagenumber = 1, pagesize = 10, stylerId) => {
     return new Promise(async (resolve, reject) => {
         var unread = await model.find({ stylerId, $and: [{ status: constants.BOOKED }, { seen: false, }] });
-        model.find({ stylerId, $or: [{ status: constants.BOOKED }, { status: constants.EXPIRED }, { status: constants.CANCELLED, },] })
+        model.find({ stylerId, $or: [{ status: constants.BOOKED },] })
             .sort('-CreatedAt')
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
@@ -180,7 +180,7 @@ exports.getStylerRequests = (pagenumber = 1, pagesize = 10, stylerId) => {
 
 exports.getStylerAppointments = (pagenumber = 1, pagesize = 20, stylerId) => {
     return new Promise((resolve, reject) => {
-        model.find({ stylerId, status: { $ne: constants.STARTED, } })
+        model.find({ stylerId, status: { $ne: constants.BOOKED, }, })
             .sort('-CreatedAt')
             .skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.subServiceId", model: "subServices", select: { __v: 0 } })
@@ -209,24 +209,30 @@ exports.updateAppointment = (id, options) => {
 exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null) => {
     return new Promise((resolve, reject) => {
         let title = status == constants.ACCEPTED ? 'Appointment Accepted' :
-            status == constants.COMPLETED ? 'Appointment Completed' : status == constants.CANCELLED ? 'Appointment Cancelled' : '';
+            status == constants.COMPLETED ? 'Appointment Completed' : status == constants.CANCELLED ? 'Appointment Cancelled' :
+                status == constants.STARTED ? 'Appointment Started' : '';
         let body = status == constants.ACCEPTED ? 'Your appointment has been accepted by styler' :
-            status == constants.COMPLETED ? 'Your appointment has been completed by styler' : status == constants.CANCELLED ? 'Your appointment has been cancelled by styler' : '';
+            status == constants.COMPLETED ? 'Your appointment has been completed by styler' 
+                : status == constants.CANCELLED ? 'Your appointment has been cancelled by styler' : status == constants.STARTED ? 'Styler is coming' : '';
         model.findByIdAndUpdate(appointmentId, { status, dateModified: Date.now(), reasonToDecline, }).exec(async (err, data) => {
             if (err) reject(err);
             if (data) {
                 if (status == constants.COMPLETED) {
                     var _styler = await styler.findById(data.stylerId);
-                    await user.updateOne({ publicId: _styler.publicId }, { $inc: { balance: data.totalAmount, clientServed: 1, dateModified: new Date(), } }, (err, updated) => { });
+                    await user.update({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.totalAmount, clientServed: 1, } }, (err, updated) => { });
+                }
+                if (status == constants.CANCELLED) {
+                    var appointment = await model.findById(appointmentId);
+                    await user.update({ _id: data.userId }, { dateModified: new Date(), $inc: { balance: appointment.sumTotal, } });
                 }
                 notify.sendNotice(
                     [data.userId],
                     title,
                     body,
                     (err, result) => console.log("sending push notification..." + result || err));
-                resolve({ success: true, message: 'Appointments completed' })
+                return resolve({ success: true, message: 'Appointment updated' })
             } else {
-                resolve({ success: false, message: 'Unable to complete appointment!!' })
+                resolve({ success: false, message: 'Unable to update appointment!!' })
             }
         });
     })
