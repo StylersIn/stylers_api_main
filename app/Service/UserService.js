@@ -128,23 +128,22 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        if (!found) {
+        if (found) {
           mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
             if (err) reject(err)
             if (sent) {
-              console.log(sent)
-              // User.updateOne(
-              //   { email: found.email },
-              //   { passwordToken: data.passwordToken },
-              //   function (err, updated) {
-              //     if (err) reject(err);
-              //     if (updated) {
-              //       resolve({ success: true, message: "Please check your email for verification code" });
-              //     } else {
-              //       resolve({ success: true, message: "Error sending verification code!!! " });
-              //     }
-              //   }
-              // );
+              User.updateOne(
+                { email: found.email },
+                { passwordToken: data.passwordToken },
+                function (err, updated) {
+                  if (err) reject(err);
+                  if (updated) {
+                    resolve({ success: true, message: "Please check your email for verification code" });
+                  } else {
+                    resolve({ success: true, message: "Error sending verification code!!! " });
+                  }
+                }
+              );
             } else {
               resolve({ success: false, message: "Error sending sms !!!" });
             }
