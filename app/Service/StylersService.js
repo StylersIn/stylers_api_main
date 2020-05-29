@@ -28,7 +28,7 @@ exports.RegisterUser = (Options) => {
         }
 
         var request = Object.assign(Options, b);
-        client.findOne({ $or: [{ email: b.email }, { phoneNumber: b.phoneNumber }] }).then(exists => {
+        client.findOne({ $or: [{ email: Options.email }, { phoneNumber: Options.phoneNumber }] }).then(exists => {
             if (exists) {
                 reject({ success: false, message: 'Sorry, phone number or email already exists' });
             } else {
