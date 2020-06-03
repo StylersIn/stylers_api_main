@@ -88,26 +88,31 @@ exports.RegisterUser = Options => {
 
 exports.resendToken = email => {
   return new Promise((resolve, reject) => {
-    UserRepo.getBy({ email, })
+    UserRepo.getSingleBy({ email, })
       .then(user => {
-        sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
-          if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
-            resolve({
-              success: true,
-              data: { resent: true, },
-              message: "Registration Successful (Token resend)"
-            });
-          } else {
-            mailer.signupMail(user.email, user.statusCode, function (err, alpha) {
-              if (err) reject(err)
-              if (alpha) {
-                resolve({ success: true, data: { resent: true, }, message: "Registration Successful (Token resend)" })
-              } else {
-                resolve({ success: false, message: 'Error occured while registering user !!' })
-              }
-            })
-          }
-        }).catch(err => reject(err))
+        if (user) {
+          sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
+            if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+              resolve({
+                success: true,
+                data: { resent: true, },
+                message: "Registration Successful (Token resend)"
+              });
+            } else {
+              mailer.signupMail(user.email, user.statusCode, function (err, alpha) {
+                if (err) reject(err)
+                if (alpha) {
+                  resolve({ success: true, data: { resent: true, }, message: "Registration Successful (Token resend)" })
+                } else {
+                  resolve({ success: false, message: 'Error occured while registering user !!' })
+                }
+              })
+            }
+          }).catch(err => reject(err))
+        }
+        else {
+          reject({ success: false, message: "No user found with the email," });
+        }
       })
       .catch(err => reject(err))
   })
