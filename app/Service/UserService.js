@@ -27,6 +27,7 @@ exports.RegisterUser = Options => {
     } else {
       newN = phoneNumber;
     }
+    Options.phoneNumber = newN;
     User.findOne({ $or: [{ email, }, { phoneNumber: newN, }] })
       .then(exists => {
         if (exists) {
@@ -38,8 +39,7 @@ exports.RegisterUser = Options => {
                 generateToken(userdetail)
                   .then(token => {
                     sms.sendToken(newN, statusCode).then(done => {
-                      console.log(done)
-                      if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+                      if (done.SMSMessageData.Message.includes("Sent to 1/1 Total Cost:")) {
                         resolve({
                           success: true,
                           data: { user: created, token: token },
@@ -92,7 +92,7 @@ exports.resendToken = email => {
       .then(user => {
         if (user) {
           sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
-            if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+            if (done.SMSMessageData.Message.includes("Sent to 1/1 Total Cost:")) {
               resolve({
                 success: true,
                 data: { resent: true, },
