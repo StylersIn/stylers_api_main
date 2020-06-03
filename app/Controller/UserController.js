@@ -29,6 +29,13 @@ module.exports = function authController() {
       .catch(err => res.status(500).send(err));
   };
 
+  this.resendToken = function (req, res, next) {
+    userService
+      .resendToken(req.body.email)
+      .then(data => res.status(200).send(data))
+      .catch(err => res.status(500).send(err));
+  };
+
   this.passwordToken = function (req, res, next) {
     var gen = Math.floor(1000 + Math.random() * 9000);
     var data = {
