@@ -19,9 +19,15 @@ exports.RegisterUser = Options => {
       CreatedAt: new Date(),
       passwordToken: 1111,
     };
-
+  
+    let newN;
     const { phoneNumber, statusCode, email, } = Options;
-    User.findOne({ $or: [{ email, }, { phoneNumber, }] })
+    if (!phoneNumber.startsWith('0', 0)) {
+      newN = `0${phoneNumber}`;
+    } else {
+      newN = phoneNumber;
+    }
+    User.findOne({ $or: [{ email, }, { phoneNumber: newN, }] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
@@ -31,7 +37,7 @@ exports.RegisterUser = Options => {
               getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    sms.sendToken(phoneNumber, statusCode).then(done => {
+                    sms.sendToken(newN, statusCode).then(done => {
                       console.log(done)
                       if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
                         resolve({
