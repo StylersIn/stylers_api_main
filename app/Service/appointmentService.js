@@ -218,6 +218,7 @@ exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null
             if (err) reject(err);
             if (data) {
                 if (status == constants.COMPLETED) {
+                    console.log("updatinnnnnngggggggggggggg", data.totalAmount)
                     var _styler = await styler.findById(data.stylerId);
                     await user.findOneAndUpdate({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.totalAmount, clientServed: 1, } }, (err, updated) => { });
                 }
