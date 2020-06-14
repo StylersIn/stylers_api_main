@@ -7,11 +7,15 @@ var transporter = nodemailer.createTransport({
   //   pass: 'Workhub2018'
   // }
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: 'stylersinapp@gmail.com',
     pass: '07030065463'
+  },
+  tls: {
+    // do not fail on invalid certs
+    rejectUnauthorized: false
   }
 });
 exports.signupMail = function (email, statusCode, callback) {
