@@ -168,7 +168,7 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        if (!found) {
+        if (found) {
           mailer.forgortPasswordMailer(data.email, '4444', function (err, sent) {
             resolve(sent)
             // if (err) reject(err)
