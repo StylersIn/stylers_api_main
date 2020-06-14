@@ -218,13 +218,13 @@ exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null
             if (err) reject(err);
             if (data) {
                 if (status == constants.COMPLETED) {
-                    console.log("updatinnnnnngggggggggggggg", data.totalAmount)
+                    console.log("updatinnnnnngggggggggggggg")
                     var _styler = await styler.findById(data.stylerId);
-                    await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.totalAmount, clientServed: 1, } }, (err, updated) => { });
+                    var updated = await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.totalAmount, clientServed: 1, } });
                 }
                 if (status == constants.CANCELLED) {
                     var appointment = await model.findById(appointmentId);
-                    await user.updateOne({ _id: data.userId }, { dateModified: new Date(), $inc: { balance: appointment.sumTotal, } });
+                    var updated = await user.updateOne({ _id: data.userId }, { dateModified: new Date(), $inc: { balance: appointment.sumTotal, } });
                 }
                 notify.sendNotice(
                     [data.userId],

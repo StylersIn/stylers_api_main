@@ -27,7 +27,7 @@ router.post('/withdraw', middleware.authenticate, async (req, res) => {
                     var tx = await initiateTransfer(Object.assign(req.body, { recipient: receipt.data.recipient_code }));
                     if (tx && tx.status) {
                         var newBal = _user.balance - req.body.amount;
-                        await user.updateOne({ _id: req.auth.Id }, { balance: newBal, }, (err, balanceUpdated) => { });
+                        var updated = await user.updateOne({ _id: req.auth.Id }, { balance: newBal, }, (err, balanceUpdated));
                         return res.send(tx);
                     }
                     return res.status(500).send(tx);
