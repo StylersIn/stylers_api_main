@@ -448,8 +448,8 @@ exports.Help = function (email, name, message, callback) {
     </html>`
 
     var mailOptions = {
-      from: 'stylersinapp@gmail.com',
-      to: email,
+      from: email,
+      to: 'stylersinapp@gmail.com',
       subject: 'StylersInn Help Message',
       html: mailTemplate
     };
