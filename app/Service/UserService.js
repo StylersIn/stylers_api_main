@@ -170,7 +170,11 @@ exports.forgotPasswordToken = data => {
       .then(found => {
         if (found) {
           mailer.forgortPasswordMailer(data.email, '4444', function (err, sent) {
-            resolve(sent)
+            if (!err) {
+              resolve(sent)
+            } else {
+              resolve(err)
+            }
             // if (err) reject(err)
             // if (sent) {
             //   User.updateOne(
