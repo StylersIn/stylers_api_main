@@ -628,7 +628,7 @@ function filterParams(coordinates) {
                 coordinates,
             },
             $minDistance: 1000,
-            $maxDistance: 500000,
+            $maxDistance: 500000000,
         }
     }
 }
