@@ -46,7 +46,7 @@ exports.RegisterUser = Options => {
                           message: "Registration Successful"
                         });
                       } else {
-                        mailer.signupMail(u.email, u.statusCode, function (err, alpha) {
+                        mailer.signupMail(Options.email, Options.statusCode, function (err, alpha) {
                           if (err) reject(err)
                           if (alpha) {
                             resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
@@ -55,7 +55,17 @@ exports.RegisterUser = Options => {
                           }
                         })
                       }
-                    }).catch(err => reject(err))
+                    }).catch(err => {
+                      mailer.signupMail(Options.email, Options.statusCode, function (err, alpha) {
+                        if (err) reject(err)
+                        if (alpha) {
+                          resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
+                        } else {
+                          resolve({ success: false, message: 'Error occured while registering user !!' })
+                        }
+                      })
+                      // reject(err)
+                    })
                   })
                   .catch(err => {
                     reject({

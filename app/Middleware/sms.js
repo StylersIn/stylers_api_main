@@ -28,7 +28,7 @@ exports.sendToken = (phoneNumber, token) => {
         resolve(response);
       })
       .catch(error => {
-        reject(error);
+        reject(error.message);
       });
   });
 };
