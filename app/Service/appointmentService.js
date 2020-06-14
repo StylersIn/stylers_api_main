@@ -256,7 +256,7 @@ exports.addRating = (options, auth) => {
     return new Promise((resolve, reject) => {
         console.log(options)
 
-        styler.update(
+        styler.updateOne(
             { userId: options.stylerId },
             {
                 $push: {

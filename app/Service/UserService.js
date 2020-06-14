@@ -168,25 +168,26 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
-            if (err) reject(err)
-            if (sent) {
-              User.updateOne(
-                { email: found.email },
-                { passwordToken: data.passwordToken },
-                function (err, updated) {
-                  if (err) reject(err);
-                  if (updated) {
-                    resolve({ success: true, message: "Please check your email for verification code" });
-                  } else {
-                    resolve({ success: true, message: "Error sending verification code!!! " });
-                  }
-                }
-              );
-            } else {
-              resolve({ success: false, message: "Error sending sms !!!" });
-            }
+        if (!found) {
+          mailer.forgortPasswordMailer(data.email, '4444', function (err, sent) {
+            resolve(sent)
+            // if (err) reject(err)
+            // if (sent) {
+            //   User.updateOne(
+            //     { email: found.email },
+            //     { passwordToken: data.passwordToken },
+            //     function (err, updated) {
+            //       if (err) reject(err);
+            //       if (updated) {
+            //         resolve({ success: true, message: "Please check your email for verification code" });
+            //       } else {
+            //         resolve({ success: true, message: "Error sending verification code!!! " });
+            //       }
+            //     }
+            //   );
+            // } else {
+            //   resolve({ success: false, message: "Error sending sms !!!" });
+            // }
           })
         } else {
           reject({ success: false, message: "Could not find user" });
