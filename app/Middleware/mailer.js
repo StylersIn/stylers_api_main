@@ -13,10 +13,6 @@ var transporter = nodemailer.createTransport({
     user: 'stylersinapp@gmail.com',
     pass: '07030065463'
   },
-  tls: {
-    // do not fail on invalid certs
-    rejectUnauthorized: false
-  }
 });
 exports.signupMail = function (email, statusCode, callback) {
 
