@@ -346,7 +346,7 @@ exports.verificationMail = function (reciever, callback) {
 }
 
 
-exports.Help = function (email, name, message) {
+exports.Help = function (email, name, message, callback) {
   return new Promise((resolve, reject) => {
     var mailTemplate = `<html>
     <body class="no-padding" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;">
