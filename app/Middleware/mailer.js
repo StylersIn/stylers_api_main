@@ -6,7 +6,10 @@ var transporter = nodemailer.createTransport({
   //   user: 'workhub18@gmail.com',
   //   pass: 'Workhub2018'
   // }
-    auth: {
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
     user: 'stylersinapp@gmail.com',
     pass: '07030065463'
   }
