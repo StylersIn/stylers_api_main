@@ -7,6 +7,7 @@ var stylersSchema = new Schema({
     phoneNumber: { type: String, required: true },
     user: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
     publicId: { type: mongoose.Types.ObjectId },
+    callingCode: { type: String },
     location: {
         type: {
             type: String,
