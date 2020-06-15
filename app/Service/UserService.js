@@ -220,12 +220,12 @@ exports.changeforgotPassword = Options => {
               if (updated) {
                 resolve({
                   success: true,
-                  message: "User password updated Successfully !!!"
+                  message: "User password updated Successfully!!!"
                 });
               } else {
-                resolve({
+                reject({
                   success: false,
-                  message: "Unable to update user password !!!"
+                  message: "Unable to update user password!!!"
                 });
               }
             })
@@ -233,7 +233,7 @@ exports.changeforgotPassword = Options => {
               reject(err);
             });
         } else {
-          resolve({ success: false, message: "invalid token inserted " });
+          reject({ success: false, message: "Invalid token inserted " });
         }
       })
       .catch(err => {
