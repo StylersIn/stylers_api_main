@@ -444,7 +444,6 @@ exports.Help = function (email, name, message, callback) {
       </table>
     
     </body>
-    
     </html>`
 
     var mailOptions = {

@@ -21,7 +21,7 @@ exports.InitializeTransaction = (options, auth) => {
     return new Promise((resolve, reject) => {
         var formData = {
             reference: new Date().getTime(),
-            amount: options.amount,
+            amount: parseInt(options.amount) * 100,
             email: auth.email
         }
         request('https://api.paystack.co/transaction/initialize',
@@ -85,7 +85,7 @@ exports.ChargeAuthorization = (options, auth) => {
     return new Promise((resolve, reject) => {
         var formData = {
             authorization_code: options.authorizationCode,
-            amount: options.amount,
+            amount: parseInt(options.amount) * 100,
             email: options.email
         }
         request('https://api.paystack.co/transaction/charge_authorization',

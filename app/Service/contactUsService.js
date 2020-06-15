@@ -10,10 +10,11 @@ exports.createHelp = (data) => {
                     if (data) {
                         resolve({ success: true, message: 'Your help message was sent' })
                     } else {
-                        resolve({ success: false, message: 'Your help message was not sent' })
+                        reject({ success: false, message: 'Your help message was not sent' })
                     }
                 })
             }
+            reject({ success: false, message: 'Unauthorized' })
         }).catch(err => {
             resolve({ success: false, message: err });
         });
