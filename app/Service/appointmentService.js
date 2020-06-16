@@ -220,7 +220,8 @@ exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null
                 if (status == constants.COMPLETED) {
                     console.log("updatinnnnnngggggggggggggg")
                     var _styler = await styler.findById(data.stylerId);
-                    var updated = await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.totalAmount, clientServed: 1, } });
+                    // totalAmount
+                    var updated = await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.sumTotal, clientServed: 1, } });
                 }
                 if (status == constants.CANCELLED) {
                     var appointment = await model.findById(appointmentId);
