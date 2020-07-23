@@ -12,6 +12,8 @@ const stylerService = require("../Service/StylersService");
 
 exports.RegisterUser = Options => {
   return new Promise((resolve, reject) => {
+    console.log(Options ,'hhhhhhhhh')
+
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
       password: hash,
@@ -21,6 +23,7 @@ exports.RegisterUser = Options => {
     };
 
     const { phoneNumber, statusCode, email, } = Options;
+
     User.findOne({ $or: [{ email, }, { phoneNumber, }] })
       .then(exists => {
         if (exists) {
@@ -31,25 +34,18 @@ exports.RegisterUser = Options => {
               getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    sms.sendToken(phoneNumber, statusCode).then(done => {
-                      console.log(done)
-                      if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
-                        resolve({
-                          success: true,
-                          data: { user: created, token: token },
-                          message: "Registration Successful"
-                        });
-                      } else {
-                        mailer.signupMail(u.email, u.statusCode, function (err, alpha) {
-                          if (err) reject(err)
-                          if (alpha) {
+                    // sms.sendToken(phoneNumber, statusCode).then(done => {
+                    //   if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+                    //     resolve({
+                    //       success: true,
+                    //       data: { user: created, token: token },
+                    //       message: "Registration Successful"
+                    //     });
+                    //   } else {
+                       mailer.signupMail(email,statusCode)
                             resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
-                          } else {
-                            resolve({ success: false, message: 'Error occured while registering user !!' })
-                          }
-                        })
-                      }
-                    }).catch(err => reject(err))
+                             // }
+                   // }).catch(err => reject(err))
                   })
                   .catch(err => {
                     reject({
@@ -128,27 +124,22 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        if (!found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
-            if (err) reject(err)
-            if (sent) {
-              console.log(sent)
-              // User.updateOne(
-              //   { email: found.email },
-              //   { passwordToken: data.passwordToken },
-              //   function (err, updated) {
-              //     if (err) reject(err);
-              //     if (updated) {
-              //       resolve({ success: true, message: "Please check your email for verification code" });
-              //     } else {
-              //       resolve({ success: true, message: "Error sending verification code!!! " });
-              //     }
-              //   }
-              // );
-            } else {
-              resolve({ success: false, message: "Error sending sms !!!" });
-            }
-          })
+        console.log(found , 'see user ')
+        if (found) {
+          mailer.forgortPasswordMailer(data.email, data.passwordToken)
+              User.updateOne(
+                { email: found.email },
+                { passwordToken: data.passwordToken },
+                function (err, updated) {
+                  if (err) reject(err);
+                  if (updated) {
+                    resolve({ success: true, message: "Please check your email for verification code" });
+                  } else {
+                    resolve({ success: true, message: "Error sending verification code!!! " });
+                  }
+                }
+              );
+
         } else {
           reject({ success: false, message: "Could not find user" });
         }
