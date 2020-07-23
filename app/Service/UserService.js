@@ -12,6 +12,8 @@ const stylerService = require("../Service/StylersService");
 
 exports.RegisterUser = Options => {
   return new Promise((resolve, reject) => {
+    console.log(Options ,'hhhhhhhhh')
+
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
       password: hash,
@@ -22,13 +24,8 @@ exports.RegisterUser = Options => {
   
     let newN;
     const { phoneNumber, statusCode, email, } = Options;
-    if (!phoneNumber.startsWith('0', 0)) {
-      newN = `0${phoneNumber}`;
-    } else {
-      newN = phoneNumber;
-    }
-    Options.phoneNumber = newN;
-    User.findOne({ $or: [{ email, }, { phoneNumber: newN, }] })
+
+    User.findOne({ $or: [{ email, }, { phoneNumber, }] })
       .then(exists => {
         if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
@@ -38,34 +35,18 @@ exports.RegisterUser = Options => {
               getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    sms.sendToken(newN, statusCode).then(done => {
-                      if (done.SMSMessageData.Message.includes("Sent to 1/1 Total Cost:")) {
-                        resolve({
-                          success: true,
-                          data: { user: created, token: token },
-                          message: "Registration Successful"
-                        });
-                      } else {
-                        mailer.signupMail(Options.email, Options.statusCode, function (err, alpha) {
-                          if (err) reject(err)
-                          if (alpha) {
+                    // sms.sendToken(phoneNumber, statusCode).then(done => {
+                    //   if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+                    //     resolve({
+                    //       success: true,
+                    //       data: { user: created, token: token },
+                    //       message: "Registration Successful"
+                    //     });
+                    //   } else {
+                       mailer.signupMail(email,statusCode)
                             resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
-                          } else {
-                            resolve({ success: false, message: 'Error occured while registering user !!' })
-                          }
-                        })
-                      }
-                    }).catch(err => {
-                      mailer.signupMail(Options.email, Options.statusCode, function (err, alpha) {
-                        if (err) reject(err)
-                        if (alpha) {
-                          resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
-                        } else {
-                          resolve({ success: false, message: 'Error occured while registering user !!' })
-                        }
-                      })
-                      // reject(err)
-                    })
+                             // }
+                   // }).catch(err => reject(err))
                   })
                   .catch(err => {
                     reject({
@@ -178,10 +159,9 @@ exports.forgotPasswordToken = data => {
   return new Promise((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
+        console.log(found , 'see user ')
         if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
-            if (err) reject(err)
-            if (sent) {
+          mailer.forgortPasswordMailer(data.email, data.passwordToken)
               User.updateOne(
                 { email: found.email },
                 { passwordToken: data.passwordToken },
@@ -194,10 +174,6 @@ exports.forgotPasswordToken = data => {
                   }
                 }
               );
-            } else {
-              resolve({ success: false, message: "Error sending sms !!!" });
-            }
-          })
         } else {
           reject({ success: false, message: "Could not find user" });
         }

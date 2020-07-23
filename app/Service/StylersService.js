@@ -385,14 +385,10 @@ exports.verifyStyler = (id ) => {
     //    if (role == 'admin') {
             Styler.findByIdAndUpdate({ _id: id }, { IsVerified: true }).exec((err, updated) => {
                 if (updated) {
-                    mailer.verificationMail(updated.email, function (err, sent) {
-                        if (err) reject(err);
-                        if (sent) {
+                    mailer.verificationMail(updated.email)
+
                             resolve({ success: true, message: 'user verified successfully' })
-                        } else {
-                            resolve({ success: false, message: 'error encountered while verifying styler' })
-                        }
-                    })
+
                 } else if(!updated) {
                     resolve({ success: false, message: 'Error verifying styler ' })
                 }else{
