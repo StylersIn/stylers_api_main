@@ -82,24 +82,8 @@ exports.resendToken = email => {
     UserRepo.getSingleBy({ email, })
       .then(user => {
         if (user) {
-          sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
-            if (done.SMSMessageData.Message.includes("Sent to 1/1 Total Cost:")) {
-              resolve({
-                success: true,
-                data: { resent: true, },
-                message: "Registration Successful (Token resend)"
-              });
-            } else {
-              mailer.signupMail(user.email, user.statusCode, function (err, alpha) {
-                if (err) reject(err)
-                if (alpha) {
-                  resolve({ success: true, data: { resent: true, }, message: "Registration Successful (Token resend)" })
-                } else {
-                  resolve({ success: false, message: 'Error occured while registering user !!' })
-                }
-              })
-            }
-          }).catch(err => reject(err))
+          mailer.signupMail(email, user.statusCode)
+          resolve({ success: true, data: { resent: true, }, message: "Registration Successful (Token resend)" })
         }
         else {
           reject({ success: false, message: "No user found with the email," });
