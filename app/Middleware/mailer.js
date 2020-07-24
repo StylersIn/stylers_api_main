@@ -344,7 +344,7 @@ exports.verificationMail = function (reciever) {
 const msg = {
   to: reciever,
   from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
-  subject: 'Styler VErification mail ',
+  subject: 'Styler Verification mail ',
   text: 'and easy to do anywhere, even with Node.js',
   html: mailTemplate,
 };
