@@ -7,8 +7,29 @@
     <title>StylersIn Policy</title>
 </head>
 
+<style>
+    #main {
+        margin: 100px 200px 20px 200px;
+        line-height: 22px;
+    }
+
+    @media(max-width:992px) {
+        #main {
+            margin: 30px 40px 30px 40px;
+        }
+
+        #main div h1:first-child{
+            font-size: 20px;
+        }
+
+        #main div h1:nth-child(2){
+            font-size: 30px;
+        }
+    }
+</style>
+
 <body>
-    <div style="margin: 100px 200px 20px 200px;line-height: 22px;">
+    <div id="main">
         <div style="text-align: center;line-height: 20px;">
             <h1>StylersIn Mobile Services Application</h1>
             <h1>Terms and Conditions</h1>
