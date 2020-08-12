@@ -60,13 +60,13 @@ exports.signupMail = function (email, statusCode) {
                               <tbody>
                                 <tr role="navigation">
                                   <td class="emb-web-links" style="padding: 0;width: 26px;">
-                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://facebook.com/affiammuta">
+                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.facebook.com/groups/327832898242974/?ref=share">
                                       <img style="border: 0;" src="https://i2.createsend1.com/static/eb/master/13-the-blueprint-3/images/facebook.png"
                                         width="26" height="26" alt="Facebook" />
                                     </a>
                                   </td>
                                   <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
-                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://twitter.com/affiammuta">
+                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://twitter.com/StylersIn?s=08">
                                       <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/twitter.png"
                                         width="26" height="26" alt="Twitter" />
                                     </a>
@@ -181,13 +181,13 @@ exports.forgortPasswordMailer = function (reciever, message) {
                               <tbody>
                                 <tr role="navigation">
                                   <td class="emb-web-links" style="padding: 0;width: 26px;">
-                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://facebook.com/affiammuta">
+                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.facebook.com/groups/327832898242974/?ref=share">
                                       <img style="border: 0;" src="https://i2.createsend1.com/static/eb/master/13-the-blueprint-3/images/facebook.png"
                                         width="26" height="26" alt="Facebook" />
                                     </a>
                                   </td>
                                   <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
-                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://twitter.com/affiammuta">
+                                    <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://twitter.com/StylersIn?s=08">
                                       <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/twitter.png"
                                         width="26" height="26" alt="Twitter" />
                                     </a>
@@ -299,13 +299,13 @@ exports.verificationMail = function (reciever) {
                       <tbody>
                         <tr role="navigation">
                           <td class="emb-web-links" style="padding: 0;width: 26px;">
-                            <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://facebook.com/affiammuta">
+                            <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.facebook.com/groups/327832898242974/?ref=share">
                               <img style="border: 0;" src="https://i2.createsend1.com/static/eb/master/13-the-blueprint-3/images/facebook.png"
                                 width="26" height="26" alt="Facebook" />
                             </a>
                           </td>
                           <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
-                            <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="http://twitter.com/affiammuta">
+                            <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://twitter.com/StylersIn?s=08">
                               <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/twitter.png"
                                 width="26" height="26" alt="Twitter" />
                             </a>
@@ -344,7 +344,11 @@ exports.verificationMail = function (reciever) {
 const msg = {
   to: reciever,
   from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
+<<<<<<< HEAD
   subject: 'Styler Verification mail ',
+=======
+  subject: 'Styler admin Verification mail ',
+>>>>>>> c9f6d8a373daca23d3abaf8395b3967bcb6945e5
   text: 'and easy to do anywhere, even with Node.js',
   html: mailTemplate,
 };

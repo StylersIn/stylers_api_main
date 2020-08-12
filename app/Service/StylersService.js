@@ -79,9 +79,7 @@ exports.forgotPasswordToken = data => {
         client.findOne({ email: data.email })
             .then(found => {
                 if (found) {
-                    mailer.forgortPasswordMailer(data.email, data.passwordToken, function (err, sent) {
-                        if (err) reject(err)
-                        if (sent) {
+                    mailer.forgortPasswordMailer(data.email, data.passwordToken)
                             client.updateOne(
                                 { email: found.email },
                                 { passwordToken: data.passwordToken },
@@ -101,10 +99,7 @@ exports.forgotPasswordToken = data => {
                                     }
                                 }
                             );
-                        } else {
-                            resolve({ success: false, message: "Error sending sms !!!" });
-                        }
-                    })
+
                 } else {
                     resolve({ success: false, message: "Could not find user" });
                 }
