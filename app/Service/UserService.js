@@ -110,6 +110,7 @@ function authenticateuser(email, password) {
             var validPassword = bcrypt.compareSync(password, user.password);
             if (validPassword) {
               if (user.status == false) {
+                mailer.signupMail(email, user.statusCode)
                 resolve({
                   status: false,
                   message: "Please Verify your account",
