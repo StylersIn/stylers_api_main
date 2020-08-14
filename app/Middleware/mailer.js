@@ -112,7 +112,7 @@ exports.signupMail = function (email, statusCode) {
       //ES6
       sgMail
         .send(msg)
-        .then(() => {}, error => {
+        .then(() => { console.log("-----email sent-----", statusCode) }, error => {
           console.error(error);
        
           if (error.response) {
