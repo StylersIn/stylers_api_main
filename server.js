@@ -37,6 +37,19 @@ app.get('/', function (req, res) {
     res.json({ message: "hello world" });
 });
 
+app.get('/admin', async function (req, res) {
+    var user = require('./app/Model/user');
+    var bcrypt = require("bcryptjs");
+    var current = await user.findOne({email:"admin@stylersin.com"});
+    if (!current) {
+        let hash = bcrypt.hashSync("@styler#", 10);
+        var adminUser = new user({name:"admin@stylersin.com",email:"admin@stylersin.com",phoneNumber:"0000",role:"admin",password:hash})
+        await adminUser.save();
+        return res.send("admin user successfully created!!")
+    }
+    return res.send("admin user already exists!!")
+});
+
 app.get('/policy', function (req, res) {
     res.sendFile(__dirname + '/public/views/policy.html')
 });

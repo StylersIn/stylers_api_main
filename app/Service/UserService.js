@@ -12,8 +12,6 @@ const stylerService = require("../Service/StylersService");
 
 exports.RegisterUser = Options => {
   return new Promise((resolve, reject) => {
-    console.log(Options ,'hhhhhhhhh')
-
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
       password: hash,
