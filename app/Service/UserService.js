@@ -504,6 +504,30 @@ exports.getBalance = function (Id) {
 exports.verifyToken = verifyToken;
 
 
+exports.adminLogin = (email , password)=>{
+  return new Promise((resolve , reject)=>{
+
+    User.findOne({email:email}).exec((err , found)=>{
+      console.log(found , 'hmmmm')
+      if(err)reject({success:false , err:err});
+      if(found){
+        let unharshPassword = bcrypt.compareSync(password , found.password)
+        if(!unharshPassword){
+          resolve({success:false , message:"Inavlid meail or password"})
+        }else{
+          if(found.role === "admin"){
+            resolve({success:true , message:"authentication successfull!!!" , data:found})
+          }else{
+            resolve({success:false , message:"unauthorized access!!"})
+          }
+        }
+      }else{
+        resolve({success:false , message:"User not found!!"})
+      }
+    })
+  })
+}
+
                         // mailer.MailSender(u.email,u.statusCode).then(sent =>{
                         //   if(sent){
                         //     resolve({

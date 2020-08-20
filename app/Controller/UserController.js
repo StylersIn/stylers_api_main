@@ -195,4 +195,13 @@ module.exports = function authController() {
     .then(data => res.status(200).send(data))
     .catch(err => res.status(500).send(err));
   }
+
+  this.adminLogin = function (req, res, next) {
+    var email = req.body.email;
+    var password = req.body.password;
+    userService
+      .adminLogin(email, password)
+      .then(data => res.status(200).send(data))
+      .catch(err => res.status(500).send(err));
+  };
 };

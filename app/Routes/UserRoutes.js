@@ -9,6 +9,7 @@ var _config = require('../config');
 module.exports = function(){
     const authCtrl = new authController();
     router.post('/register', authCtrl.register);
+    router.post('/admin', authCtrl.adminLogin);
     router.post('/token/resend', authCtrl.resendToken);
     router.post('/authenticate', authCtrl.authenticate);
     router.put('/forgotPasswordToken', authCtrl.passwordToken);
