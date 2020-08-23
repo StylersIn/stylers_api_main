@@ -516,7 +516,9 @@ exports.adminLogin = (email , password)=>{
           resolve({success:false , message:"Inavlid meail or password"})
         }else{
           if(found.role === "admin"){
-            resolve({success:true , message:"authentication successfull!!!" , data:found})
+            generateToken(found).then(token =>{
+              resolve({success:true , message:"authentication successfull!!!" , data:found , token:token})
+            })
           }else{
             resolve({success:false , message:"unauthorized access!!"})
           }
