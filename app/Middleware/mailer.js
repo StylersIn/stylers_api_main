@@ -71,6 +71,12 @@ exports.signupMail = function (email, statusCode) {
                                         width="26" height="26" alt="Twitter" />
                                     </a>
                                   </td>
+                                  <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
+                          <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.instagram.com/p/CEoTnnmgyrs/?igshid=aezt0v01yw33">
+                            <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/instagram.png"
+                              width="26" height="26" alt="Twitter" />
+                          </a>
+                        </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -102,23 +108,23 @@ exports.signupMail = function (email, statusCode) {
       </body>
       
       </html>`
-      const msg = {
-        to: email,
-        from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
-        subject: 'Sign up verification',
-        text: 'and easy to do anywhere, even with Node.js',
-        html: mailTemplate,
-      };
-      //ES6
-      sgMail
-        .send(msg)
-        .then(() => {}, error => {
-          console.error(error);
-       
-          if (error.response) {
-            console.error(error.response.body)
-          }
-        });
+  const msg = {
+    to: email,
+    from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
+    subject: 'Sign up verification',
+    text: 'and easy to do anywhere, even with Node.js',
+    html: mailTemplate,
+  };
+  //ES6
+  sgMail
+    .send(msg)
+    .then(() => { }, error => {
+      console.error(error);
+
+      if (error.response) {
+        console.error(error.response.body)
+      }
+    });
 }
 
 exports.forgortPasswordMailer = function (reciever, message) {
@@ -192,6 +198,12 @@ exports.forgortPasswordMailer = function (reciever, message) {
                                         width="26" height="26" alt="Twitter" />
                                     </a>
                                   </td>
+                                  <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
+                          <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.instagram.com/p/CEoTnnmgyrs/?igshid=aezt0v01yw33">
+                            <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/instagram.png"
+                              width="26" height="26" alt="Twitter" />
+                          </a>
+                        </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -223,23 +235,23 @@ exports.forgortPasswordMailer = function (reciever, message) {
       </body>
       
       </html>`
-      const msg = {
-        to: reciever,
-        from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
-        subject: 'Styler Password recovery ',
-        text: 'and easy to do anywhere, even with Node.js',
-        html: mailTemplate,
-      };
-      //ES6
-      sgMail
-        .send(msg)
-        .then(() => {}, error => {
-          console.error(error);
-       
-          if (error.response) {
-            console.error(error.response.body)
-          }
-        });
+  const msg = {
+    to: reciever,
+    from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
+    subject: 'Styler Password recovery ',
+    text: 'and easy to do anywhere, even with Node.js',
+    html: mailTemplate,
+  };
+  //ES6
+  sgMail
+    .send(msg)
+    .then(() => { }, error => {
+      console.error(error);
+
+      if (error.response) {
+        console.error(error.response.body)
+      }
+    });
 }
 
 exports.verificationMail = function (reciever) {
@@ -310,6 +322,12 @@ exports.verificationMail = function (reciever) {
                                 width="26" height="26" alt="Twitter" />
                             </a>
                           </td>
+                          <td class="emb-web-links" style="padding: 0 0 0 3px;width: 26px;">
+                          <a style="text-decoration: underline;transition: opacity 0.1s ease-in;color: #adb3b9;" href="https://www.instagram.com/p/CEoTnnmgyrs/?igshid=aezt0v01yw33">
+                            <img style="border: 0;" src="https://i3.createsend1.com/static/eb/master/13-the-blueprint-3/images/instagram.png"
+                              width="26" height="26" alt="Twitter" />
+                          </a>
+                        </td>
                         </tr>
                       </tbody>
                     </table>
@@ -341,22 +359,22 @@ exports.verificationMail = function (reciever) {
 </body>
 
 </html>`
-const msg = {
-  to: reciever,
-  from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
-  subject: 'Styler admin verification mail ',
-  text: 'and easy to do anywhere, even with Node.js',
-  html: mailTemplate,
-};
-//ES6
-sgMail
-  .send(msg)
-  .then(() => {}, error => {
-    console.error(error);
- 
-    if (error.response) {
-      console.error(error.response.body)
-    }
-  });
+  const msg = {
+    to: reciever,
+    from: 'stylersinapp@gmail.com', // Use the email address or domain you verified above
+    subject: 'Styler admin verification mail ',
+    text: 'and easy to do anywhere, even with Node.js',
+    html: mailTemplate,
+  };
+  //ES6
+  sgMail
+    .send(msg)
+    .then(() => { }, error => {
+      console.error(error);
+
+      if (error.response) {
+        console.error(error.response.body)
+      }
+    });
 }
 
