@@ -12,7 +12,7 @@ const stylerService = require("../Service/StylersService");
 
 exports.RegisterUser = Options => {
   return new Promise((resolve, reject) => {
-    console.log(Options ,'hhhhhhhhh')
+    console.log(Options, 'hhhhhhhhh')
 
     let hash = bcrypt.hashSync(Options.password, 10);
     var u = {
@@ -21,7 +21,7 @@ exports.RegisterUser = Options => {
       CreatedAt: new Date(),
       passwordToken: 1111,
     };
-  
+
     let newN;
     const { phoneNumber, statusCode, email, } = Options;
 
@@ -35,18 +35,18 @@ exports.RegisterUser = Options => {
               getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    // sms.sendToken(phoneNumber, statusCode).then(done => {
-                    //   if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
-                    //     resolve({
-                    //       success: true,
-                    //       data: { user: created, token: token },
-                    //       message: "Registration Successful"
-                    //     });
-                    //   } else {
-                       mailer.signupMail(email,statusCode)
-                            resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
-                             // }
-                   // }).catch(err => reject(err))
+                    sms.sendToken(phoneNumber, statusCode).then(done => {
+                      if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
+                        resolve({
+                          success: true,
+                          data: { user: created, token: token },
+                          message: "Registration Successful"
+                        });
+                      } else {
+                        mailer.signupMail(email, statusCode)
+                        resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
+                      }
+                    }).catch(err => reject(err))
                   })
                   .catch(err => {
                     reject({
@@ -140,25 +140,60 @@ function authenticateuser(email, password) {
 }
 exports.authenticateuser = authenticateuser;
 
-exports.forgotPasswordToken = data => {
-  return new Promise((resolve, reject) => {
+// exports.forgotPasswordToken = data => {
+//   return new Promise((resolve, reject) => {
+//     User.findOne({ email: data.email })
+//       .then(found => {
+//         console.log(found , 'see user ')
+//         if (found) {
+//           mailer.forgortPasswordMailer(data.email, data.passwordToken)
+//               User.updateOne(
+//                 { email: found.email },
+//                 { passwordToken: data.passwordToken },
+//                 function (err, updated) {
+//                   if (err) reject(err);
+//                   if (updated) {
+//                     resolve({ success: true, message: "Please check your email for verification code" });
+//                   } else {
+//                     resolve({ success: true, message: "Error sending verification code!!! " });
+//                   }
+//                 }
+//               );
+//         } else {
+//           reject({ success: false, message: "Could not find user" });
+//         }
+//       })
+//       .catch(err => {
+//         reject(err);
+//       });
+//   });
+// };
+
+
+exports.forgotPasswordToken = (data) => {
+  return new Promise ((resolve, reject) => {
     User.findOne({ email: data.email })
       .then(found => {
-        console.log(found , 'see user ')
+        console.log(found, 'see user ')
         if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken)
-              User.updateOne(
-                { email: found.email },
-                { passwordToken: data.passwordToken },
-                function (err, updated) {
-                  if (err) reject(err);
-                  if (updated) {
-                    resolve({ success: true, message: "Please check your email for verification code" });
-                  } else {
-                    resolve({ success: true, message: "Error sending verification code!!! " });
-                  }
+          let sendSms =  sms.sendToken(found.phoneNumber, data.passwordToken)
+          if (sendSms) {
+            User.updateOne(
+              { email: found.email },
+              { passwordToken: data.passwordToken },
+              function (err, updated) {
+                if (err) reject(err);
+                if (updated) {
+                  resolve({ success: true, message: "Please check your phone for verification code" });
+                } else {
+                  resolve({ success: true, message: "Error sending verification code!!! " });
                 }
-              );
+              }
+            );
+          } else {
+            reject({ success: false, message: "error sending message" });
+          }
+
         } else {
           reject({ success: false, message: "Could not find user" });
         }
@@ -469,15 +504,15 @@ exports.fetchCards = function (Id) {
 exports.getUsers = (pagenumber = 1, pagesize = 20) => {
 
   return new Promise((resolve, reject) => {
-    User.find({role:'user'}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
-          .exec((err, users) => {
-              if (err) reject(err);
-              if (users) {
-                  resolve({ success: true, message: 'users found', data: users })
-              } else {
-                  resolve({ success: false, message: 'Unable to find what you searched for !!' })
-              }
-          });
+    User.find({ role: 'user' }).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
+      .exec((err, users) => {
+        if (err) reject(err);
+        if (users) {
+          resolve({ success: true, message: 'users found', data: users })
+        } else {
+          resolve({ success: false, message: 'Unable to find what you searched for !!' })
+        }
+      });
   });
 }
 
@@ -504,27 +539,27 @@ exports.getBalance = function (Id) {
 exports.verifyToken = verifyToken;
 
 
-exports.adminLogin = (email , password)=>{
-  return new Promise((resolve , reject)=>{
+exports.adminLogin = (email, password) => {
+  return new Promise((resolve, reject) => {
 
-    User.findOne({email:email}).exec((err , found)=>{
-      console.log(found , 'hmmmm')
-      if(err)reject({success:false , err:err});
-      if(found){
-        let unharshPassword = bcrypt.compareSync(password , found.password)
-        if(!unharshPassword){
-          resolve({success:false , message:"Inavlid meail or password"})
-        }else{
-          if(found.role === "admin"){
-            generateToken(found).then(token =>{
-              resolve({success:true , message:"authentication successfull!!!" , data:found , token:token})
+    User.findOne({ email: email }).exec((err, found) => {
+      console.log(found, 'hmmmm')
+      if (err) reject({ success: false, err: err });
+      if (found) {
+        let unharshPassword = bcrypt.compareSync(password, found.password)
+        if (!unharshPassword) {
+          resolve({ success: false, message: "Inavlid meail or password" })
+        } else {
+          if (found.role === "admin") {
+            generateToken(found).then(token => {
+              resolve({ success: true, message: "authentication successfull!!!", data: found, token: token })
             })
-          }else{
-            resolve({success:false , message:"unauthorized access!!"})
+          } else {
+            resolve({ success: false, message: "unauthorized access!!" })
           }
         }
-      }else{
-        resolve({success:false , message:"User not found!!"})
+      } else {
+        resolve({ success: false, message: "User not found!!" })
       }
     })
   })
