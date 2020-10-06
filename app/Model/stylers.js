@@ -8,14 +8,14 @@ var stylersSchema = new Schema({
     user: { type: mongoose.Types.ObjectId, ref: 'user', autopopulate: true },
     publicId: { type: mongoose.Types.ObjectId },
     callingCode: { type: String },
-    // location: {
-    //     type: {
-    //         type: String,
-    //         default: "Point"
-    //     },
-    //     coordinates: [Number],
-    //     name: String,
-    // },
+    location: {
+        type: {
+            type: String,
+            default: "Point"
+        },
+        coordinates: [Number],
+        name: String,
+    },
     description: { type: String },
     MIA: { type: Number },
     IsVerified: { type: Boolean, default: false },

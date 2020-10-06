@@ -525,9 +525,6 @@ exports.getBalance = function (Id) {
   });
 };
 
-exports.verifyToken = verifyToken;
-
-
 exports.adminLogin = (email , password)=>{
   return new Promise((resolve , reject)=>{
 
@@ -554,19 +551,4 @@ exports.adminLogin = (email , password)=>{
   })
 }
 
-                        // mailer.MailSender(u.email,u.statusCode).then(sent =>{
-                        //   if(sent){
-                        //     resolve({
-                        //               success: true,
-                        //               data: { user: created, token: token },
-                        //               message: "Registration Successful"
-                        //             });
-                        //   }else{
-                        //     resolve({
-                        //               success: false,
-                        //               message: "Error occured while registering user !!"
-                        //             });
-                        //   }
-                        // }).catch(err =>{
-                        //   reject(err);
-                        // })
+exports.verifyToken = verifyToken;

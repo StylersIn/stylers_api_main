@@ -62,6 +62,7 @@ exports.RegisterUser = (Options) => {
 
 exports.StylerRegStatus = (Id) => {
     return new Promise((resolve, reject) => {
+<<<<<<< HEAD
         Styler.findOne({ _id: Id }).then(async result => {
             var user = await client.findById(result.user);
             const isVerified = user.status;
@@ -69,6 +70,13 @@ exports.StylerRegStatus = (Id) => {
                 resolve({ success: true, isVerified, message: 'Styler Service has been updated!' });
             } else {
                 resolve({ success: false, isVerified, message: 'Styler Service has not been updated!' });
+=======
+        Styler.findOne({ _id: Id }).then(result => {
+            if (result && result.services.length) {
+                resolve({ success: true, message: 'Styler Service has been updated!' });
+            } else {
+                resolve({ success: false, message: 'Styler Service has not been updated!' });
+>>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
             }
         }).catch(err => {
             reject(err)
@@ -262,7 +270,11 @@ exports.getStylers = (pagenumber = 1, pagesize = 20) => {
         Styler.find({}).skip((parseInt(pagenumber - 1) * parseInt(pagesize))).limit(parseInt(pagesize))
             .populate({ path: "services.serviceId", model: "services", select: { _id: 0, __v: 0 } })
             .populate({ path: "services.subServiceId", })
+<<<<<<< HEAD
             .populate({ path: "user", model: "user", select: { __v: 0 } })
+=======
+            .populate({ path: "user", model: "user", select: { _id: 0, __v: 0 } })
+>>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
             .populate({ path: "review.userId", model: "user", select: { _id: 0, __v: 0, password: 0, publicId: 0, statusCode: 0, status: 0, CreatedAt: 0 } })
             .exec((err, stylers) => {
                 if (err) reject(err);
@@ -378,6 +390,7 @@ exports.sortStylersByRating = (serviceId, coordinates) => {
 }
 
 exports.verifyStyler = (id ) => {
+<<<<<<< HEAD
     return new Promise(async (resolve, reject) => {
         var user = await client.findById(id);
         var newStatus = !user.status;
@@ -393,6 +406,26 @@ exports.verifyStyler = (id ) => {
                 reject(err)
             }
         })
+=======
+    return new Promise((resolve, reject) => {
+    //    if (role == 'admin') {
+            Styler.findByIdAndUpdate({ _id: id }, { IsVerified: true }).exec((err, updated) => {
+                if (updated) {
+                    mailer.verificationMail(updated.email)
+
+                            resolve({ success: true, message: 'user verified successfully' })
+
+                } else if(!updated) {
+                    resolve({ success: false, message: 'Error verifying styler ' })
+                }else{
+                    reject(err)
+
+                }
+            })
+        // } else {
+        //     resolve({ success: false, message: 'forbidden !!!' })
+        // }
+>>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
     })
 }
 

@@ -2,8 +2,11 @@ var model = require('../Model/payment');
 var user = require('../Model/user');
 const axios = require('axios');
 const request = require('request');
+<<<<<<< HEAD
 var auditlogs = require('../Model/auditlog');
 var ip = require('ip');
+=======
+>>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
 
 exports.CreatePayment = (options) => {
     return new Promise((resolve, reject) => {
