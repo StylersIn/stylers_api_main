@@ -2,10 +2,7 @@ var model = require('../Model/appointment');
 var BaseRepo = require('../Repository/BaseRepository');
 var styler = require('../Model/stylers');
 var service = require('../Model/services');
-<<<<<<< HEAD
 var auditlogs = require('../Model/auditlog');
-=======
->>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
 var bookingFunction = require('../Middleware/bookingAlgo')
 var stylersRepo = require('../Repository/BaseRepository');
 var BookingRepo = new BaseRepo(model);
@@ -13,10 +10,7 @@ const request = require('request');
 const user = require('../Model/user');
 const notify = require('../Service/OneSignalService');
 const constants = require('../constants');
-<<<<<<< HEAD
 var ip = require('ip');
-=======
->>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
 
 exports.FindStyler = function (option, pagenumber = 1, pagesize = 20) {
     return new Promise((resolve, reject) => {
@@ -234,7 +228,6 @@ exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null
                 if (status == constants.COMPLETED) {
                     console.log("updatinnnnnngggggggggggggg")
                     var _styler = await styler.findById(data.stylerId);
-<<<<<<< HEAD
                     var commission = 0.1;
                     var newTotal = data.sumTotal - (commission * data.sumTotal);
 
@@ -246,10 +239,6 @@ exports.updateAppointmentStatus = (appointmentId, status, reasonToDecline = null
                     await audit.save();
                     // totalAmount
                     var updated = await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: newTotal, clientServed: 1, } });
-=======
-                    // totalAmount
-                    var updated = await user.updateOne({ publicId: _styler.publicId }, { dateModified: new Date(), $inc: { balance: data.sumTotal, clientServed: 1, } });
->>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
                 }
                 if (status == constants.CANCELLED) {
                     var appointment = await model.findById(appointmentId);
@@ -286,11 +275,7 @@ exports.addRating = (options, auth) => {
         console.log(options)
 
         styler.updateOne(
-<<<<<<< HEAD
             { user: options.userId },
-=======
-            { userId: options.stylerId },
->>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
             {
                 $push: {
                     ratings: {
