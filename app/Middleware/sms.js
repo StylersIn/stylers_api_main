@@ -13,9 +13,10 @@ exports.sendToken = (phoneNumber, token) => {
       var fullNumber = phoneNumber.substr(1);
       numba = "+234" + fullNumber;
     } else {
-      numba = phoneNumber;
+      numba = "+234" + phoneNumber;
     }
 
+    console.log(numba)
     // Use the service      
     const option = {
       to: [numba],
