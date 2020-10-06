@@ -25,7 +25,7 @@ exports.RegisterUser = Options => {
 
     User.findOne({ $or: [{ email, }, { phoneNumber, }] })
       .then(exists => {
-        if (exists) {
+        if (!exists) {
           reject({ success: false, message: "Sorry user already exists" });
         } else {
           UserRepo.add(Object.assign(Options, u)).then(created => {
@@ -33,18 +33,23 @@ exports.RegisterUser = Options => {
               getUserDetail(created).then(userdetail => {
                 generateToken(userdetail)
                   .then(token => {
-                    // sms.sendToken(phoneNumber, statusCode).then(done => {
-                    //   if (done.SMSMessageData.Message == "Sent to 1/1 Total Cost: 0 done status") {
-                    //     resolve({
-                    //       success: true,
-                    //       data: { user: created, token: token },
-                    //       message: "Registration Successful"
-                    //     });
-                    //   } else {
-                       mailer.signupMail(email,statusCode)
-                            resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
-                             // }
-                   // }).catch(err => reject(err))
+                    sms.sendToken(phoneNumber, statusCode).then(done => {
+                      if (done.SMSMessageData.Message && done.SMSMessageData.Message.includes("Sent to 1/1")) {
+                        resolve({
+                          success: true,
+                          data: { user: created, token: token },
+                          message: "Registration Successful"
+                        });
+                      } else {
+                        resolve({
+                          success: false,
+                          message: "User registration was not successfull, sms failed to send"
+                        });
+                      }
+                    }).catch(err => reject(err))
+                    // mailer.signupMail(email, statusCode)
+                    // resolve({ success: true, data: { user: created, token: token }, message: "Registration Successful" })
+
                   })
                   .catch(err => {
                     reject({
@@ -59,7 +64,7 @@ exports.RegisterUser = Options => {
             } else {
               resolve({
                 success: false,
-                message: "User SignUp was not successfull"
+                message: "User registration was not successfull"
               });
             }
           }).catch(err => {
@@ -80,8 +85,20 @@ exports.resendToken = email => {
     UserRepo.getSingleBy({ email, })
       .then(user => {
         if (user) {
-          mailer.signupMail(email, user.statusCode)
-          resolve({ success: true, data: { resent: true, }, message: "Registration Successful (Token resend)" })
+          // mailer.signupMail(email, user.statusCode)
+          sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
+            if (done.SMSMessageData.Message && done.SMSMessageData.Message.includes("Sent to 1/1")) {
+              resolve({
+                success: true, data: { resent: true, },
+                message: "Registration Successful (Token resend)"
+              })
+            } else {
+              resolve({
+                success: false,
+                message: "Registration was not successfull, sms failed to send"
+              });
+            }
+          }).catch(err => reject(err))
         }
         else {
           reject({ success: false, message: "No user found with the email," });
@@ -108,12 +125,21 @@ function authenticateuser(email, password) {
             var validPassword = bcrypt.compareSync(password, user.password);
             if (validPassword) {
               if (user.status == false) {
-                mailer.signupMail(email, user.statusCode)
-                resolve({
-                  status: false,
-                  message: "Please Verify your account",
-                  role: user.role,
-                });
+                sms.sendToken(user.phoneNumber, user.statusCode).then(done => {
+                  if (done.SMSMessageData.Message && done.SMSMessageData.Message.includes("Sent to 1/1")) {
+                    resolve({
+                      status: false,
+                      message: "Please Verify your account",
+                      role: user.role,
+                    });
+                  } else {
+                    resolve({
+                      success: false,
+                      message: "Registration was not successfull, sms failed to send"
+                    });
+                  }
+                }).catch(err => reject(err))
+                // mailer.signupMail(email, user.statusCode)
               } else {
                 getUserDetail(user).then(userdetail => {
                   generateToken(userdetail)
