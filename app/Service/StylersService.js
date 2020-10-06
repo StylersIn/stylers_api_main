@@ -62,7 +62,6 @@ exports.RegisterUser = (Options) => {
 
 exports.StylerRegStatus = (Id) => {
     return new Promise((resolve, reject) => {
-<<<<<<< HEAD
         Styler.findOne({ _id: Id }).then(async result => {
             var user = await client.findById(result.user);
             const isVerified = user.status;
@@ -70,13 +69,6 @@ exports.StylerRegStatus = (Id) => {
                 resolve({ success: true, isVerified, message: 'Styler Service has been updated!' });
             } else {
                 resolve({ success: false, isVerified, message: 'Styler Service has not been updated!' });
-=======
-        Styler.findOne({ _id: Id }).then(result => {
-            if (result && result.services.length) {
-                resolve({ success: true, message: 'Styler Service has been updated!' });
-            } else {
-                resolve({ success: false, message: 'Styler Service has not been updated!' });
->>>>>>> 4a37a4c3e4da2ee233f3a71417aa10303cd123c5
             }
         }).catch(err => {
             reject(err)
