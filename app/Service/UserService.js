@@ -25,7 +25,7 @@ exports.RegisterUser = Options => {
 
     User.findOne({ $or: [{ email, }, { phoneNumber, }] })
       .then(exists => {
-        if (!exists) {
+        if (exists) {
           reject({ success: false, message: "Sorry user already exists" });
         } else {
           UserRepo.add(Object.assign(Options, u)).then(created => {
