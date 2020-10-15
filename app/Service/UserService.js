@@ -170,19 +170,41 @@ exports.forgotPasswordToken = data => {
       .then(found => {
         console.log(found , 'see user ')
         if (found) {
-          mailer.forgortPasswordMailer(data.email, data.passwordToken)
+          // mailer.forgortPasswordMailer(data.email, data.passwordToken)
+          //     User.updateOne(
+          //       { email: found.email },
+          //       { passwordToken: data.passwordToken },
+          //       function (err, updated) {
+          //         if (err) reject(err);
+          //         if (updated) {
+          //           resolve({ success: true, message: "Please check your email for verification code" });
+          //         } else {
+          //           resolve({ success: true, message: "Error sending verification code!!! " });
+          //         }
+          //       }
+          //     );
+
+          sms.sendToken(found.phoneNumber, data.passwordToken).then(done => {
+            if (done.SMSMessageData.Message && done.SMSMessageData.Message.includes("Sent to 1/1")) {
               User.updateOne(
                 { email: found.email },
                 { passwordToken: data.passwordToken },
                 function (err, updated) {
                   if (err) reject(err);
                   if (updated) {
-                    resolve({ success: true, message: "Please check your email for verification code" });
+                    resolve({ success: true, message: "Please check your mobile for verification code" });
                   } else {
                     resolve({ success: true, message: "Error sending verification code!!! " });
                   }
                 }
               );
+            } else {
+              resolve({
+                success: false,
+                message: "User registration was not successfull, sms failed to send"
+              });
+            }
+          }).catch(err => reject(err))
         } else {
           reject({ success: false, message: "Could not find user" });
         }
